@@ -12,6 +12,8 @@ import {
 import { getExamDetail, parseRoundSlug, GRADE_LABEL } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function RoundDetailPage({
   params,
 }: {

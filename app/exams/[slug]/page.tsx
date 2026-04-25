@@ -11,6 +11,8 @@ import {
 import { getCategoryDetail, GRADE_LABEL } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 type ViewKey = "subjects" | "rounds" | "mock";
 
 const VIEWS: { key: ViewKey; label: string }[] = [

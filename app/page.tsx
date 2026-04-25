@@ -19,6 +19,9 @@ import { cn } from "@/lib/utils";
 import { DdayBanner } from "@/components/home/dday-banner";
 import { getHomeData } from "@/lib/actions/data/home";
 
+// 빌드 시 정적 생성 시도 차단 — Prisma 연결 폭주 방지
+export const dynamic = "force-dynamic";
+
 export default async function HomePage({
   searchParams,
 }: {

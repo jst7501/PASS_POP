@@ -1,20 +1,42 @@
-import fs from "node:fs";
-import path from "node:path";
+/**
+ * 회차 이미지 매니페스트 인덱스.
+ *
+ * Vercel 서버리스에서 `public/` 의 파일은 fs.readFileSync 로 읽을 수 없음
+ * (CDN 정적 서빙용으로 분리됨). → 매니페스트 JSON 을 빌드 시점 import 로
+ * 가져와 함수 번들에 포함시킨다. PNG 자체는 그대로 public/ 에 두고
+ * <img src="/exam-images/..."> 로 CDN 에서 서빙.
+ *
+ * 새 회차 추가 절차:
+ *  1. public/exam-images/<cert>/<date>/manifest.json 생성 (extract 스크립트)
+ *  2. 아래 MANIFEST_REGISTRY 에 한 줄 추가
+ */
+
+import civilEngineerGisa20220424 from "../public/exam-images/civil-engineer-gisa/20220424/manifest.json";
+import hvacRefrigerationGisa20220305 from "../public/exam-images/hvac-refrigeration-gisa/20220305/manifest.json";
+import hvacRefrigerationGisa20220424 from "../public/exam-images/hvac-refrigeration-gisa/20220424/manifest.json";
 
 type RawManifestItem = {
   question: number;
   kind: "body" | "option";
   file: string;
   page: number;
-  rect: [number, number, number, number];
+  rect: [number, number, number, number] | number[];
   optionIndex?: number | null;
 };
 
 type RawManifest = {
   cert: string;
   date: string;
-  source: string;
+  source?: string;
   items: RawManifestItem[];
+};
+
+const MANIFEST_REGISTRY: Record<string, RawManifest> = {
+  "civil-engineer-gisa/20220424": civilEngineerGisa20220424 as RawManifest,
+  "hvac-refrigeration-gisa/20220305":
+    hvacRefrigerationGisa20220305 as RawManifest,
+  "hvac-refrigeration-gisa/20220424":
+    hvacRefrigerationGisa20220424 as RawManifest,
 };
 
 export type QuestionImages = {
@@ -30,7 +52,9 @@ type Index = {
 
 const indexCache = new Map<string, Index | null>();
 
-function parsePdfUrl(pdfUrl: string | null): { cert: string; date: string } | null {
+function parsePdfUrl(
+  pdfUrl: string | null,
+): { cert: string; date: string } | null {
   if (!pdfUrl) return null;
   const m = pdfUrl.match(/\/exam-pdfs\/([^/]+)\/(\d{8})\.pdf$/);
   if (!m) return null;
@@ -41,16 +65,8 @@ function loadIndex(cert: string, date: string): Index | null {
   const key = `${cert}/${date}`;
   if (indexCache.has(key)) return indexCache.get(key) ?? null;
 
-  const manifestPath = path.resolve(
-    process.cwd(),
-    `public/exam-images/${cert}/${date}/manifest.json`,
-  );
-
-  let raw: RawManifest;
-  try {
-    const txt = fs.readFileSync(manifestPath, "utf8");
-    raw = JSON.parse(txt) as RawManifest;
-  } catch {
+  const raw = MANIFEST_REGISTRY[key];
+  if (!raw) {
     indexCache.set(key, null);
     return null;
   }

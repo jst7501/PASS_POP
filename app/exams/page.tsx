@@ -5,6 +5,8 @@ import prisma from "@/lib/prisma";
 import { GRADE_LABEL } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 const OWNER_MAP: Record<string, string> = {
   "civil-engineer-gisa": "정호",
   "hvac-refrigeration-gisa": "호준",
