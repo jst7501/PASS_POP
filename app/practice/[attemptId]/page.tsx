@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/auth/anon";
 import { PracticeSession } from "@/components/practice/practice-session";
 import { renderMathInHtml } from "@/components/practice/explanation-html";
 import { AttemptMode } from "@/lib/generated/prisma-client";
-import { getQuestionImages } from "@/lib/exam-images";
+import { isImageDependentQuestion } from "@/lib/exam-images";
 
 export default async function PracticeSessionPage({
   params,
@@ -49,18 +49,7 @@ export default async function PracticeSessionPage({
   }
 
   if (attempt.plannedQuestionIds.length === 0) {
-    return (
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col items-center justify-center px-4 text-center md:px-6">
-        <h1 className="text-[22px] font-bold text-text-high">문제가 없어요.</h1>
-        <Link
-          href="/"
-          className="mt-8 inline-flex h-11 items-center gap-1.5 rounded-md border border-border bg-surface px-5 text-[14px] font-semibold text-text-mid transition-colors hover:text-text-high"
-        >
-          <NavArrowLeft className="h-4 w-4" strokeWidth={2} />
-          홈으로
-        </Link>
-      </div>
-    );
+    return <NoQuestionsScreen />;
   }
 
   // 연습모드(실전 모의고사 아님)면 정답·해설도 함께 내려줌 (즉시 채점용)
@@ -82,14 +71,15 @@ export default async function PracticeSessionPage({
   });
 
   const byId = new Map(questionsRaw.map((q) => [q.id, q]));
-  const ordered = attempt.plannedQuestionIds
+  const orderedAll = attempt.plannedQuestionIds
     .map((id) => byId.get(id))
     .filter((q): q is NonNullable<typeof q> => Boolean(q));
 
+  // 옛 attempt 안전망: 이미 plannedQuestionIds 에 들어가 있는 그림 의존 문제도
+  // 풀이 화면에서는 숨김 (필터 도입 전 만든 attempt 대응).
+  const ordered = orderedAll.filter((q) => !isImageDependentQuestion(q));
+
   const clientQuestions = ordered.map((q) => {
-    // 문제별 pdfUrl 사용 — attempt.examId 가 null 인 모드(과목별/무작위/데일리/복습)
-    // 에서도 원본 회차의 매니페스트 찾을 수 있게.
-    const images = getQuestionImages(q.exam?.pdfUrl ?? null, q.number);
     const base = {
       id: q.id,
       number: q.number,
@@ -100,12 +90,7 @@ export default async function PracticeSessionPage({
         name: q.subject.name,
         slug: q.subject.slug,
       },
-      images: images
-        ? {
-            body: images.body,
-            options: images.options,
-          }
-        : null,
+      images: null,
     };
     if (!isPractice) return base;
     const rawExps =
@@ -152,6 +137,11 @@ export default async function PracticeSessionPage({
   const initialNotes: Record<string, string> = {};
   for (const n of notes) initialNotes[n.questionId] = n.content;
 
+  // 모든 문제가 필터링된 경우 (옛 attempt 가 전부 그림 문제)
+  if (clientQuestions.length === 0) {
+    return <NoQuestionsScreen reason="image" />;
+  }
+
   return (
     <PracticeSession
       attemptId={attempt.id}
@@ -161,5 +151,30 @@ export default async function PracticeSessionPage({
       initialBookmarks={initialBookmarks}
       initialNotes={initialNotes}
     />
+  );
+}
+
+function NoQuestionsScreen({ reason }: { reason?: "image" }) {
+  return (
+    <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col items-center justify-center px-4 text-center md:px-6">
+      <h1 className="text-[22px] font-bold text-text-high">
+        {reason === "image"
+          ? "이 세션의 문제는 모두 그림 의존 문제예요"
+          : "문제가 없어요"}
+      </h1>
+      {reason === "image" && (
+        <p className="mt-3 max-w-xs text-[13.5px] leading-[1.6] text-text-mid">
+          베타에서 그림 매칭 정밀도 작업 중이라 풀이에서 임시 제외되어
+          있어요. 다른 회차/모드로 시작해보세요.
+        </p>
+      )}
+      <Link
+        href="/"
+        className="mt-8 inline-flex h-11 items-center gap-1.5 rounded-md border border-border bg-surface px-5 text-[14px] font-semibold text-text-mid transition-colors hover:text-text-high"
+      >
+        <NavArrowLeft className="h-4 w-4" strokeWidth={2} />
+        홈으로
+      </Link>
+    </div>
   );
 }

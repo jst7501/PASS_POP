@@ -11,7 +11,10 @@ import { ExplanationHtml } from "@/components/practice/explanation-html";
 import { MathText } from "@/components/practice/math-text";
 import { SavedTabs } from "@/components/saved-tabs";
 import { ReviewStartButton } from "@/components/review-start-button";
-import { getQuestionImages } from "@/lib/exam-images";
+import {
+  getQuestionImages,
+  isImageDependentQuestion,
+} from "@/lib/exam-images";
 import { cn } from "@/lib/utils";
 
 export default async function MistakesPage({
@@ -47,11 +50,13 @@ export default async function MistakesPage({
 
   if (records.length === 0) return <EmptyScreen />;
 
-  // 같은 문제 중복은 가장 최근 오답 하나만 남긴다
+  // 같은 문제 중복은 가장 최근 오답 하나만 남기고,
+  // 그림 의존 문제는 리스트에서 제외 (베타에서 그림 매칭 보류 중).
   const seen = new Set<string>();
   const deduped = records.filter((r) => {
     if (seen.has(r.questionId)) return false;
     seen.add(r.questionId);
+    if (isImageDependentQuestion(r.question)) return false;
     return true;
   });
 

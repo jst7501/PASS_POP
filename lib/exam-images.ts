@@ -121,7 +121,7 @@ export function hasManifest(pdfUrl: string | null): boolean {
 
 /**
  * 이 문제에 그림/보기 이미지가 하나라도 있으면 true.
- * 베타에서 이미지 문제는 풀이에서 제외하기 위함.
+ * (manifest 기준 — 추출된 png 가 있는지)
  */
 export function questionHasImages(
   pdfUrl: string | null,
@@ -133,6 +133,41 @@ export function questionHasImages(
   for (const arr of Object.values(imgs.options)) {
     if (arr && arr.length > 0) return true;
   }
+  return false;
+}
+
+/**
+ * 이 문제가 그림에 의존하는지 종합 판정.
+ * 베타에서 풀이 대상에서 제외할 기준:
+ *  1. DB 의 hasImage 플래그 (시드가 "그림", "도식", "도면" 등 텍스트로 감지)
+ *  2. stem / choices 에 `[img:URL]` 같은 외부 이미지 링크 박혀있음
+ *  3. manifest 에 추출 이미지가 매칭됨
+ */
+export function isImageDependentQuestion(q: {
+  hasImage?: boolean;
+  stem?: string;
+  choices?: unknown;
+  number: number;
+  exam?: { pdfUrl: string | null } | null;
+}): boolean {
+  if (q.hasImage) return true;
+
+  const IMG_LINK = /\[img[:\s]/i;
+  if (q.stem && IMG_LINK.test(q.stem)) return true;
+
+  if (Array.isArray(q.choices)) {
+    for (const c of q.choices as Array<{ text?: unknown }>) {
+      if (
+        c &&
+        typeof c.text === "string" &&
+        IMG_LINK.test(c.text)
+      )
+        return true;
+    }
+  }
+
+  if (questionHasImages(q.exam?.pdfUrl ?? null, q.number)) return true;
+
   return false;
 }
 

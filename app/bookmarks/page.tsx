@@ -10,7 +10,10 @@ import { getCurrentUser } from "@/lib/auth/anon";
 import { MathText } from "@/components/practice/math-text";
 import { SavedTabs } from "@/components/saved-tabs";
 import { ReviewStartButton } from "@/components/review-start-button";
-import { getQuestionImages } from "@/lib/exam-images";
+import {
+  getQuestionImages,
+  isImageDependentQuestion,
+} from "@/lib/exam-images";
 import { cn } from "@/lib/utils";
 
 export default async function BookmarksPage({
@@ -28,7 +31,7 @@ export default async function BookmarksPage({
     where: { userId: user.id, isCorrect: false, skipped: false },
   });
 
-  const bookmarks = await prisma.bookmark.findMany({
+  const bookmarksRaw = await prisma.bookmark.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
     include: {
@@ -40,6 +43,11 @@ export default async function BookmarksPage({
       },
     },
   });
+
+  // 그림 의존 문제는 리스트에서 제외 (베타)
+  const bookmarks = bookmarksRaw.filter(
+    (b) => !isImageDependentQuestion(b.question),
+  );
 
   if (bookmarks.length === 0) return <EmptyScreen />;
 

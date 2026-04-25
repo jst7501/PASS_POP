@@ -7,7 +7,7 @@ import {
   QuestionType,
 } from "@/lib/generated/prisma-client";
 import { markTodayActivity, scheduleReview } from "./user-actions";
-import { questionHasImages } from "@/lib/exam-images";
+import { isImageDependentQuestion } from "@/lib/exam-images";
 
 type StartParams = {
   categorySlug: string;
@@ -84,9 +84,8 @@ export async function startAttempt(p: StartParams) {
   });
 
   // 베타: 그림/도식 있는 문제는 풀이에서 제외 (이미지 매칭 정밀도 미완)
-  const questionsRaw = allRaw.filter(
-    (q) => !questionHasImages(q.exam?.pdfUrl ?? null, q.number),
-  );
+  // hasImage 플래그 + [img:] 링크 + 매니페스트 매칭 종합 판정.
+  const questionsRaw = allRaw.filter((q) => !isImageDependentQuestion(q));
 
   let questions = questionsRaw;
   if (p.mode === "mock") {
@@ -209,12 +208,15 @@ export async function startReviewAttempt(args: {
     throw new Error("복습할 문제가 없어요.");
   }
 
-  // 베타: 이미지 있는 문제 제외
+  // 베타: 이미지 의존 문제 제외 (텍스트/매니페스트 다 검사)
   const qDetails = await prisma.question.findMany({
     where: { id: { in: questionIds } },
     select: {
       id: true,
       number: true,
+      hasImage: true,
+      stem: true,
+      choices: true,
       exam: { select: { pdfUrl: true } },
     },
   });
@@ -222,7 +224,7 @@ export async function startReviewAttempt(args: {
   const filteredIds = questionIds.filter((id) => {
     const q = qById.get(id);
     if (!q) return false;
-    return !questionHasImages(q.exam?.pdfUrl ?? null, q.number);
+    return !isImageDependentQuestion(q);
   });
 
   if (filteredIds.length === 0) {
