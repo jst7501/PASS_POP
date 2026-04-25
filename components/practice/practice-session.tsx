@@ -379,18 +379,14 @@ export function PracticeSession({
               <MathText text={current.stem} />
             </div>
 
-            {current.images?.body && current.images.body.length > 0 && (
-              <div className="mt-5 flex flex-col gap-3">
-                {current.images.body.map((src) => (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    key={src}
-                    src={src}
-                    alt="문제 그림"
-                    loading="lazy"
-                    className="max-w-full rounded-md border border-border bg-white object-contain"
-                  />
-                ))}
+            {/* 베타 알림 — 옛 attempt 에 그림 문제가 남아있는 경우 보일 수 있음 */}
+            {((current.images?.body?.length ?? 0) > 0 ||
+              Object.values(current.images?.options ?? {}).some(
+                (a) => (a?.length ?? 0) > 0,
+              )) && (
+              <div className="mt-5 rounded-md border border-warning/30 bg-warning/[0.05] px-3.5 py-2.5 text-[12.5px] text-text-mid">
+                이 문제는 그림이 포함되어 있어요. 베타에서 그림 매칭 정밀도가
+                낮아 그림 표시는 잠시 보류 중이에요.
               </div>
             )}
 
@@ -400,9 +396,6 @@ export function PracticeSession({
                 const userAnswer = answers[current.id];
                 const isSelected = userAnswer === value;
                 const answered = !!userAnswer;
-                const optIdx = (i + 1) as 1 | 2 | 3 | 4;
-                const optionImages =
-                  current.images?.options?.[optIdx] ?? [];
                 // 연습모드 + 답 선택 후 정오 표시
                 const showResult = isPractice && answered;
                 const isThisCorrect =
@@ -474,20 +467,6 @@ export function PracticeSession({
                       <span className="flex-1 text-[15px] leading-[1.6]">
                         {c.text && c.text.trim() && (
                           <MathText text={c.text} />
-                        )}
-                        {optionImages.length > 0 && (
-                          <span className="mt-2 flex flex-wrap gap-2">
-                            {optionImages.map((src) => (
-                              /* eslint-disable-next-line @next/next/no-img-element */
-                              <img
-                                key={src}
-                                src={src}
-                                alt={`보기 ${c.label}`}
-                                loading="lazy"
-                                className="max-h-40 rounded-sm border border-border bg-white object-contain"
-                              />
-                            ))}
-                          </span>
                         )}
                       </span>
                       {isThisCorrect && (

@@ -223,18 +223,12 @@ export default async function MistakesPage({
                     <MathText text={q.stem} />
                   </p>
 
-                  {images?.body && images.body.length > 0 && (
-                    <div className="mt-3 flex flex-col gap-2">
-                      {images.body.map((src) => (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          key={src}
-                          src={src}
-                          alt={`Q.${q.number} 그림`}
-                          loading="lazy"
-                          className="max-w-full rounded-md border border-border bg-white object-contain"
-                        />
-                      ))}
+                  {(images?.body?.length ||
+                    Object.values(images?.options ?? {}).some(
+                      (a) => (a?.length ?? 0) > 0,
+                    )) && (
+                    <div className="mt-3 rounded-md border border-warning/30 bg-warning/[0.05] px-3 py-2 text-[11.5px] text-text-mid">
+                      그림 포함 — 베타에서 그림 표시 보류 중
                     </div>
                   )}
 
@@ -243,8 +237,6 @@ export default async function MistakesPage({
                       const n = i + 1;
                       const isCorrect = n === correctIdx;
                       const isUserPick = n === userIdx;
-                      const optIdx = (i + 1) as 1 | 2 | 3 | 4;
-                      const optionImages = images?.options?.[optIdx] ?? [];
                       return (
                         <li
                           key={c.label}
@@ -274,20 +266,6 @@ export default async function MistakesPage({
                           </span>
                           <span className="min-w-0 flex-1">
                             <MathText text={c.text} />
-                            {optionImages.length > 0 && (
-                              <span className="mt-2 flex flex-wrap gap-2">
-                                {optionImages.map((src) => (
-                                  /* eslint-disable-next-line @next/next/no-img-element */
-                                  <img
-                                    key={src}
-                                    src={src}
-                                    alt={`보기 ${c.label}`}
-                                    loading="lazy"
-                                    className="max-h-28 rounded-sm border border-border bg-white object-contain"
-                                  />
-                                ))}
-                              </span>
-                            )}
                           </span>
                           {isCorrect && (
                             <CheckCircle

@@ -7,6 +7,7 @@ import {
   QuestionType,
 } from "@/lib/generated/prisma-client";
 import { markTodayActivity, scheduleReview } from "./user-actions";
+import { questionHasImages } from "@/lib/exam-images";
 
 type StartParams = {
   categorySlug: string;
@@ -70,14 +71,22 @@ export async function startAttempt(p: StartParams) {
     }
   }
 
-  const questionsRaw = await prisma.question.findMany({
+  const allRaw = await prisma.question.findMany({
     where,
     orderBy: [
       { subject: { orderIdx: "asc" } },
       { number: "asc" },
     ],
-    include: { subject: true },
+    include: {
+      subject: true,
+      exam: { select: { pdfUrl: true } },
+    },
   });
+
+  // 베타: 그림/도식 있는 문제는 풀이에서 제외 (이미지 매칭 정밀도 미완)
+  const questionsRaw = allRaw.filter(
+    (q) => !questionHasImages(q.exam?.pdfUrl ?? null, q.number),
+  );
 
   let questions = questionsRaw;
   if (p.mode === "mock") {
@@ -200,12 +209,34 @@ export async function startReviewAttempt(args: {
     throw new Error("복습할 문제가 없어요.");
   }
 
+  // 베타: 이미지 있는 문제 제외
+  const qDetails = await prisma.question.findMany({
+    where: { id: { in: questionIds } },
+    select: {
+      id: true,
+      number: true,
+      exam: { select: { pdfUrl: true } },
+    },
+  });
+  const qById = new Map(qDetails.map((q) => [q.id, q]));
+  const filteredIds = questionIds.filter((id) => {
+    const q = qById.get(id);
+    if (!q) return false;
+    return !questionHasImages(q.exam?.pdfUrl ?? null, q.number);
+  });
+
+  if (filteredIds.length === 0) {
+    throw new Error(
+      "복습할 문제가 모두 이미지 문제예요. 베타에서 이미지 문제는 처리 중이에요.",
+    );
+  }
+
   const attempt = await prisma.attempt.create({
     data: {
       userId: user.id,
       mode: AttemptMode.REVIEW,
-      totalMax: questionIds.length,
-      plannedQuestionIds: questionIds,
+      totalMax: filteredIds.length,
+      plannedQuestionIds: filteredIds,
       durationMinSnap: null,
     },
   });

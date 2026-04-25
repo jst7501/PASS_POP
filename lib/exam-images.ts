@@ -119,6 +119,23 @@ export function hasManifest(pdfUrl: string | null): boolean {
   return loadIndex(parsed.cert, parsed.date) !== null;
 }
 
+/**
+ * 이 문제에 그림/보기 이미지가 하나라도 있으면 true.
+ * 베타에서 이미지 문제는 풀이에서 제외하기 위함.
+ */
+export function questionHasImages(
+  pdfUrl: string | null,
+  questionNumber: number,
+): boolean {
+  const imgs = getQuestionImages(pdfUrl, questionNumber);
+  if (!imgs) return false;
+  if (imgs.body.length > 0) return true;
+  for (const arr of Object.values(imgs.options)) {
+    if (arr && arr.length > 0) return true;
+  }
+  return false;
+}
+
 export function listAllQuestionImages(
   pdfUrl: string | null,
 ): Array<{ question: number; images: QuestionImages }> {
