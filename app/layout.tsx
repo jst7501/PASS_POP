@@ -33,19 +33,20 @@ export default async function RootLayout({
   const isAdmin = nickname === "관리자";
 
   // 닉네임 없거나 시험 미선택이면 onboarding 오버레이
+  // 관리자는 기본 시험을 강제로 정할 필요 없음 → exam step 스킵
   const needsNickname = !nickname;
-  const needsExamPick = !!user && !!nickname && !user.targetCategoryId;
+  const needsExamPick =
+    !!user && !!nickname && !isAdmin && !user.targetCategoryId;
   const needsOnboarding = needsNickname || needsExamPick;
 
-  // 시험 선택 단계용 카테고리 (관리자는 시험 강제 안 함)
-  const onboardCategories =
-    needsOnboarding && !isAdmin
-      ? await prisma.category.findMany({
-          where: { isActive: true },
-          orderBy: { createdAt: "asc" },
-          select: { id: true, slug: true, name: true },
-        })
-      : [];
+  // 시험 선택 단계용 카테고리 — 항상 채워서 보냄 (단계 전환 시 재페치 비용 회피)
+  const onboardCategories = needsOnboarding
+    ? await prisma.category.findMany({
+        where: { isActive: true },
+        orderBy: { createdAt: "asc" },
+        select: { id: true, slug: true, name: true },
+      })
+    : [];
 
   return (
     <html lang="ko" suppressHydrationWarning>

@@ -162,6 +162,12 @@ function ExamStep({ categories }: { categories: Category[] }) {
         기본 시험을 정하면 홈에 그 시험만 노출돼요. 다른 시험은 언제든 메뉴에서.
       </p>
 
+      {categories.length === 0 && (
+        <p className="mt-5 rounded-md border border-warning/30 bg-warning/[0.05] px-3 py-2.5 text-[12.5px] text-text-mid">
+          시험 목록을 불러오지 못했어요. 새로고침해주세요.
+        </p>
+      )}
+
       <ul className="mt-5 space-y-2">
         {categories.map((c) => {
           const owner = OWNER_MAP[c.slug] ?? "";
