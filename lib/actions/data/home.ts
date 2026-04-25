@@ -1,4 +1,7 @@
-"use server";
+// 서버 전용 모듈. "use server" 아님 — 서버 컴포넌트에서 직접 호출.
+// (cached const 를 export 하려면 "use server" 와 충돌. 행동을 일으키지 않으므로
+//  RPC endpoint 로 등록할 필요 없음.)
+import "server-only";
 
 import { unstable_cache } from "next/cache";
 import prisma from "@/lib/prisma";

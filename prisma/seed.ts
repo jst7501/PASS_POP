@@ -301,9 +301,9 @@ async function importTarget(t: ImportTarget) {
 
       const hasImage = detectHasImage(q.question_text);
       const stemClean = normalizeChoiceMarks(q.question_text);
-      const stemFinal = hasImage
-        ? `${stemClean}\n\n[그림 원본 준비 중]`
-        : stemClean;
+      // 그림은 public/exam-images/<cert>/<date>/manifest.json 에서 별도 매칭됨.
+      // 더 이상 stem 에 placeholder 텍스트 추가하지 않음.
+      const stemFinal = stemClean;
 
       const choices = q.choices
         .slice(0, 5)
