@@ -444,15 +444,15 @@ export function PracticeSession({
                         onChoicePointerDown(value, e);
                       }}
                       onPointerMove={onChoicePointerMove}
-                      onPointerUp={(e) => {
-                        e.preventDefault();
+                      onPointerUp={() => {
                         onChoicePointerUp(value);
                       }}
                       onPointerLeave={onChoicePointerCancel}
                       onPointerCancel={onChoicePointerCancel}
                       onContextMenu={(e) => e.preventDefault()}
+                      style={{ touchAction: "manipulation" }}
                       className={cn(
-                        "flex w-full select-none items-start gap-3 rounded-md border px-4 py-3.5 text-left transition-all touch-none",
+                        "flex w-full select-none items-start gap-3 rounded-md border px-4 py-3.5 text-left transition-all",
                         containerCls,
                       )}
                     >
