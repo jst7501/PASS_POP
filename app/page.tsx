@@ -66,14 +66,28 @@ export default async function HomePage({
     publishedByExam.map((e) => e.question.examId).filter(Boolean) as string[],
   );
 
+  // 우선순위: URL ?exam → 유저 targetCategoryId → 공개회차 있는 첫 카테고리 → 첫 카테고리
+  const userTargetSlug = user?.targetCategoryId
+    ? (categories.find((c) => c.id === user.targetCategoryId)?.slug ?? null)
+    : null;
   const fallbackSlug =
     categories.find((c) => c.exams.some((e) => publishedExamIds.has(e.id)))
       ?.slug ?? categories[0]?.slug;
   const selectedSlug =
     pickedSlug && categories.some((c) => c.slug === pickedSlug)
       ? pickedSlug
-      : fallbackSlug;
+      : (userTargetSlug ?? fallbackSlug);
   const selectedCat = categories.find((c) => c.slug === selectedSlug) ?? null;
+  // picker 노출 조건:
+  //   - URL 로 임시 변경 중이거나 (pickedSlug)
+  //   - 관리자 (시험 미선택 가능)
+  //   - 또는 targetCategoryId 안 잡혔을 때
+  const isAdmin = user?.nickname === "관리자";
+  const showPicker =
+    !!pickedSlug || isAdmin || !user?.targetCategoryId;
+  // URL 임시 모드 — targetCategoryId 와 다른 카테고리 보고있을 때 표시
+  const isTempViewing =
+    !!pickedSlug && userTargetSlug && pickedSlug !== userTargetSlug;
 
   const now = new Date();
   const weekStart = startOfWeek(now);
@@ -407,16 +421,35 @@ export default async function HomePage({
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-6 md:px-6 md:pt-8">
-      <ExamPicker
-        categories={categories.map((c) => ({
-          slug: c.slug,
-          name: c.name,
-          owner: OWNER_MAP[c.slug]?.owner ?? "",
-          publishedCount: c.exams.filter((e) => publishedExamIds.has(e.id))
-            .length,
-        }))}
-        selectedSlug={selectedSlug ?? ""}
-      />
+      {showPicker && (
+        <ExamPicker
+          categories={categories.map((c) => ({
+            slug: c.slug,
+            name: c.name,
+            owner: OWNER_MAP[c.slug]?.owner ?? "",
+            publishedCount: c.exams.filter((e) => publishedExamIds.has(e.id))
+              .length,
+          }))}
+          selectedSlug={selectedSlug ?? ""}
+        />
+      )}
+
+      {/* 임시로 다른 시험 보고있을 때 — 내 시험으로 돌아가기 안내 */}
+      {isTempViewing && userTargetSlug && (
+        <div className="mb-2 flex items-center justify-between gap-2 rounded-md border border-warning/30 bg-warning/[0.05] px-3 py-2 text-[12px]">
+          <span className="text-text-mid">
+            <span className="font-semibold text-warning">임시로</span> 다른
+            시험 보고 있어요
+          </span>
+          <Link
+            href={`/?exam=${userTargetSlug}`}
+            scroll={false}
+            className="font-semibold text-primary hover:text-primary-hover"
+          >
+            내 시험으로
+          </Link>
+        </div>
+      )}
 
       {selectedCat && (
         <>

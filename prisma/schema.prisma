@@ -123,6 +123,7 @@ model Exam {
   totalQuestions Int        @default(0)
   source         String?
   pdfUrl         String?                             // 회차 원본 PDF (public/exam-pdfs/ 경로)
+  isLegacy       Boolean    @default(false)         // 구 시험체계 회차 (예: 공조냉동기계기사 구버전)
 
   questions      Question[]
   attempts       Attempt[]

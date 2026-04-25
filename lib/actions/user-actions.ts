@@ -159,6 +159,24 @@ export async function saveExamGoal(args: {
   return { ok: true };
 }
 
+/**
+ * 기본 시험 재선택 — targetCategoryId 만 비우고 D-day 등은 유지하지 않음.
+ * AuthGate 의 exam step 이 다시 떠서 새로 고르게 됨.
+ */
+export async function clearTargetCategory() {
+  const user = await getOrCreateAnonUser();
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      targetCategoryId: null,
+      targetExamDate: null,
+      dailyGoal: null,
+    },
+  });
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
 // ─────────────────────────────────────────────────────────────
 // Streak — 오늘 활동 마킹
 // ─────────────────────────────────────────────────────────────

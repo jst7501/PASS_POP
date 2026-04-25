@@ -7,6 +7,7 @@ import { SiteMobileNav } from "@/components/site-mobile-nav";
 import { AuthGate } from "@/components/auth/auth-gate";
 import { SiteUserBadge } from "@/components/auth/site-user-badge";
 import { getCurrentUser } from "@/lib/auth/anon";
+import prisma from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "PASSPOP — 자격증·공무원 시험 올인원",
@@ -28,7 +29,21 @@ export default async function RootLayout({
   const user = await getCurrentUser();
   const nickname = user?.nickname ?? null;
   const isAdmin = nickname === "관리자";
-  const needsOnboarding = !nickname;
+
+  // 닉네임 없거나 시험 미선택이면 onboarding 오버레이
+  const needsNickname = !nickname;
+  const needsExamPick = !!user && !!nickname && !user.targetCategoryId;
+  const needsOnboarding = needsNickname || needsExamPick;
+
+  // 시험 선택 단계용 카테고리 (관리자는 시험 강제 안 함)
+  const onboardCategories =
+    needsOnboarding && !isAdmin
+      ? await prisma.category.findMany({
+          where: { isActive: true },
+          orderBy: { createdAt: "asc" },
+          select: { id: true, slug: true, name: true },
+        })
+      : [];
 
   return (
     <html lang="ko" suppressHydrationWarning>
@@ -38,7 +53,12 @@ export default async function RootLayout({
             <SiteHeader nickname={nickname} isAdmin={isAdmin} />
             <main className="flex-1">{children}</main>
           </div>
-          {needsOnboarding && <AuthGate />}
+          {needsOnboarding && (
+            <AuthGate
+              initialStage={needsNickname ? "nickname" : "exam"}
+              categories={onboardCategories}
+            />
+          )}
         </ThemeProvider>
       </body>
     </html>

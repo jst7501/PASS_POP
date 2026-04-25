@@ -3,8 +3,16 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, LogOut, ShieldCheck } from "iconoir-react";
-import { clearSession } from "@/lib/actions/user-actions";
+import {
+  User,
+  LogOut,
+  ShieldCheck,
+  Notes as NotesIcon,
+} from "iconoir-react";
+import {
+  clearSession,
+  clearTargetCategory,
+} from "@/lib/actions/user-actions";
 import { cn } from "@/lib/utils";
 
 /**
@@ -36,6 +44,14 @@ export function SiteUserBadge({
   const doLogout = () => {
     startTransition(async () => {
       await clearSession();
+      setOpen(false);
+      router.refresh();
+    });
+  };
+
+  const doSwitchExam = () => {
+    startTransition(async () => {
+      await clearTargetCategory();
       setOpen(false);
       router.refresh();
     });
@@ -98,6 +114,19 @@ export function SiteUserBadge({
                   <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2} />
                   관리자 페이지
                 </Link>
+              </li>
+            )}
+            {!isAdmin && (
+              <li>
+                <button
+                  type="button"
+                  onClick={doSwitchExam}
+                  disabled={pending}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] text-text-mid transition-colors hover:bg-surface-mute hover:text-text-high disabled:opacity-60"
+                >
+                  <NotesIcon className="h-3.5 w-3.5" strokeWidth={2} />
+                  기본 시험 변경
+                </button>
               </li>
             )}
             <li>
