@@ -1,0 +1,362 @@
+// PASSPOP — 올인원 자격증·공무원 시험 학습 플랫폼
+// 시험 등급: 기능사 / 산업기사 / 기사 / 기술사 / 공무원 / 기타
+// 모든 종목이 하나의 Category 계층 구조로 표현됨
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────────
+
+enum ExamGrade {
+  GI_NEUNG_SA     // 기능사
+  SAN_EOB_GI_SA   // 산업기사
+  GI_SA           // 기사
+  GI_SUL_SA       // 기술사
+  GONG_MU_WON     // 공무원
+  ETC             // 기타 (민간자격, 어학 등)
+}
+
+enum QuestionType {
+  MCQ4            // 4지선다
+  MCQ5            // 5지선다
+  MULTI_SELECT    // 복수정답
+  SHORT           // 단답형
+  LONG            // 서술형(실기)
+}
+
+enum AttemptMode {
+  PRACTICE        // 자유 풀이
+  EXAM            // 모의고사 (시간 제한)
+  REVIEW          // 오답 복습
+  WEAK            // 약점 집중
+}
+
+enum UserTier {
+  FREE
+  PRO
+}
+
+enum ExplanationTone {
+  FRIENDLY        // 친근, 쉬운 비유 (기본)
+  CONCISE         // 요점 정리
+  DEEP            // 원리 유도
+}
+
+enum ConfidenceLevel {
+  GUESS           // 찍음
+  UNSURE          // 애매
+  CONFIDENT       // 확신
+}
+
+// ─────────────────────────────────────────────────────────────
+// Category — 시험 종목 계층 (전 기능사부터 9급공무원까지 모두)
+// ─────────────────────────────────────────────────────────────
+
+model Category {
+  id          String    @id @default(cuid())
+  slug        String    @unique                    // "civil-engineer-gisa"
+  name        String                                // "토목기사"
+  nameEn      String?                               // "Civil Engineer"
+  grade       ExamGrade
+  field       String?                               // "건설" | "기계" | "공무원9급" ...
+  description String?   @db.Text
+  iconKey     String?                               // Solar 키 또는 커스텀 SVG 식별자
+  colorTag    String?                               // 배지 컬러 #HEX
+
+  parentId    String?
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+
+  subjects    Subject[]
+  exams       Exam[]
+
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([grade, field])
+  @@index([isActive])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Subject — 과목
+// ─────────────────────────────────────────────────────────────
+
+model Subject {
+  id          String     @id @default(cuid())
+  categoryId  String
+  category    Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name        String                                 // "응용역학"
+  slug        String                                 // "applied-mechanics"
+  orderIdx    Int        @default(0)
+  description String?    @db.Text
+
+  questions   Question[]
+
+  createdAt   DateTime   @default(now())
+
+  @@unique([categoryId, slug])
+  @@index([categoryId, orderIdx])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Exam — 회차 (토목기사 2024년 1회, 9급 행정직 2024년 국가직 등)
+// ─────────────────────────────────────────────────────────────
+
+model Exam {
+  id             String     @id @default(cuid())
+  categoryId     String
+  category       Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  year           Int
+  round          Int        @default(1)
+  title          String
+  durationMin    Int        @default(150)
+  totalQuestions Int        @default(0)
+  source         String?
+  pdfUrl         String?                             // 회차 원본 PDF (public/exam-pdfs/ 경로)
+
+  questions      Question[]
+  attempts       Attempt[]
+
+  createdAt      DateTime   @default(now())
+
+  @@unique([categoryId, year, round])
+  @@index([categoryId, year])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Question
+// ─────────────────────────────────────────────────────────────
+
+model Question {
+  id              String           @id @default(cuid())
+  examId          String?
+  exam            Exam?            @relation(fields: [examId], references: [id])
+  subjectId       String
+  subject         Subject          @relation(fields: [subjectId], references: [id])
+  number          Int
+  type            QuestionType     @default(MCQ4)
+  stem            String           @db.Text          // 지문 (markdown + LaTeX)
+  choices         Json                               // [{label:"①",text:"..."},...]
+  correctAnswer   String                             // "2" | "1,3"(복수) | "free-text"
+  points          Int              @default(1)
+  difficulty      Int              @default(3)       // 1-5
+  tags            String[]         @default([])
+
+  hasMath         Boolean          @default(false)
+  hasImage        Boolean          @default(false)
+  imageUrl        String?
+
+  explanationSeed String?          @db.Text          // 공식 정답 풀이 메모
+
+  records         AnswerRecord[]
+  explanations    AiExplanation[]
+  schedules       ReviewSchedule[]
+  bookmarks       Bookmark[]
+  notes           QuestionNote[]
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([subjectId, type])
+  @@index([examId, number])
+}
+
+// ─────────────────────────────────────────────────────────────
+// User
+// ─────────────────────────────────────────────────────────────
+
+model User {
+  id         String    @id @default(cuid())
+  email      String    @unique
+  nickname   String?
+  avatarUrl  String?
+  tier       UserTier  @default(FREE)
+
+  // 준비 중인 시험 종목들 (다중 선택)
+  targetCategoryIds String[] @default([])
+
+  // 연속 학습일 (streak) — 쿠키 기반 익명 유저도 사용
+  streakDays        Int       @default(0)
+  lastActivityDate  DateTime?
+
+  // D-day & 일일 목표 (단일 시험 기준)
+  targetCategoryId  String?
+  targetExamDate    DateTime?
+  dailyGoal         Int?              // 하루 풀이 목표 문제수
+
+  attempts           Attempt[]
+  answerRecords      AnswerRecord[]
+  explanations       AiExplanation[]
+  weaknessSnapshots  WeaknessSnapshot[]
+  reviewSchedules    ReviewSchedule[]
+  bookmarks          Bookmark[]
+  questionNotes      QuestionNote[]
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([tier])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Attempt — 풀이 세션
+// ─────────────────────────────────────────────────────────────
+
+model Attempt {
+  id                 String        @id @default(cuid())
+  userId             String
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  examId             String?
+  exam               Exam?         @relation(fields: [examId], references: [id])
+  mode               AttemptMode   @default(PRACTICE)
+  plannedQuestionIds String[]      @default([])
+  durationMinSnap    Int?                          // CBT 타이머 기준 (시작 시점 스냅샷)
+  startedAt          DateTime      @default(now())
+  finishedAt         DateTime?
+  score              Int?
+  totalMax           Int?
+
+  records            AnswerRecord[]
+
+  @@index([userId, startedAt])
+  @@index([examId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// AnswerRecord — 문항별 답안 기록 (오답노트 소스)
+// ─────────────────────────────────────────────────────────────
+
+model AnswerRecord {
+  id           String    @id @default(cuid())
+  attemptId    String
+  attempt      Attempt   @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId   String
+  question     Question  @relation(fields: [questionId], references: [id])
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  userAnswer   String
+  isCorrect    Boolean
+  timeSpentSec Int       @default(0)
+  skipped      Boolean   @default(false)
+  flagged      Boolean   @default(false)
+  confidence   ConfidenceLevel?                          // 풀이 시 자신감
+
+  answeredAt   DateTime  @default(now())
+
+  @@index([userId, isCorrect, answeredAt])
+  @@index([questionId])
+  @@index([attemptId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// AiExplanation — 개인화 해설 (찍은 오답별로 생성)
+// ─────────────────────────────────────────────────────────────
+
+model AiExplanation {
+  id                   String           @id @default(cuid())
+  questionId           String
+  question             Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  userId               String?
+  user                 User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  wrongChoice          String?                                 // 찍은 오답 라벨
+  explanation          String           @db.Text               // 마크다운 + LaTeX
+  memoryHook           String?          @db.Text               // 암기 팁 한 줄
+  recommendSubjectIds  String[]         @default([])
+
+  model                String           @default("claude-sonnet-4-5")
+  tone                 ExplanationTone  @default(FRIENDLY)
+  tokensUsed           Int?
+  createdAt            DateTime         @default(now())
+
+  @@index([questionId, userId])
+  @@index([questionId, wrongChoice])
+}
+
+// ─────────────────────────────────────────────────────────────
+// WeaknessSnapshot — 주기적 약점 분석
+// ─────────────────────────────────────────────────────────────
+
+model WeaknessSnapshot {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  snapshotAt       DateTime @default(now())
+  scopeCategoryId  String?                                // 특정 종목 기준 or null=전체
+
+  topWeakSubjects  Json                                    // [{subjectId, rate, count}]
+  analysis         String   @db.Text                       // AI 분석문 (친근 톤)
+  recommendations  Json                                    // 학습 추천 액션 리스트
+
+  fromAttemptsRange Json?
+  model            String   @default("claude-opus-4-5")
+
+  @@index([userId, snapshotAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+// ReviewSchedule — SM-2 복습
+// ─────────────────────────────────────────────────────────────
+
+model ReviewSchedule {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId   String
+  question     Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  nextReviewAt DateTime
+  intervalDays Int      @default(1)
+  easeFactor   Float    @default(2.5)
+  repetitions  Int      @default(0)
+  lastReviewAt DateTime?
+
+  @@unique([userId, questionId])
+  @@index([userId, nextReviewAt])
+}
+
+// ─────────────────────────────────────────────────────────────
+// Bookmark
+// ─────────────────────────────────────────────────────────────
+
+model Bookmark {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  note       String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, questionId])
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// QuestionNote — 풀이 중 자유 메모 (북마크와 별개)
+// ─────────────────────────────────────────────────────────────
+
+model QuestionNote {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  content    String   @db.Text
+  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, questionId])
+  @@index([userId, updatedAt])
+}

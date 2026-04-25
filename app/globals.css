@@ -1,0 +1,211 @@
+/* PASSPOP globals — v2 (Warm Neutral + Linear)
+ * - 쿨 그레이 탈피 → 웜 뉴트럴 (살짝 크림 / 웜 차콜)
+ * - 그라데이션 금지
+ * - 라운드 최소화 (6px 기본, 카드도 8px 상한)
+ * - 모든 컬러 rgb(r g b) 삼중 (Tailwind 알파 합성용)
+ */
+
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ──────────────────────────────────────────────────
+ * LIGHT — 크림 페이퍼 톤 (웜 뉴트럴)
+ * ────────────────────────────────────────────────── */
+:root {
+  --background: 250 248 244;        /* #FAF8F4 살짝 크림 */
+  --surface: 255 255 255;
+  --surface-elev: 246 242 236;      /* #F6F2EC */
+  --surface-mute: 242 238 231;      /* #F2EEE7 */
+
+  --text-high: 24 22 26;            /* #18161A 웜 차콜 */
+  --text-mid: 94 88 82;             /* #5E5852 웜 미드 */
+  --text-muted: 158 152 146;        /* #9E9892 */
+
+  --border: 232 227 220;            /* #E8E3DC 웜 보더 */
+  --border-soft: 244 240 234;       /* #F4F0EA */
+
+  --primary: 255 68 56;             /* #FF4438 그대로 유지 */
+  --primary-hover: 230 46 35;
+  --primary-subtle: 255 232 229;
+  --primary-fg: 255 255 255;
+
+  --accent: 107 157 137;            /* #6B9D89 채도 낮춘 세이지 */
+  --accent-hover: 91 138 119;
+  --accent-subtle: 218 232 225;
+
+  --danger: 200 55 50;              /* #C83732 웜 적 */
+  --danger-subtle: 250 228 225;
+
+  --warning: 196 134 47;             /* #C4862F 웜 앰버 */
+
+  --pop-shadow: 255 68 56;
+}
+
+/* ──────────────────────────────────────────────────
+ * DARK — 웜 차콜 (네이비 X, 쿨블랙 X)
+ * ────────────────────────────────────────────────── */
+html.dark {
+  --background: 24 22 21;           /* #181615 웜 차콜 */
+  --surface: 32 30 28;              /* #201E1C */
+  --surface-elev: 44 41 40;          /* #2C2928 */
+  --surface-mute: 42 39 37;          /* #2A2725 */
+
+  --text-high: 232 225 218;         /* #E8E1DA 웜 오프화이트 */
+  --text-mid: 172 165 158;          /* #ACA59E */
+  --text-muted: 120 114 108;        /* #78726C */
+
+  --border: 58 54 50;               /* #3A3632 */
+  --border-soft: 46 42 40;          /* #2E2A28 */
+
+  --primary: 232 99 90;             /* #E8635A 톤다운 코랄 */
+  --primary-hover: 240 119 108;
+  --primary-subtle: 62 28 24;
+  --primary-fg: 253 247 243;
+
+  --accent: 127 174 155;            /* #7FAE9B 채도 낮춘 세이지 */
+  --accent-hover: 143 186 168;
+  --accent-subtle: 40 58 52;
+
+  --danger: 213 115 108;
+  --danger-subtle: 62 30 28;
+
+  --warning: 210 167 98;
+
+  --pop-shadow: 232 99 90;
+}
+
+/* ──────────────────────────────────────────────────
+ * Base
+ * ────────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  /* 스크롤바 자리 상시 예약 → 토글 시 가로 너비 안 흔들리게 */
+  scrollbar-gutter: stable;
+}
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, Roboto, "Helvetica Neue", "Segoe UI", sans-serif;
+  background: rgb(var(--background));
+  color: rgb(var(--text-high));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss06" 1, "ss07" 1, "tnum" 1;
+  letter-spacing: -0.005em;
+}
+
+/* 숫자 타블라 전역 (Pretendard tnum 기본 ON) */
+.tabular-nums,
+[class*="tabular-nums"] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+:focus-visible {
+  outline: 2px solid rgb(var(--primary));
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* 얇고 단정한 스크롤바 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--border));
+  border-radius: 2px;
+  border: 1px solid rgb(var(--background));
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--text-muted));
+}
+
+::selection {
+  background: rgb(var(--primary) / 0.2);
+  color: rgb(var(--text-high));
+}
+
+/* 테마 전환 시 transition 없음 (플리커·리플로우 방지) */
+
+/* ──────────────────────────────────────────────────
+ * 해설 HTML (<p>, <strong>, <svg>, KaTeX 포함)
+ * ────────────────────────────────────────────────── */
+.explanation-html {
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: rgb(var(--text-high));
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.explanation-html p {
+  margin: 0 0 0.85em 0;
+}
+.explanation-html p:last-child {
+  margin-bottom: 0;
+}
+.explanation-html strong {
+  font-weight: 700;
+  color: rgb(var(--text-high));
+}
+.explanation-html em {
+  font-style: normal;
+  color: rgb(var(--primary));
+  font-weight: 600;
+}
+.explanation-html code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: rgb(var(--surface-mute));
+  color: rgb(var(--text-high));
+  padding: 0.12em 0.4em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+.explanation-html ul,
+.explanation-html ol {
+  padding-left: 1.25em;
+  margin: 0 0 0.9em 0;
+}
+.explanation-html ul {
+  list-style: disc;
+}
+.explanation-html ol {
+  list-style: decimal;
+}
+.explanation-html li {
+  margin-bottom: 0.3em;
+}
+.explanation-html svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.9em 0;
+  color: rgb(var(--text-mid));
+}
+.explanation-html .katex {
+  font-size: 1.02em;
+}
+@media (max-width: 640px) {
+  .explanation-html {
+    font-size: 14px;
+    line-height: 1.75;
+  }
+  .explanation-html p {
+    margin-bottom: 0.75em;
+  }
+}
