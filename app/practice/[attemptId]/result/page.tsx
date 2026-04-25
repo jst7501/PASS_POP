@@ -36,6 +36,8 @@ export default async function ResultPage({
           question: {
             include: {
               subject: { include: { category: true } },
+              // 문제별 원본 회차 — attempt.examId 가 null 인 모드도 매니페스트 매칭
+              exam: { select: { pdfUrl: true } },
               explanations: true,
             },
           },
@@ -55,13 +57,12 @@ export default async function ResultPage({
     .map((id) => byQid.get(id))
     .filter((r): r is NonNullable<typeof r> => Boolean(r));
 
-  // 회차의 manifest 에서 문항 번호별 이미지 조회
-  const pdfUrl = attempt.exam?.pdfUrl ?? null;
+  // 문제별 pdfUrl 로 매니페스트 조회 (과목별/무작위/데일리 모드도 작동)
   const imagesByQuestion = new Map<string, QuestionImages | null>();
   for (const r of records) {
     imagesByQuestion.set(
       r.questionId,
-      getQuestionImages(pdfUrl, r.question.number),
+      getQuestionImages(r.question.exam?.pdfUrl ?? null, r.question.number),
     );
   }
 

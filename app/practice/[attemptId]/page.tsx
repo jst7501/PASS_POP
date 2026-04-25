@@ -70,6 +70,8 @@ export default async function PracticeSessionPage({
     where: { id: { in: attempt.plannedQuestionIds } },
     include: {
       subject: { include: { category: true } },
+      // 문제별 원본 회차 — 매니페스트 매칭에 필요 (subject/random/daily 모드도 작동하게)
+      exam: { select: { pdfUrl: true } },
       // 연습모드일 때 모든 해설 (general + wrongChoice별) 로드
       explanations: isPractice
         ? {
@@ -84,10 +86,10 @@ export default async function PracticeSessionPage({
     .map((id) => byId.get(id))
     .filter((q): q is NonNullable<typeof q> => Boolean(q));
 
-  const pdfUrl = attempt.exam?.pdfUrl ?? null;
-
   const clientQuestions = ordered.map((q) => {
-    const images = getQuestionImages(pdfUrl, q.number);
+    // 문제별 pdfUrl 사용 — attempt.examId 가 null 인 모드(과목별/무작위/데일리/복습)
+    // 에서도 원본 회차의 매니페스트 찾을 수 있게.
+    const images = getQuestionImages(q.exam?.pdfUrl ?? null, q.number);
     const base = {
       id: q.id,
       number: q.number,
