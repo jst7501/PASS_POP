@@ -1,4 +1,8 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   NavArrowRight,
   Shuffle,
@@ -15,426 +19,51 @@ import {
   Sparks,
   Clock,
 } from "iconoir-react";
-import prisma from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth/anon";
 import { cn } from "@/lib/utils";
 import { DdayBanner } from "@/components/home/dday-banner";
+import { PageSkeleton } from "@/components/skeleton";
+import { getHomeData, type HomeData } from "@/lib/actions/data/home";
 
-const OWNER_MAP: Record<string, { owner: string }> = {
-  "civil-engineer-gisa": { owner: "정호" },
-  "hvac-refrigeration-gisa": { owner: "호준" },
-  "3d-printer-gineungsa": { owner: "호성" },
-};
+export default function HomePage() {
+  const sp = useSearchParams();
+  const exam = sp.get("exam") ?? undefined;
+  const [data, setData] = useState<HomeData | null>(null);
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ exam?: string }>;
-}) {
-  const user = await getCurrentUser();
-  const { exam: pickedSlug } = await searchParams;
-
-  // 카테고리 + 회차 + 과목
-  const categories = await prisma.category.findMany({
-    where: { isActive: true },
-    orderBy: { createdAt: "asc" },
-    include: {
-      _count: { select: { subjects: true } },
-      subjects: {
-        orderBy: { orderIdx: "asc" },
-        include: { _count: { select: { questions: true } } },
-      },
-      exams: {
-        orderBy: [{ year: "desc" }, { round: "desc" }],
-        select: {
-          id: true,
-          year: true,
-          round: true,
-          title: true,
-          totalQuestions: true,
-        },
-      },
-    },
-  });
-
-  const publishedByExam = await prisma.aiExplanation.findMany({
-    where: { userId: null, model: "hand-written" },
-    distinct: ["questionId"],
-    select: { question: { select: { examId: true } } },
-  });
-  const publishedExamIds = new Set(
-    publishedByExam.map((e) => e.question.examId).filter(Boolean) as string[],
-  );
-
-  // 우선순위: URL ?exam → 유저 targetCategoryId → 공개회차 있는 첫 카테고리 → 첫 카테고리
-  const userTargetSlug = user?.targetCategoryId
-    ? (categories.find((c) => c.id === user.targetCategoryId)?.slug ?? null)
-    : null;
-  const fallbackSlug =
-    categories.find((c) => c.exams.some((e) => publishedExamIds.has(e.id)))
-      ?.slug ?? categories[0]?.slug;
-  const selectedSlug =
-    pickedSlug && categories.some((c) => c.slug === pickedSlug)
-      ? pickedSlug
-      : (userTargetSlug ?? fallbackSlug);
-  const selectedCat = categories.find((c) => c.slug === selectedSlug) ?? null;
-  // picker 노출 조건:
-  //   - URL 로 임시 변경 중이거나 (pickedSlug)
-  //   - 관리자 (시험 미선택 가능)
-  //   - 또는 targetCategoryId 안 잡혔을 때
-  const isAdmin = user?.nickname === "관리자";
-  const showPicker =
-    !!pickedSlug || isAdmin || !user?.targetCategoryId;
-  // URL 임시 모드 — targetCategoryId 와 다른 카테고리 보고있을 때 표시
-  const isTempViewing =
-    !!pickedSlug && userTargetSlug && pickedSlug !== userTargetSlug;
-
-  const now = new Date();
-  const weekStart = startOfWeek(now);
-  const lastWeekStart = addDays(weekStart, -7);
-  const yesterdayStart = addDays(startOfDay(now), -1);
-  const todayStart = startOfDay(now);
-  const tomorrowStart = addDays(todayStart, 1);
-
-  const [
-    inProgress,
-    finishedAttempts,
-    mistakeCount,
-    bookmarkCount,
-    reviewDueCount,
-    subjectRecords,
-    yesterdayMistakes,
-    thisWeekRecs,
-    lastWeekRecs,
-    hourRecords,
-    confidenceRecords,
-    reviewAll,
-    todaySolved,
-    subjectAnswerCounts,
-  ] = await Promise.all([
-    user && selectedCat
-      ? prisma.attempt.findFirst({
-          where: {
-            userId: user.id,
-            finishedAt: null,
-            exam: { categoryId: selectedCat.id },
-          },
-          orderBy: { startedAt: "desc" },
-          include: { exam: true, _count: { select: { records: true } } },
-        })
-      : Promise.resolve(null),
-    user && selectedCat
-      ? prisma.attempt.findMany({
-          where: {
-            userId: user.id,
-            finishedAt: { not: null },
-            exam: { categoryId: selectedCat.id },
-          },
-          orderBy: { finishedAt: "desc" },
-          take: 8,
-          select: { id: true, score: true, finishedAt: true },
-        })
-      : Promise.resolve([]),
-    user && selectedCat
-      ? prisma.answerRecord.count({
-          where: {
-            userId: user.id,
-            isCorrect: false,
-            skipped: false,
-            question: { subject: { categoryId: selectedCat.id } },
-          },
-        })
-      : Promise.resolve(0),
-    user
-      ? prisma.bookmark.count({ where: { userId: user.id } })
-      : Promise.resolve(0),
-    user && selectedCat
-      ? prisma.reviewSchedule.count({
-          where: {
-            userId: user.id,
-            nextReviewAt: { lte: now },
-            question: { subject: { categoryId: selectedCat.id } },
-          },
-        })
-      : Promise.resolve(0),
-    user && selectedCat
-      ? prisma.answerRecord.findMany({
-          where: {
-            userId: user.id,
-            question: { subject: { categoryId: selectedCat.id } },
-          },
-          select: {
-            isCorrect: true,
-            question: {
-              select: { subject: { select: { name: true, slug: true } } },
-            },
-          },
-        })
-      : Promise.resolve([]),
-    // 어제 틀린 문제 3개
-    user && selectedCat
-      ? prisma.answerRecord.findMany({
-          where: {
-            userId: user.id,
-            isCorrect: false,
-            skipped: false,
-            answeredAt: { gte: yesterdayStart, lt: todayStart },
-            question: { subject: { categoryId: selectedCat.id } },
-          },
-          orderBy: { answeredAt: "desc" },
-          take: 3,
-          include: {
-            question: {
-              select: {
-                id: true,
-                number: true,
-                stem: true,
-                subject: { select: { name: true } },
-                exam: { select: { year: true, round: true } },
-              },
-            },
-          },
-        })
-      : Promise.resolve([]),
-    // 이번 주 기록
-    user && selectedCat
-      ? prisma.answerRecord.findMany({
-          where: {
-            userId: user.id,
-            answeredAt: { gte: weekStart },
-            question: { subject: { categoryId: selectedCat.id } },
-          },
-          select: { isCorrect: true },
-        })
-      : Promise.resolve([]),
-    // 지난 주 기록
-    user && selectedCat
-      ? prisma.answerRecord.findMany({
-          where: {
-            userId: user.id,
-            answeredAt: { gte: lastWeekStart, lt: weekStart },
-            question: { subject: { categoryId: selectedCat.id } },
-          },
-          select: { isCorrect: true },
-        })
-      : Promise.resolve([]),
-    // 시간대별 (최근 200개)
-    user && selectedCat
-      ? prisma.answerRecord.findMany({
-          where: {
-            userId: user.id,
-            question: { subject: { categoryId: selectedCat.id } },
-          },
-          orderBy: { answeredAt: "desc" },
-          take: 200,
-          select: { answeredAt: true, isCorrect: true },
-        })
-      : Promise.resolve([]),
-    // confidence 분석
-    user && selectedCat
-      ? prisma.answerRecord.findMany({
-          where: {
-            userId: user.id,
-            question: { subject: { categoryId: selectedCat.id } },
-            confidence: { not: null },
-          },
-          select: { confidence: true, isCorrect: true },
-        })
-      : Promise.resolve([]),
-    // SRS 분포
-    user && selectedCat
-      ? prisma.reviewSchedule.findMany({
-          where: {
-            userId: user.id,
-            question: { subject: { categoryId: selectedCat.id } },
-          },
-          select: { nextReviewAt: true },
-        })
-      : Promise.resolve([]),
-    // 오늘 푼 문제 수 (D-day 일일 목표용)
-    user && selectedCat
-      ? prisma.answerRecord.count({
-          where: {
-            userId: user.id,
-            answeredAt: { gte: todayStart, lt: tomorrowStart },
-            question: { subject: { categoryId: selectedCat.id } },
-          },
-        })
-      : Promise.resolve(0),
-    // 과목별 마스터율 (가장 최근 풀이가 정답인지)
-    user && selectedCat
-      ? prisma.answerRecord.findMany({
-          where: {
-            userId: user.id,
-            question: { subject: { categoryId: selectedCat.id } },
-          },
-          orderBy: { answeredAt: "desc" },
-          distinct: ["questionId"],
-          select: {
-            isCorrect: true,
-            question: {
-              select: { subject: { select: { slug: true } } },
-            },
-          },
-        })
-      : Promise.resolve([]),
-  ]);
-
-  const thisWeekTotal = thisWeekRecs.length;
-  const thisWeekCorrect = thisWeekRecs.filter((r) => r.isCorrect).length;
-  const thisWeekAcc =
-    thisWeekTotal > 0
-      ? Math.round((thisWeekCorrect / thisWeekTotal) * 100)
-      : null;
-
-  const lastWeekTotal = lastWeekRecs.length;
-  const lastWeekCorrect = lastWeekRecs.filter((r) => r.isCorrect).length;
-  const lastWeekAcc =
-    lastWeekTotal > 0
-      ? Math.round((lastWeekCorrect / lastWeekTotal) * 100)
-      : null;
-
-  const scoredAttempts = finishedAttempts
-    .map((a) => a.score)
-    .filter((s): s is number => s != null);
-  const avgScore =
-    scoredAttempts.length > 0
-      ? scoredAttempts.reduce((sum, s) => sum + s, 0) / scoredAttempts.length
-      : null;
-  const passProbInterval = computePassProbInterval(scoredAttempts);
-  const passProb = passProbInterval?.prob ?? null;
-
-  // 약점 과목
-  const subjectMap = new Map<
-    string,
-    { name: string; slug: string; total: number; correct: number }
-  >();
-  for (const r of subjectRecords) {
-    const key = r.question.subject.slug;
-    const cur = subjectMap.get(key) ?? {
-      name: r.question.subject.name,
-      slug: key,
-      total: 0,
-      correct: 0,
-    };
-    cur.total += 1;
-    if (r.isCorrect) cur.correct += 1;
-    subjectMap.set(key, cur);
-  }
-  const weakSubjects = Array.from(subjectMap.values())
-    .filter((s) => s.total >= 3)
-    .map((s) => ({ ...s, rate: Math.round((s.correct / s.total) * 100) }))
-    .sort((a, b) => a.rate - b.rate)
-    .slice(0, 3);
-
-  // 시간대 버킷 (0-5 새벽, 6-11 오전, 12-17 오후, 18-23 저녁)
-  const hourBuckets = [
-    { name: "새벽", from: 0, to: 5, total: 0, correct: 0 },
-    { name: "오전", from: 6, to: 11, total: 0, correct: 0 },
-    { name: "오후", from: 12, to: 17, total: 0, correct: 0 },
-    { name: "저녁", from: 18, to: 23, total: 0, correct: 0 },
-  ];
-  for (const r of hourRecords) {
-    const h = r.answeredAt.getHours();
-    const b = hourBuckets.find((b) => h >= b.from && h <= b.to);
-    if (!b) continue;
-    b.total += 1;
-    if (r.isCorrect) b.correct += 1;
-  }
-
-  // Confidence 분석
-  const confBuckets = {
-    GUESS: { total: 0, correct: 0 },
-    UNSURE: { total: 0, correct: 0 },
-    CONFIDENT: { total: 0, correct: 0 },
-  };
-  for (const r of confidenceRecords) {
-    const c = r.confidence as keyof typeof confBuckets | null;
-    if (!c || !(c in confBuckets)) continue;
-    confBuckets[c].total += 1;
-    if (r.isCorrect) confBuckets[c].correct += 1;
-  }
-
-  // SRS 분포 (오늘 / 1일 / 2-3일 / 4-7일 / 8+)
-  const srsBuckets = [
-    { label: "오늘", count: 0 },
-    { label: "내일", count: 0 },
-    { label: "2-3일", count: 0 },
-    { label: "4-7일", count: 0 },
-    { label: "8일+", count: 0 },
-  ];
-  for (const s of reviewAll) {
-    const days = Math.floor(
-      (s.nextReviewAt.getTime() - todayStart.getTime()) / 86400000,
-    );
-    if (days <= 0) srsBuckets[0].count += 1;
-    else if (days === 1) srsBuckets[1].count += 1;
-    else if (days <= 3) srsBuckets[2].count += 1;
-    else if (days <= 7) srsBuckets[3].count += 1;
-    else srsBuckets[4].count += 1;
-  }
-
-  // 회차 attempt 매핑
-  const attemptMap = new Map<
-    string,
-    {
-      id: string;
-      finished: boolean;
-      score: number | null;
-      solved: number;
-      planned: number;
-    }
-  >();
-  if (user && selectedCat) {
-    const all = await prisma.attempt.findMany({
-      where: { userId: user.id, exam: { categoryId: selectedCat.id } },
-      orderBy: { startedAt: "desc" },
-      include: { _count: { select: { records: true } } },
-    });
-    for (const a of all) {
-      if (!a.examId) continue;
-      if (attemptMap.has(a.examId)) continue;
-      attemptMap.set(a.examId, {
-        id: a.id,
-        finished: !!a.finishedAt,
-        score: a.score,
-        solved: a._count.records,
-        planned: a.plannedQuestionIds.length,
+  useEffect(() => {
+    let cancelled = false;
+    setData(null);
+    getHomeData({ exam })
+      .then((d) => {
+        if (!cancelled) setData(d);
+      })
+      .catch(() => {
+        if (!cancelled) setData(null);
       });
-    }
-  }
+    return () => {
+      cancelled = true;
+    };
+  }, [exam]);
 
-  const streakDays = user?.streakDays ?? 0;
-  const nickname = user?.nickname ?? null;
+  if (!data) return <PageSkeleton />;
 
-  // 격려 문구 결정
-  const nudge = pickNudge({
-    streakDays,
-    mistakeCount,
-    passProb,
-    reviewDueCount,
-    weakSubject: weakSubjects[0],
-    avgScore: avgScore != null ? Math.round(avgScore) : null,
-    thisWeekTotal,
-    lastWeekTotal,
-  });
+  const {
+    showPicker,
+    isTempViewing,
+    userTargetSlug,
+    pickerCategories,
+    selectedSlug,
+    selected,
+  } = data;
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-6 md:px-6 md:pt-8">
       {showPicker && (
         <ExamPicker
-          categories={categories.map((c) => ({
-            slug: c.slug,
-            name: c.name,
-            owner: OWNER_MAP[c.slug]?.owner ?? "",
-            publishedCount: c.exams.filter((e) => publishedExamIds.has(e.id))
-              .length,
-          }))}
-          selectedSlug={selectedSlug ?? ""}
+          categories={pickerCategories}
+          selectedSlug={selectedSlug}
         />
       )}
 
-      {/* 임시로 다른 시험 보고있을 때 — 내 시험으로 돌아가기 안내 */}
       {isTempViewing && userTargetSlug && (
         <div className="mb-2 flex items-center justify-between gap-2 rounded-md border border-warning/30 bg-warning/[0.05] px-3 py-2 text-[12px]">
           <span className="text-text-mid">
@@ -451,154 +80,105 @@ export default async function HomePage({
         </div>
       )}
 
-      {selectedCat && (
+      {selected && (
         <>
           <SelectedHeader
-            nickname={nickname}
-            owner={OWNER_MAP[selectedCat.slug]?.owner ?? ""}
-            categoryName={selectedCat.name}
-            passProb={passProb}
-            passLow={passProbInterval?.lower ?? null}
-            passHigh={passProbInterval?.upper ?? null}
-            attemptCount={scoredAttempts.length}
+            nickname={selected.nickname}
+            owner={selected.owner}
+            categoryName={selected.name}
+            passProb={selected.passProb}
+            passLow={selected.passLow}
+            passHigh={selected.passHigh}
+            attemptCount={selected.attemptCount}
           />
 
           <WeekStrip
-            streakDays={streakDays}
-            weekTotal={thisWeekTotal}
-            weekAcc={thisWeekAcc}
-            avgScore={avgScore != null ? Math.round(avgScore) : null}
+            streakDays={selected.streakDays}
+            weekTotal={selected.thisWeekTotal}
+            weekAcc={selected.thisWeekAcc}
+            avgScore={selected.avgScore}
           />
 
-          {user && (
+          {selected.dday && (
             <DdayBanner
-              categoryId={selectedCat.id}
-              categoryName={selectedCat.name}
-              examDate={
-                user.targetCategoryId === selectedCat.id && user.targetExamDate
-                  ? user.targetExamDate.toISOString()
-                  : null
-              }
-              dailyGoal={
-                user.targetCategoryId === selectedCat.id
-                  ? (user.dailyGoal ?? null)
-                  : null
-              }
-              todaySolved={todaySolved}
-              isCurrentCategory={user.targetCategoryId === selectedCat.id}
+              categoryId={selected.id}
+              categoryName={selected.name}
+              examDate={selected.dday.examDateIso}
+              dailyGoal={selected.dday.dailyGoal}
+              todaySolved={selected.dday.todaySolved}
+              isCurrentCategory={selected.dday.isCurrentCategory}
             />
           )}
 
-          <NudgeBanner message={nudge.message} accent={nudge.accent} />
-
-          <TodayPanel
-            reviewDueCount={reviewDueCount}
-            inProgress={
-              inProgress && inProgress.exam
-                ? {
-                    id: inProgress.id,
-                    title: inProgress.exam.title,
-                    solved: inProgress._count.records,
-                    planned: inProgress.plannedQuestionIds.length,
-                  }
-                : null
-            }
-            categorySlug={selectedCat.slug}
+          <NudgeBanner
+            message={selected.nudge.message}
+            accent={selected.nudge.accent}
           />
 
-          <DailyQuestionCard categorySlug={selectedCat.slug} />
+          <TodayPanel
+            reviewDueCount={selected.reviewDueCount}
+            inProgress={selected.inProgress}
+            categorySlug={selected.slug}
+          />
 
-          {yesterdayMistakes.length > 0 && (
+          <DailyQuestionCard categorySlug={selected.slug} />
+
+          {selected.yesterdayMistakes.length > 0 && (
             <YesterdayMistakes
-              items={yesterdayMistakes.map((r) => ({
-                recordId: r.id,
-                questionNumber: r.question.number,
-                stem: r.question.stem,
-                subjectName: r.question.subject.name,
-                examYear: r.question.exam?.year ?? null,
-                examRound: r.question.exam?.round ?? null,
-                categorySlug: selectedCat.slug,
+              items={selected.yesterdayMistakes.map((r) => ({
+                ...r,
+                categorySlug: selected.slug,
               }))}
             />
           )}
 
-          {finishedAttempts.length >= 2 && (
-            <ScoreTrend
-              points={finishedAttempts
-                .slice()
-                .reverse()
-                .map((a) => ({
-                  score: a.score ?? 0,
-                  date: a.finishedAt ?? new Date(),
-                }))}
-            />
+          {selected.scoreTrendPoints.length >= 2 && (
+            <ScoreTrend points={selected.scoreTrendPoints} />
           )}
 
-          {(thisWeekTotal > 0 || lastWeekTotal > 0) && (
+          {(selected.thisWeekTotal > 0 || selected.lastWeekTotal > 0) && (
             <WeekCompareCard
-              thisWeek={{ total: thisWeekTotal, acc: thisWeekAcc }}
-              lastWeek={{ total: lastWeekTotal, acc: lastWeekAcc }}
+              thisWeek={{
+                total: selected.thisWeekTotal,
+                acc: selected.thisWeekAcc,
+              }}
+              lastWeek={{
+                total: selected.lastWeekTotal,
+                acc: selected.lastWeekAcc,
+              }}
             />
           )}
 
-          {hourRecords.length >= 20 && (
-            <TimeOfDayInsight buckets={hourBuckets} />
+          {selected.hourRecordsLength >= 20 && (
+            <TimeOfDayInsight buckets={selected.hourBuckets} />
           )}
 
-          {confidenceRecords.length >= 5 && (
-            <ConfidenceAnalysis buckets={confBuckets} />
+          {selected.confidenceRecordsLength >= 5 && (
+            <ConfidenceAnalysis buckets={selected.confBuckets} />
           )}
 
-          {reviewAll.length > 0 && (
-            <ReviewDistribution buckets={srsBuckets} />
+          {selected.reviewAllLength > 0 && (
+            <ReviewDistribution buckets={selected.srsBuckets} />
           )}
 
-          {weakSubjects.length > 0 && (
+          {selected.weakSubjects.length > 0 && (
             <WeakSubjects
-              subjects={weakSubjects}
-              categorySlug={selectedCat.slug}
+              subjects={selected.weakSubjects}
+              categorySlug={selected.slug}
             />
           )}
 
           <SubjectList
-            categorySlug={selectedCat.slug}
-            subjects={selectedCat.subjects.map((s) => {
-              const subjectRecs = subjectAnswerCounts.filter(
-                (r) => r.question.subject.slug === s.slug,
-              );
-              const solved = subjectRecs.length;
-              const mastered = subjectRecs.filter((r) => r.isCorrect).length;
-              const total = s._count.questions;
-              // 마스터율: 가장 최근 풀이가 정답인 question / 전체 question
-              const progress = total > 0 ? mastered / total : 0;
-              return {
-                slug: s.slug,
-                name: s.name,
-                questionCount: total,
-                solved,
-                mastered,
-                progress,
-              };
-            })}
+            categorySlug={selected.slug}
+            subjects={selected.subjects}
           />
 
-          <RoundList
-            categorySlug={selectedCat.slug}
-            exams={selectedCat.exams.map((e) => ({
-              id: e.id,
-              year: e.year,
-              round: e.round,
-              title: e.title,
-              totalQuestions: e.totalQuestions,
-              published: publishedExamIds.has(e.id),
-              attempt: attemptMap.get(e.id) ?? null,
-            }))}
-          />
+          <RoundList categorySlug={selected.slug} exams={selected.rounds} />
 
           <ToolsDock
-            mistakeCount={mistakeCount}
-            bookmarkCount={bookmarkCount}
-            categorySlug={selectedCat.slug}
+            mistakeCount={selected.mistakeCount}
+            bookmarkCount={selected.bookmarkCount}
+            categorySlug={selected.slug}
           />
         </>
       )}
@@ -1149,7 +729,7 @@ function YesterdayMistakes({
 function ScoreTrend({
   points,
 }: {
-  points: { score: number; date: Date }[];
+  points: { score: number; dateIso: string }[];
 }) {
   const w = 600;
   const h = 80;
@@ -1979,68 +1559,9 @@ function ToolsDock({
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────
-function estimatePassProb(avg: number, n: number): number {
-  const k = 0.12;
-  const raw = 1 / (1 + Math.exp(-k * (avg - 60)));
-  const confidence = Math.min(n / 3, 1);
-  const prob = 0.5 + (raw - 0.5) * confidence;
-  return Math.round(prob * 100);
-}
 
-/**
- * 합격 확률 점추정 + 신뢰구간 (점수 평균의 95% CI 를 로지스틱에 통과)
- * - n=1 이면 ±15점 폭 가정 (불확실성)
- * - n>=2 이면 표본 표준편차 / sqrt(n) * 1.96
- */
-function computePassProbInterval(scores: number[]): {
-  prob: number;
-  lower: number;
-  upper: number;
-  n: number;
-} | null {
-  if (scores.length === 0) return null;
-  const n = scores.length;
-  const mean = scores.reduce((s, v) => s + v, 0) / n;
 
-  let halfWidth = 15;
-  if (n >= 2) {
-    const variance =
-      scores.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1);
-    const stddev = Math.sqrt(variance);
-    halfWidth = (1.96 * stddev) / Math.sqrt(n);
-  }
 
-  const meanLow = Math.max(0, mean - halfWidth);
-  const meanHigh = Math.min(100, mean + halfWidth);
-  return {
-    prob: estimatePassProb(mean, n),
-    lower: estimatePassProb(meanLow, n),
-    upper: estimatePassProb(meanHigh, n),
-    n,
-  };
-}
-
-function startOfDay(d: Date): Date {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-}
-
-function addDays(d: Date, delta: number): Date {
-  const x = new Date(d);
-  x.setDate(x.getDate() + delta);
-  return x;
-}
-
-function startOfWeek(d: Date): Date {
-  const x = startOfDay(d);
-  const day = x.getDay(); // 일요일=0
-  x.setDate(x.getDate() - day);
-  return x;
-}
 
 function stripTagsShort(s: string): string {
   return s
@@ -2050,70 +1571,4 @@ function stripTagsShort(s: string): string {
     .trim();
 }
 
-function pickNudge(args: {
-  streakDays: number;
-  mistakeCount: number;
-  passProb: number | null;
-  reviewDueCount: number;
-  weakSubject: { name: string; rate: number } | undefined;
-  avgScore: number | null;
-  thisWeekTotal: number;
-  lastWeekTotal: number;
-}): { message: string; accent: "primary" | "accent" | "warning" | "neutral" } {
-  // 우선순위 순
-  if (args.passProb != null && args.passProb >= 70) {
-    return {
-      message: "합격권 진입. 이 페이스만 유지하세요.",
-      accent: "accent",
-    };
-  }
-  if (args.weakSubject && args.weakSubject.rate < 40) {
-    return {
-      message: `${args.weakSubject.name}이 ${args.weakSubject.rate}%로 발목 잡고 있어요. 이 과목만 10문 풀어볼까요?`,
-      accent: "warning",
-    };
-  }
-  if (args.reviewDueCount >= 10) {
-    return {
-      message: `복습 ${args.reviewDueCount}문제 밀림. 한 번 돌려야 점수 올라요.`,
-      accent: "primary",
-    };
-  }
-  if (args.streakDays >= 3) {
-    return {
-      message: `${args.streakDays}일 연속 풀고 있어요. 이 페이스면 3주 안에 한 바퀴.`,
-      accent: "accent",
-    };
-  }
-  if (args.mistakeCount >= 10) {
-    return {
-      message: `오답 ${args.mistakeCount}개가 쌓였어요. 복습 한 번 돌려야 해요.`,
-      accent: "warning",
-    };
-  }
-  if (args.thisWeekTotal > args.lastWeekTotal && args.lastWeekTotal > 0) {
-    return {
-      message: `이번 주 풀이가 지난주 대비 ${Math.round(
-        (args.thisWeekTotal / args.lastWeekTotal - 1) * 100,
-      )}% 늘었어요.`,
-      accent: "accent",
-    };
-  }
-  if (args.passProb != null && args.passProb >= 50) {
-    return {
-      message: "합격 턱 밑. 오답 위주로만 한 번 긁으면 돼요.",
-      accent: "primary",
-    };
-  }
-  if (args.streakDays === 0) {
-    return {
-      message: "오늘 아직 한 문제도 안 풀었어요. 1분이면 돼요.",
-      accent: "warning",
-    };
-  }
-  return {
-    message: "꾸준히 풀수록 합격 예측이 더 정확해져요.",
-    accent: "neutral",
-  };
-}
 

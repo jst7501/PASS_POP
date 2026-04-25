@@ -4,8 +4,10 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SiteMobileNav } from "@/components/site-mobile-nav";
+import { Suspense } from "react";
 import { AuthGate } from "@/components/auth/auth-gate";
 import { SiteUserBadge } from "@/components/auth/site-user-badge";
+import { NavProgress } from "@/components/nav-progress";
 import { getCurrentUser } from "@/lib/auth/anon";
 import prisma from "@/lib/prisma";
 
@@ -49,6 +51,9 @@ export default async function RootLayout({
     <html lang="ko" suppressHydrationWarning>
       <body className="min-h-screen bg-background text-text-high antialiased">
         <ThemeProvider>
+          <Suspense fallback={null}>
+            <NavProgress />
+          </Suspense>
           <div className="flex min-h-screen flex-col">
             <SiteHeader nickname={nickname} isAdmin={isAdmin} />
             <main className="flex-1">{children}</main>
