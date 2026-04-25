@@ -1,9 +1,22 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import prisma from "@/lib/prisma";
 import { getOrCreateAnonUser } from "@/lib/auth/anon";
+
+/**
+ * 카테고리/회차/해설 캐시 무효화 — 시드 재실행 후 호출.
+ * 관리자만 실행할 수 있도록 닉 체크.
+ */
+export async function invalidatePublicCache() {
+  const user = await getOrCreateAnonUser();
+  if (user.nickname !== "관리자") return { ok: false };
+  revalidateTag("home-public");
+  revalidateTag("categories");
+  revalidateTag("explanations");
+  return { ok: true };
+}
 
 const COOKIE_NAME = "passpop_uid";
 const ONE_YEAR = 60 * 60 * 24 * 365;

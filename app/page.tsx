@@ -1,8 +1,4 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import {
   NavArrowRight,
   Shuffle,
@@ -21,30 +17,15 @@ import {
 } from "iconoir-react";
 import { cn } from "@/lib/utils";
 import { DdayBanner } from "@/components/home/dday-banner";
-import { PageSkeleton } from "@/components/skeleton";
-import { getHomeData, type HomeData } from "@/lib/actions/data/home";
+import { getHomeData } from "@/lib/actions/data/home";
 
-export default function HomePage() {
-  const sp = useSearchParams();
-  const exam = sp.get("exam") ?? undefined;
-  const [data, setData] = useState<HomeData | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    setData(null);
-    getHomeData({ exam })
-      .then((d) => {
-        if (!cancelled) setData(d);
-      })
-      .catch(() => {
-        if (!cancelled) setData(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [exam]);
-
-  if (!data) return <PageSkeleton />;
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ exam?: string }>;
+}) {
+  const sp = await searchParams;
+  const data = await getHomeData({ exam: sp.exam });
 
   const {
     showPicker,

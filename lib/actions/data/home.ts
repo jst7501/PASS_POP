@@ -1,7 +1,50 @@
 "use server";
 
+import { unstable_cache } from "next/cache";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/anon";
+
+// ─── 공개 데이터 캐시 ──────────────────────────────────────────
+// 카테고리/과목/회차/공개해설 — 모든 유저 동일하므로 1시간 캐시.
+// 시드를 다시 돌리거나 새 해설 추가됐을 때 revalidateTag("home-public") 로 무효화.
+const getPublicHomeData = unstable_cache(
+  async () => {
+    const categories = await prisma.category.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: "asc" },
+      include: {
+        _count: { select: { subjects: true } },
+        subjects: {
+          orderBy: { orderIdx: "asc" },
+          include: { _count: { select: { questions: true } } },
+        },
+        exams: {
+          orderBy: [{ year: "desc" }, { round: "desc" }],
+          select: {
+            id: true,
+            year: true,
+            round: true,
+            title: true,
+            totalQuestions: true,
+          },
+        },
+      },
+    });
+    const publishedByExam = await prisma.aiExplanation.findMany({
+      where: { userId: null, model: "hand-written" },
+      distinct: ["questionId"],
+      select: { question: { select: { examId: true } } },
+    });
+    const publishedExamIds = Array.from(
+      new Set(
+        publishedByExam.map((e) => e.question.examId).filter(Boolean) as string[],
+      ),
+    );
+    return { categories, publishedExamIds };
+  },
+  ["home-public-v1"],
+  { revalidate: 3600, tags: ["home-public", "categories", "explanations"] },
+);
 
 const OWNER_MAP: Record<string, string> = {
   "civil-engineer-gisa": "정호",
@@ -161,36 +204,10 @@ export async function getHomeData(args: {
   const user = await getCurrentUser();
   const pickedSlug = args.exam;
 
-  const categories = await prisma.category.findMany({
-    where: { isActive: true },
-    orderBy: { createdAt: "asc" },
-    include: {
-      _count: { select: { subjects: true } },
-      subjects: {
-        orderBy: { orderIdx: "asc" },
-        include: { _count: { select: { questions: true } } },
-      },
-      exams: {
-        orderBy: [{ year: "desc" }, { round: "desc" }],
-        select: {
-          id: true,
-          year: true,
-          round: true,
-          title: true,
-          totalQuestions: true,
-        },
-      },
-    },
-  });
-
-  const publishedByExam = await prisma.aiExplanation.findMany({
-    where: { userId: null, model: "hand-written" },
-    distinct: ["questionId"],
-    select: { question: { select: { examId: true } } },
-  });
-  const publishedExamIds = new Set(
-    publishedByExam.map((e) => e.question.examId).filter(Boolean) as string[],
-  );
+  // 공개 데이터 (캐시) + 유저 데이터 (실시간) 병렬
+  const { categories, publishedExamIds: publishedExamIdsArr } =
+    await getPublicHomeData();
+  const publishedExamIds = new Set(publishedExamIdsArr);
 
   const userTargetSlug = user?.targetCategoryId
     ? (categories.find((c) => c.id === user.targetCategoryId)?.slug ?? null)
