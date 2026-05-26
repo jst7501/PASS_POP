@@ -141,6 +141,14 @@ body {
   color: rgb(var(--text-high));
 }
 
+/* details > summary 기본 마커(▶) 제거 — list-none 클래스와 함께 동작 보장 */
+summary::-webkit-details-marker {
+  display: none;
+}
+summary {
+  list-style: none;
+}
+
 /* 테마 전환 시 transition 없음 (플리커·리플로우 방지) */
 
 /* ──────────────────────────────────────────────────

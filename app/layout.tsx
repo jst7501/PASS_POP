@@ -235,7 +235,7 @@ export default function RootLayout({
 function LandingHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border-soft bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link
           href="/"
           className="inline-flex items-center gap-2 transition-opacity hover:opacity-80"
@@ -288,7 +288,7 @@ function HeaderAnchor({
 function LandingFooter() {
   return (
     <footer className="border-t border-border-soft bg-background">
-      <div className="mx-auto max-w-6xl px-4 py-10 md:px-6">
+      <div className="mx-auto max-w-6xl px-6 py-12">
         <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <LogoMark className="h-7 w-7" />

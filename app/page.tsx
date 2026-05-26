@@ -106,7 +106,8 @@ type ExamCard = {
   choices: string[];
   correctIdx: number;
   tag?: string;
-  size?: "sm" | "md" | "lg";
+  /** mosaic 시각적 변주용 — 없으면 기본 */
+  accent?: "primary" | "accent" | "warning" | "neutral";
 };
 
 const EXAM_CARDS: ExamCard[] = [
@@ -121,7 +122,7 @@ const EXAM_CARDS: ExamCard[] = [
     choices: ["지점 A", "지점 B", "보의 중앙", "지점 A에서 L/3 떨어진 곳"],
     correctIdx: 2,
     tag: "AI 해설",
-    size: "md",
+    accent: "primary",
   },
   {
     name: "공조냉동기계기사",
@@ -131,10 +132,15 @@ const EXAM_CARDS: ExamCard[] = [
     year: 2024,
     round: 2,
     stem: "이상기체의 등엔트로피 과정에서 성립하지 않는 관계식은?",
-    choices: ["TV^(k-1) = const", "PV^k = const", "TP^((1-k)/k) = const", "PV = nRT"],
+    choices: [
+      "TV^(k-1) = const",
+      "PV^k = const",
+      "TP^((1-k)/k) = const",
+      "PV = nRT",
+    ],
     correctIdx: 3,
     tag: "프리미엄",
-    size: "lg",
+    accent: "primary",
   },
   {
     name: "정보처리기사",
@@ -146,7 +152,7 @@ const EXAM_CARDS: ExamCard[] = [
     stem: "관계형 데이터베이스에서 정규화의 주된 목적은?",
     choices: ["성능 향상", "중복 제거", "보안 강화", "복구 단순화"],
     correctIdx: 1,
-    size: "sm",
+    accent: "accent",
   },
   {
     name: "3D프린터운용기능사",
@@ -159,7 +165,7 @@ const EXAM_CARDS: ExamCard[] = [
     choices: ["0~15°", "15~45°", "45~60° 이상", "각도 무관"],
     correctIdx: 2,
     tag: "신규",
-    size: "md",
+    accent: "warning",
   },
   {
     name: "전기기사",
@@ -176,7 +182,7 @@ const EXAM_CARDS: ExamCard[] = [
       "전하가 없는 곳에서는 연속이다",
     ],
     correctIdx: 2,
-    size: "lg",
+    accent: "neutral",
   },
   {
     name: "건축기사",
@@ -185,10 +191,10 @@ const EXAM_CARDS: ExamCard[] = [
     qNumber: 22,
     year: 2024,
     round: 1,
-    stem: "철근콘크리트 보의 휨강도 설계에서 강도감소계수 φ는?",
+    stem: "철근콘크리트 보의 휨강도 설계에서 강도감소계수 φ 는?",
     choices: ["0.65", "0.75", "0.85", "0.90"],
     correctIdx: 2,
-    size: "sm",
+    accent: "neutral",
   },
   {
     name: "9급 공무원 (국어)",
@@ -197,11 +203,11 @@ const EXAM_CARDS: ExamCard[] = [
     qNumber: 4,
     year: 2024,
     round: 1,
-    stem: "다음 중 표준어로 옳은 것은?",
+    stem: "다음 중 표준어 표기로 옳은 것은?",
     choices: ["가까히", "깨끗히", "꼼꼼히", "조용이"],
     correctIdx: 2,
     tag: "오답분석",
-    size: "md",
+    accent: "accent",
   },
   {
     name: "위험물산업기사",
@@ -213,7 +219,7 @@ const EXAM_CARDS: ExamCard[] = [
     stem: "제4류 위험물 중 인화점이 가장 낮은 것은?",
     choices: ["휘발유", "등유", "경유", "중유"],
     correctIdx: 0,
-    size: "sm",
+    accent: "primary",
   },
   {
     name: "산업안전기사",
@@ -222,11 +228,11 @@ const EXAM_CARDS: ExamCard[] = [
     qNumber: 14,
     year: 2024,
     round: 1,
-    stem: "하인리히의 사고 발생 비율 1:29:300에서 '300'에 해당하는 것은?",
+    stem: "하인리히 사고 발생 비율 1:29:300 에서 '300' 에 해당하는 것은?",
     choices: ["중상해", "경상해", "무상해 사고", "사망"],
     correctIdx: 2,
     tag: "AI 해설",
-    size: "md",
+    accent: "accent",
   },
   {
     name: "토목기술사",
@@ -238,7 +244,7 @@ const EXAM_CARDS: ExamCard[] = [
     stem: "흙의 다짐도에 영향을 주는 요인이 아닌 것은?",
     choices: ["함수비", "다짐 에너지", "지하수위", "흙의 종류"],
     correctIdx: 2,
-    size: "lg",
+    accent: "neutral",
   },
   {
     name: "7급 공무원 (행정학)",
@@ -255,7 +261,7 @@ const EXAM_CARDS: ExamCard[] = [
       "정치 엘리트가 독점한다",
     ],
     correctIdx: 1,
-    size: "md",
+    accent: "primary",
   },
   {
     name: "정보처리산업기사",
@@ -264,11 +270,11 @@ const EXAM_CARDS: ExamCard[] = [
     qNumber: 11,
     year: 2024,
     round: 1,
-    stem: "다음 중 시간 복잡도가 O(n log n)인 정렬 알고리즘은?",
+    stem: "다음 중 시간 복잡도가 O(n log n) 인 정렬 알고리즘은?",
     choices: ["버블 정렬", "삽입 정렬", "병합 정렬", "선택 정렬"],
     correctIdx: 2,
     tag: "신규",
-    size: "sm",
+    accent: "warning",
   },
 ];
 
@@ -364,31 +370,31 @@ export default function LandingPage() {
 function Hero() {
   return (
     <section className="relative border-b border-border-soft">
-      <div className="mx-auto max-w-5xl px-4 pb-12 pt-12 md:px-6 md:pb-16 md:pt-20">
+      <div className="mx-auto max-w-5xl px-6 pb-16 pt-20 md:pb-24 md:pt-28">
         <div className="text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/[0.06] px-3 py-1 text-[11.5px] font-semibold text-primary">
             <Sparks className="h-3 w-3" strokeWidth={2.5} />
             COMING SOON · 베타 알림 신청 받는 중
           </span>
 
-          <h1 className="mx-auto mt-6 max-w-4xl text-[42px] font-extrabold leading-[1.05] tracking-[-0.035em] text-text-high md:text-[68px]">
+          <h1 className="mx-auto mt-8 max-w-4xl text-[44px] font-extrabold leading-[1.04] tracking-[-0.035em] text-text-high md:text-[76px]">
             모든 자격증 기출,
             <br />
-            <span className="text-text-mid">한 곳에서. </span>
+            <span className="text-text-mid">한 곳에서.</span>{" "}
             <span className="text-primary">무료로.</span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-[15px] leading-[1.65] text-text-mid md:text-[17px]">
+          <p className="mx-auto mt-8 max-w-2xl text-[15px] leading-[1.65] text-text-mid md:text-[17.5px]">
             10,000+ 기출문제 · 8+ 시험 종목 · 회원가입 없이.
             <br className="hidden md:block" />
-            찍은 오답까지 AI가 분석하는 프리미엄 해설, 무료로 공개.
+            찍은 오답까지 AI가 분석하는 프리미엄 해설, 무료로 공개합니다.
           </p>
 
           {/* 가짜 검색바 — Mobbin 스타일의 인터랙티브한 둘러보기 입구 */}
-          <div className="mx-auto mt-10 max-w-xl">
+          <div className="mx-auto mt-12 max-w-xl">
             <a
               href="#browse"
-              className="group flex h-14 items-center gap-3 rounded-md border border-border bg-surface px-4 text-left shadow-sm transition-all hover:border-text-mid hover:shadow-md"
+              className="group flex h-14 items-center gap-3 rounded-lg border border-border bg-surface px-5 text-left transition-all hover:border-text-mid hover:shadow-[0_8px_20px_-12px_rgb(var(--text-high)/0.18)]"
             >
               <Search
                 className="h-4 w-4 shrink-0 text-text-muted"
@@ -397,18 +403,18 @@ function Hero() {
               <span className="flex-1 truncate text-[14px] text-text-muted">
                 토목기사, 정보처리기사, 9급 공무원…
               </span>
-              <span className="hidden items-center gap-1 rounded-sm border border-border bg-background px-2 py-0.5 font-mono text-[10.5px] font-semibold text-text-muted group-hover:text-text-mid md:inline-flex">
+              <span className="hidden items-center gap-1 rounded-md border border-border bg-background px-2 py-1 font-mono text-[10.5px] font-semibold text-text-muted group-hover:text-text-mid md:inline-flex">
                 ⌘ K
               </span>
             </a>
 
-            <ul className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
+            <ul className="mt-5 flex flex-wrap items-center justify-center gap-1.5">
               {GRADES.map((g) => (
                 <li key={g.key}>
                   <a
                     href={`#browse`}
                     className={cn(
-                      "inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[12px] font-medium transition-colors",
+                      "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12.5px] font-medium transition-colors",
                       g.key === "all"
                         ? "border-text-high bg-text-high text-background"
                         : "border-border bg-surface text-text-mid hover:border-text-mid hover:text-text-high",
@@ -424,21 +430,33 @@ function Hero() {
             </ul>
           </div>
 
-          <ul className="mx-auto mt-10 flex max-w-2xl flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12px] text-text-mid">
-            <li className="inline-flex items-center gap-1">
-              <CheckCircle className="h-3.5 w-3.5 text-accent" strokeWidth={2.5} />
+          <ul className="mx-auto mt-12 flex max-w-2xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12.5px] text-text-mid">
+            <li className="inline-flex items-center gap-1.5">
+              <CheckCircle
+                className="h-3.5 w-3.5 text-accent"
+                strokeWidth={2.5}
+              />
               회원가입 불필요
             </li>
-            <li className="inline-flex items-center gap-1">
-              <CheckCircle className="h-3.5 w-3.5 text-accent" strokeWidth={2.5} />
+            <li className="inline-flex items-center gap-1.5">
+              <CheckCircle
+                className="h-3.5 w-3.5 text-accent"
+                strokeWidth={2.5}
+              />
               전 종목 완전 무료
             </li>
-            <li className="inline-flex items-center gap-1">
-              <CheckCircle className="h-3.5 w-3.5 text-accent" strokeWidth={2.5} />
+            <li className="inline-flex items-center gap-1.5">
+              <CheckCircle
+                className="h-3.5 w-3.5 text-accent"
+                strokeWidth={2.5}
+              />
               AI 해설 무제한
             </li>
-            <li className="inline-flex items-center gap-1">
-              <CheckCircle className="h-3.5 w-3.5 text-accent" strokeWidth={2.5} />
+            <li className="inline-flex items-center gap-1.5">
+              <CheckCircle
+                className="h-3.5 w-3.5 text-accent"
+                strokeWidth={2.5}
+              />
               광고 없는 학습
             </li>
           </ul>
@@ -454,17 +472,17 @@ function Hero() {
 function BrowseSection() {
   return (
     <section id="browse" className="border-b border-border-soft">
-      <div className="mx-auto max-w-6xl px-4 pb-20 pt-16 md:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
+      <div className="mx-auto max-w-6xl px-6 pb-24 pt-20 md:pb-28 md:pt-24">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div className="max-w-xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
               둘러보기 · 미리보기
             </p>
-            <h2 className="mt-2 text-[28px] font-extrabold tracking-[-0.025em] text-text-high md:text-[36px]">
+            <h2 className="mt-3 text-[30px] font-extrabold tracking-[-0.025em] text-text-high md:text-[40px]">
               실제 풀이 화면, 그대로.
             </h2>
-            <p className="mt-2 max-w-xl text-[14px] text-text-mid">
-              오픈 시 모든 종목에서 동일한 인터페이스. 지문, 선지, 즉시 채점,
+            <p className="mt-3 text-[14.5px] leading-[1.65] text-text-mid md:text-[15px]">
+              오픈 시 모든 종목에서 동일한 인터페이스. 지문 · 선지 · 즉시 채점 ·
               AI 해설까지.
             </p>
           </div>
@@ -479,14 +497,14 @@ function BrowseSection() {
           </div>
         </div>
 
-        {/* Masonry 느낌의 grid - CSS columns */}
-        <div className="mt-10 [column-fill:_balance] columns-1 gap-3 sm:columns-2 lg:columns-3">
+        {/* 정렬된 grid — 한 행 카드끼리 높이 자동 맞춤 */}
+        <ul className="mt-10 grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {EXAM_CARDS.map((c, i) => (
-            <div key={i} className="mb-3 break-inside-avoid">
+            <li key={i}>
               <ExamPreviewCard exam={c} />
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
 
         <div className="mt-10 text-center">
           <a
@@ -526,40 +544,46 @@ function FilterPill({
 
 function ExamPreviewCard({ exam }: { exam: ExamCard }) {
   const choiceLabels = ["①", "②", "③", "④"];
-  return (
-    <article
-      className={cn(
-        "group relative overflow-hidden rounded-md border border-border bg-surface transition-all hover:-translate-y-0.5 hover:border-text-mid hover:shadow-sm",
-        // 사이즈별 패딩 조절로 mosaic 효과
-        exam.size === "lg" ? "p-5" : exam.size === "sm" ? "p-4" : "p-4.5",
-      )}
-    >
-      {/* Hover 시 종목명 floating */}
-      <div className="pointer-events-none absolute right-3 top-3 z-10 translate-y-1 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100">
-        <span className="inline-flex items-center gap-1 rounded-sm bg-text-high px-1.5 py-0.5 text-[10px] font-bold text-background shadow-sm">
-          <ArrowRight className="h-2.5 w-2.5" strokeWidth={2.5} />
-          {exam.name}
-        </span>
-      </div>
 
-      {/* 헤더 — 종목명 + 메타 */}
-      <header className="flex items-center justify-between gap-2 border-b border-border-soft pb-2.5">
-        <div className="flex min-w-0 items-center gap-1.5">
-          <span className="rounded-sm bg-primary/10 px-1.5 py-0.5 font-mono text-[9.5px] font-bold uppercase tracking-wider text-primary">
+  // accent → 좌측 상단 thin bar 색
+  const accentBar =
+    exam.accent === "primary"
+      ? "bg-primary"
+      : exam.accent === "accent"
+        ? "bg-accent"
+        : exam.accent === "warning"
+          ? "bg-warning"
+          : "bg-text-mid/40";
+
+  return (
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface p-6 transition-all duration-200 hover:-translate-y-1 hover:border-text-mid hover:shadow-[0_8px_24px_-12px_rgb(var(--text-high)/0.12)]">
+      {/* 좌측 thin accent bar */}
+      <span
+        aria-hidden="true"
+        className={cn(
+          "absolute left-0 top-0 h-full w-[3px]",
+          accentBar,
+        )}
+      />
+
+      {/* 헤더 — 등급 뱃지 + 종목명 + 태그 */}
+      <header className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-col gap-2">
+          <span className="inline-flex w-fit items-center rounded-full bg-surface-mute px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-text-mid">
             {exam.grade}
           </span>
-          <span className="truncate text-[11.5px] font-semibold text-text-high">
+          <h3 className="truncate text-[14px] font-bold tracking-[-0.01em] text-text-high">
             {exam.name}
-          </span>
+          </h3>
         </div>
         {exam.tag && (
           <span
             className={cn(
-              "shrink-0 rounded-sm px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wider",
-              exam.tag === "AI 해설" && "bg-accent/15 text-accent",
-              exam.tag === "프리미엄" && "bg-primary/15 text-primary",
+              "shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em]",
+              exam.tag === "AI 해설" && "bg-accent/12 text-accent",
+              exam.tag === "프리미엄" && "bg-primary/12 text-primary",
               exam.tag === "신규" && "bg-warning/15 text-warning",
-              exam.tag === "오답분석" && "bg-accent/15 text-accent",
+              exam.tag === "오답분석" && "bg-accent/12 text-accent",
             )}
           >
             {exam.tag}
@@ -567,59 +591,51 @@ function ExamPreviewCard({ exam }: { exam: ExamCard }) {
         )}
       </header>
 
-      {/* Q 번호 + 회차 */}
-      <div className="mt-3 flex items-center gap-2 font-mono text-[10.5px] text-text-muted">
+      {/* 메타 — Q번호 · 과목 · 회차 (inline 한 줄, nowrap) */}
+      <p className="mt-5 inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 font-mono text-[10.5px] text-text-muted">
         <span className="font-bold text-text-mid">
           Q.{String(exam.qNumber).padStart(2, "0")}
         </span>
-        <span>·</span>
+        <span aria-hidden="true">·</span>
         <span>{exam.subject}</span>
-        <span>·</span>
+        <span aria-hidden="true">·</span>
         <span>
-          {exam.year}-{exam.round}회
+          {exam.year}년 {exam.round}회
         </span>
-      </div>
+      </p>
 
       {/* 지문 */}
-      <p
-        className={cn(
-          "mt-2 font-medium leading-[1.5] text-text-high",
-          exam.size === "lg"
-            ? "text-[14px]"
-            : exam.size === "sm"
-              ? "text-[12.5px]"
-              : "text-[13px]",
-        )}
-      >
+      <p className="mt-3 line-clamp-3 text-[14px] font-semibold leading-[1.55] tracking-[-0.005em] text-text-high">
         {exam.stem}
       </p>
 
-      {/* 보기 */}
-      <ul className="mt-3 space-y-1">
+      {/* 선지 — flex inline 강제, label 과 텍스트 한 줄 묶음 */}
+      <ul className="mt-5 flex flex-1 flex-col gap-1.5">
         {exam.choices.map((ch, i) => {
           const isCorrect = i === exam.correctIdx;
           return (
             <li
               key={i}
               className={cn(
-                "flex items-start gap-1.5 rounded-sm px-1.5 py-1 text-[11.5px] leading-[1.45]",
+                "flex items-start gap-2.5 rounded-md border px-3 py-2 text-[12.5px] leading-[1.45] transition-colors",
                 isCorrect
-                  ? "bg-accent/[0.08] text-text-high"
-                  : "text-text-mid",
+                  ? "border-accent/30 bg-accent/[0.05] text-text-high"
+                  : "border-transparent bg-surface-mute/40 text-text-mid",
               )}
             >
               <span
                 className={cn(
-                  "shrink-0 font-mono font-bold",
+                  "inline-block w-3 shrink-0 text-center font-mono font-bold leading-[1.45]",
                   isCorrect ? "text-accent" : "text-text-muted",
                 )}
+                aria-hidden="true"
               >
                 {choiceLabels[i]}
               </span>
-              <span className="line-clamp-2">{ch}</span>
+              <span className="flex-1 break-keep">{ch}</span>
               {isCorrect && (
                 <CheckCircle
-                  className="ml-auto h-3 w-3 shrink-0 text-accent"
+                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent opacity-0 transition-opacity group-hover:opacity-100"
                   strokeWidth={2.5}
                 />
               )}
@@ -627,6 +643,18 @@ function ExamPreviewCard({ exam }: { exam: ExamCard }) {
           );
         })}
       </ul>
+
+      {/* 푸터 — hover 시 reveal */}
+      <footer className="mt-5 flex items-center justify-between border-t border-border-soft pt-4 text-[11px] text-text-muted">
+        <span className="inline-flex items-center gap-1">
+          <CheckCircle className="h-3 w-3 text-accent" strokeWidth={2.5} />
+          즉시 채점 + AI 해설
+        </span>
+        <span className="inline-flex items-center gap-0.5 font-semibold text-text-mid opacity-0 transition-opacity group-hover:opacity-100">
+          풀어보기
+          <ArrowRight className="h-3 w-3" strokeWidth={2.5} />
+        </span>
+      </footer>
     </article>
   );
 }
@@ -644,14 +672,14 @@ function Stats() {
   ];
   return (
     <section className="border-b border-border-soft bg-surface-mute/40">
-      <div className="mx-auto max-w-6xl px-4 py-10 md:px-6">
-        <ul className="grid grid-cols-2 gap-y-5 md:grid-cols-5 md:gap-x-4">
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        <ul className="grid grid-cols-2 gap-y-6 sm:grid-cols-3 md:grid-cols-5 md:gap-x-6">
           {items.map((it) => (
             <li key={it.label} className="text-center md:text-left">
-              <p className="font-mono text-[24px] font-extrabold tabular-nums tracking-[-0.02em] text-text-high md:text-[28px]">
+              <p className="font-mono text-[26px] font-extrabold tabular-nums tracking-[-0.02em] text-text-high md:text-[30px]">
                 {it.value}
               </p>
-              <p className="mt-0.5 text-[11.5px] font-medium uppercase tracking-wider text-text-muted">
+              <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.12em] text-text-muted">
                 {it.label}
               </p>
             </li>
@@ -707,37 +735,47 @@ function Categories() {
 
   return (
     <section id="categories" className="border-b border-border-soft">
-      <div className="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-24">
+      <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
         <div className="max-w-2xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
             시험 등급
           </p>
-          <h2 className="mt-2 text-[28px] font-extrabold tracking-[-0.025em] text-text-high md:text-[36px]">
+          <h2 className="mt-3 text-[30px] font-extrabold tracking-[-0.025em] text-text-high md:text-[40px]">
             기능사부터 공무원까지.
           </h2>
-          <p className="mt-3 text-[14px] leading-[1.65] text-text-mid">
+          <p className="mt-3 text-[14.5px] leading-[1.65] text-text-mid md:text-[15px]">
             한국산업인력공단·인사혁신처 주요 시험 전반을 다룹니다. 종목은 순차
             오픈됩니다.
           </p>
         </div>
 
-        <ul className="mt-10 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-12 grid auto-rows-fr gap-4 md:grid-cols-2 lg:grid-cols-3">
           {cats.map((c) => (
             <li key={c.name}>
-              <article className="group flex h-full flex-col rounded-md border border-border bg-surface p-5 transition-colors hover:border-text-mid">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-[17px] font-bold tracking-[-0.01em] text-text-high">
+              <article className="group flex h-full flex-col rounded-lg border border-border bg-surface p-6 transition-all hover:-translate-y-0.5 hover:border-text-mid hover:shadow-[0_8px_24px_-12px_rgb(var(--text-high)/0.1)]">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-[18px] font-bold tracking-[-0.01em] text-text-high">
                     {c.name}
                   </h3>
-                  <span className="font-mono text-[11px] tabular-nums text-text-muted">
+                  <span
+                    className={cn(
+                      "shrink-0 rounded-full px-2.5 py-0.5 font-mono text-[10.5px] font-semibold tabular-nums",
+                      c.count > 0
+                        ? "bg-primary/10 text-primary"
+                        : "bg-surface-mute text-text-muted",
+                    )}
+                  >
                     {c.count > 0 ? `${c.count}개 종목` : "준비중"}
                   </span>
                 </div>
-                <p className="mt-2 text-[12.5px] leading-[1.6] text-text-mid">
+                <p className="mt-3 text-[13px] leading-[1.6] text-text-mid">
                   {c.desc}
                 </p>
-                <p className="mt-3 line-clamp-2 text-[11.5px] text-text-muted">
-                  예: {c.examples}
+                <p className="mt-auto pt-5 text-[11.5px] leading-[1.55] text-text-muted">
+                  <span className="font-semibold uppercase tracking-wider">
+                    예시
+                  </span>{" "}
+                  · {c.examples}
                 </p>
               </article>
             </li>
@@ -752,73 +790,512 @@ function Categories() {
 // FEATURES — 4분할 그리드
 // ─────────────────────────────────────────────────────────────
 function Features() {
-  const items = [
-    {
-      Icon: MagicWand,
-      title: "프리미엄 AI 오답 해설",
-      desc: "정답이 아니라 '당신이 찍은 그 오답' 을 기준으로 분석합니다.",
-    },
-    {
-      Icon: Brain,
-      title: "망각곡선 복습 (SM-2)",
-      desc: "맞힌 건 간격 늘려 재출제, 틀린 건 다음 날. 알고리즘이 알아서.",
-    },
-    {
-      Icon: GraphUp,
-      title: "합격 예측 + 신뢰구간",
-      desc: "베이지안 추정으로 % 단위 + '신뢰 낮음' 솔직 표기.",
-    },
-    {
-      Icon: Bookmark,
-      title: "자동 오답노트 + 북마크",
-      desc: "틀리는 순간 노트에 들어가고, 어려운 건 한 번에 북마크.",
-    },
-    {
-      Icon: Clock,
-      title: "실전 CBT 모의고사",
-      desc: "실제 시험과 동일한 시간 제한·과락 체크 환경.",
-    },
-    {
-      Icon: ShieldCheck,
-      title: "광고 없는 풀이 화면",
-      desc: "집중을 해치지 않습니다. 풀이 페이지엔 광고 일절 없음.",
-    },
-  ];
-
   return (
-    <section id="features" className="border-b border-border-soft bg-surface-mute/30">
-      <div className="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-24">
+    <section
+      id="features"
+      className="border-b border-border-soft bg-surface-mute/30"
+    >
+      <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
         <div className="max-w-2xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
             왜 PASSPOP
           </p>
-          <h2 className="mt-2 text-[28px] font-extrabold tracking-[-0.025em] text-text-high md:text-[36px]">
+          <h2 className="mt-3 text-[30px] font-extrabold leading-[1.15] tracking-[-0.025em] text-text-high md:text-[40px]">
             무료 사이트인데,
             <br />
             유료 앱보다 자세합니다.
           </h2>
         </div>
 
-        <ul className="mt-10 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {items.map((f) => (
-            <li
-              key={f.title}
-              className="flex flex-col rounded-md border border-border bg-surface p-5 transition-colors hover:border-text-mid"
+        <ul className="mt-12 grid auto-rows-fr gap-5 md:grid-cols-2">
+          <FeatureRow
+            Icon={MagicWand}
+            title="프리미엄 AI 오답 해설"
+            desc="정답이 아니라 '당신이 찍은 그 오답' 을 기준으로 분석합니다. 왜 헷갈렸는지부터, 다음에 안 틀리는 암기 후크까지."
+            tone="primary"
+          >
+            <AiExplanationMockup />
+          </FeatureRow>
+
+          <FeatureRow
+            Icon={Brain}
+            title="망각곡선 복습 (SM-2)"
+            desc="맞힌 건 간격 늘려 재출제, 틀린 건 다음 날. 알고리즘이 잊을 때쯤 정확히 복습을 띄워줍니다."
+            tone="accent"
+          >
+            <ReviewScheduleMockup />
+          </FeatureRow>
+
+          <FeatureRow
+            Icon={GraphUp}
+            title="합격 예측 + 신뢰구간"
+            desc="베이지안 추정으로 합격 확률을 % 단위로. 풀이 적으면 '신뢰 낮음' 으로 솔직히 알려드립니다."
+            tone="primary"
+          >
+            <PassPredictionMockup />
+          </FeatureRow>
+
+          <FeatureRow
+            Icon={Bookmark}
+            title="자동 오답노트 + 북마크"
+            desc="틀리는 순간 노트에 자동 수집. 어려운 문제는 한 번에 북마크하고, 풀이별 메모도 가능."
+            tone="warning"
+          >
+            <MistakesMockup />
+          </FeatureRow>
+
+          <FeatureRow
+            Icon={Clock}
+            title="실전 CBT 모의고사"
+            desc="실제 시험과 동일한 시간 제한 · 과목별 과락 체크. 전 과목 무작위 출제."
+            tone="accent"
+          >
+            <CbtMockMockup />
+          </FeatureRow>
+
+          <FeatureRow
+            Icon={ShieldCheck}
+            title="광고 없는 풀이 화면"
+            desc="집중을 해치지 않습니다. 풀이·해설 페이지엔 광고 일절 없음. 팝업 / 배너 / 인터럽트 무함."
+            tone="neutral"
+          >
+            <NoAdsMockup />
+          </FeatureRow>
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Feature row + mockups
+// ─────────────────────────────────────────────────────────────
+function FeatureRow({
+  Icon,
+  title,
+  desc,
+  tone,
+  children,
+}: {
+  Icon: typeof MagicWand;
+  title: string;
+  desc: string;
+  tone: "primary" | "accent" | "warning" | "neutral";
+  children: React.ReactNode;
+}) {
+  return (
+    <li className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface transition-all hover:-translate-y-0.5 hover:border-text-mid hover:shadow-[0_12px_32px_-16px_rgb(var(--text-high)/0.12)]">
+      {/* mock UI 영역 */}
+      <div className="relative h-[260px] overflow-hidden border-b border-border-soft bg-surface-mute/50 p-5">
+        <div className="absolute inset-0 opacity-[0.04]" aria-hidden="true">
+          <div
+            className="h-full w-full"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, rgb(var(--text-high)) 1px, transparent 1px), linear-gradient(to bottom, rgb(var(--text-high)) 1px, transparent 1px)",
+              backgroundSize: "24px 24px",
+            }}
+          />
+        </div>
+        <div className="relative flex h-full items-center justify-center">
+          {children}
+        </div>
+      </div>
+
+      {/* 텍스트 영역 */}
+      <div className="flex flex-1 flex-col p-6">
+        <span
+          className={cn(
+            "inline-flex h-9 w-9 items-center justify-center rounded-md",
+            tone === "primary" && "bg-primary/10 text-primary",
+            tone === "accent" && "bg-accent/15 text-accent",
+            tone === "warning" && "bg-warning/15 text-warning",
+            tone === "neutral" && "bg-surface-mute text-text-mid",
+          )}
+        >
+          <Icon className="h-4 w-4" strokeWidth={2} />
+        </span>
+        <h3 className="mt-4 text-[17px] font-bold tracking-[-0.01em] text-text-high">
+          {title}
+        </h3>
+        <p className="mt-2 text-[13.5px] leading-[1.65] text-text-mid">
+          {desc}
+        </p>
+      </div>
+    </li>
+  );
+}
+
+// AI 오답 해설 — 풀이 카드 + AI 풍선
+function AiExplanationMockup() {
+  return (
+    <div className="w-full max-w-[300px] space-y-2">
+      {/* 문제 미니 */}
+      <div className="rounded-md border border-border bg-surface px-3 py-2.5 shadow-sm">
+        <div className="flex items-center gap-1.5">
+          <span className="rounded-sm bg-primary/10 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-primary">
+            기사
+          </span>
+          <span className="font-mono text-[10px] font-bold text-text-mid">
+            Q.07
+          </span>
+          <span className="font-mono text-[9.5px] text-text-muted">
+            응용역학
+          </span>
+        </div>
+        <div className="mt-1.5 space-y-1">
+          {[
+            { l: "①", t: "지점 A", state: "off" },
+            { l: "②", t: "지점 B", state: "wrong" },
+            { l: "③", t: "보의 중앙", state: "correct" },
+            { l: "④", t: "L/3 떨어진 곳", state: "off" },
+          ].map((c) => (
+            <div
+              key={c.l}
+              className={cn(
+                "flex items-center gap-1.5 rounded-sm px-1.5 py-1 text-[10.5px]",
+                c.state === "correct" && "bg-accent/10 text-text-high",
+                c.state === "wrong" && "bg-danger/10 text-text-high",
+                c.state === "off" && "text-text-mid",
+              )}
             >
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-sm bg-primary/10 text-primary">
-                <f.Icon className="h-4 w-4" strokeWidth={2} />
+              <span
+                className={cn(
+                  "font-mono font-bold",
+                  c.state === "correct" && "text-accent",
+                  c.state === "wrong" && "text-danger",
+                  c.state === "off" && "text-text-muted",
+                )}
+              >
+                {c.l}
               </span>
-              <h3 className="mt-4 text-[15px] font-bold tracking-[-0.01em] text-text-high">
-                {f.title}
-              </h3>
-              <p className="mt-1.5 text-[12.5px] leading-[1.6] text-text-mid">
-                {f.desc}
+              <span>{c.t}</span>
+              {c.state === "correct" && (
+                <CheckCircle
+                  className="ml-auto h-2.5 w-2.5 text-accent"
+                  strokeWidth={2.5}
+                />
+              )}
+              {c.state === "wrong" && (
+                <span className="ml-auto font-mono text-[9px] font-semibold text-danger">
+                  내 선택
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* AI 해설 풍선 */}
+      <div className="relative rounded-md border-2 border-primary/40 bg-primary/[0.05] px-3 py-2.5 shadow-sm">
+        <div className="flex items-center gap-1.5">
+          <span className="inline-flex h-4 w-4 items-center justify-center rounded-sm bg-primary text-primary-fg">
+            <Sparks className="h-2.5 w-2.5" strokeWidth={2.5} />
+          </span>
+          <span className="font-mono text-[9.5px] font-bold uppercase tracking-wider text-primary">
+            AI 해설
+          </span>
+        </div>
+        <p className="mt-1.5 text-[11px] font-semibold leading-[1.45] text-text-high">
+          ②번 찍으셨네요. 부호 한 끗 차이의 함정 패턴이에요.
+        </p>
+        <p className="mt-1 text-[10px] leading-[1.45] text-text-mid">
+          💡 외울 후크: 부호 = 방향, 헷갈리면 단위부터.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// 망각곡선 복습 — 일정 막대 그래프
+function ReviewScheduleMockup() {
+  const schedule = [
+    { label: "오늘", count: 12, bar: 100, today: true },
+    { label: "내일", count: 3, bar: 30, today: false },
+    { label: "3일 뒤", count: 7, bar: 60, today: false },
+    { label: "7일 뒤", count: 5, bar: 42, today: false },
+    { label: "21일 뒤", count: 2, bar: 18, today: false },
+  ];
+  return (
+    <div className="w-full max-w-[300px] rounded-md border border-border bg-surface p-4 shadow-sm">
+      <div className="flex items-center justify-between border-b border-border-soft pb-2">
+        <p className="text-[11px] font-bold tracking-[-0.01em] text-text-high">
+          복습 일정
+        </p>
+        <p className="font-mono text-[9.5px] text-text-muted">총 29문</p>
+      </div>
+      <ul className="mt-3 space-y-2">
+        {schedule.map((s) => (
+          <li
+            key={s.label}
+            className="flex items-center gap-2.5"
+          >
+            <span
+              className={cn(
+                "w-12 shrink-0 text-[10.5px] font-medium",
+                s.today ? "font-bold text-primary" : "text-text-mid",
+              )}
+            >
+              {s.label}
+            </span>
+            <div className="relative h-2 flex-1 overflow-hidden rounded-sm bg-surface-mute">
+              <div
+                className={cn(
+                  "h-full rounded-sm",
+                  s.today ? "bg-primary" : "bg-text-mid/40",
+                )}
+                style={{ width: `${s.bar}%` }}
+              />
+            </div>
+            <span
+              className={cn(
+                "w-9 shrink-0 text-right font-mono text-[10px] font-bold tabular-nums",
+                s.today ? "text-primary" : "text-text-muted",
+              )}
+            >
+              {s.count}문
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 border-t border-border-soft pt-2 text-[9.5px] leading-[1.45] text-text-muted">
+        SM-2 알고리즘이 EaseFactor 와 interval 을 자동 계산
+      </p>
+    </div>
+  );
+}
+
+// 합격 예측 — gauge + 신뢰구간
+function PassPredictionMockup() {
+  const value = 76;
+  const low = 65;
+  const high = 84;
+  return (
+    <div className="w-full max-w-[300px] rounded-md border border-border bg-surface p-4 shadow-sm">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-bold tracking-[-0.01em] text-text-high">
+          합격 예측
+        </p>
+        <span className="rounded-sm bg-accent/15 px-1.5 py-0.5 font-mono text-[9px] font-bold text-accent">
+          신뢰 높음
+        </span>
+      </div>
+
+      <div className="mt-4 text-center">
+        <p className="flex items-baseline justify-center gap-0.5">
+          <span className="text-[44px] font-extrabold leading-none tracking-[-0.03em] text-accent">
+            {value}
+          </span>
+          <span className="text-[14px] font-bold text-text-mid">%</span>
+        </p>
+        <p className="mt-0.5 font-mono text-[9.5px] text-text-muted">
+          12회 풀이 기준
+        </p>
+      </div>
+
+      {/* 신뢰구간 bar */}
+      <div className="mt-4">
+        <div className="relative h-1.5 rounded-full bg-surface-mute">
+          <div
+            className="absolute h-full rounded-full bg-accent/40"
+            style={{
+              left: `${low}%`,
+              width: `${high - low}%`,
+            }}
+          />
+          <div
+            className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface bg-accent"
+            style={{ left: `${value}%` }}
+          />
+        </div>
+        <div className="mt-1.5 flex justify-between font-mono text-[9px] tabular-nums text-text-muted">
+          <span>0</span>
+          <span className="font-bold text-text-mid">
+            {low}~{high}% 신뢰구간
+          </span>
+          <span>100</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 오답노트 + 북마크 — 리스트
+function MistakesMockup() {
+  const items = [
+    { q: "Q.03 정규화의 주된 목적은?", subj: "DB", bookmark: true, days: 1 },
+    { q: "Q.07 단순보 최대 처짐 위치는?", subj: "응용역학", bookmark: false, days: 1 },
+    { q: "Q.12 등엔트로피 관계식 아닌 것은?", subj: "열역학", bookmark: true, days: 3 },
+    { q: "Q.18 FDM 서포트 각도는?", subj: "3D모델", bookmark: false, days: 7 },
+  ];
+  return (
+    <div className="w-full max-w-[300px] rounded-md border border-border bg-surface shadow-sm">
+      <div className="flex items-center justify-between border-b border-border-soft px-3 py-2">
+        <div className="flex items-center gap-1.5">
+          <p className="text-[11px] font-bold text-text-high">오답 노트</p>
+          <span className="rounded-sm bg-danger/15 px-1.5 py-0.5 font-mono text-[9px] font-bold text-danger">
+            24
+          </span>
+        </div>
+        <Bookmark className="h-3 w-3 text-text-muted" strokeWidth={2} />
+      </div>
+      <ul className="divide-y divide-border-soft">
+        {items.map((it, i) => (
+          <li
+            key={i}
+            className="flex items-center gap-2 px-3 py-2"
+          >
+            <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-danger/15 font-mono text-[9px] font-bold text-danger">
+              ✕
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[10.5px] font-semibold text-text-high">
+                {it.q}
               </p>
+              <p className="font-mono text-[9px] text-text-muted">
+                {it.subj} · {it.days}일 뒤 재출제
+              </p>
+            </div>
+            {it.bookmark && (
+              <Bookmark
+                className="h-3 w-3 shrink-0 text-warning"
+                strokeWidth={2.5}
+                style={{ fill: "rgb(var(--warning))" }}
+              />
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// CBT 모의고사 — 타이머 + 과목별 성적
+function CbtMockMockup() {
+  const subjects = [
+    { name: "응용역학", score: 78, pass: true },
+    { name: "측량학", score: 32, pass: false },
+    { name: "수리수문", score: 65, pass: true },
+    { name: "토질역학", score: 58, pass: true },
+  ];
+  return (
+    <div className="w-full max-w-[300px] rounded-md border border-border bg-surface shadow-sm">
+      {/* 상단 타이머 바 */}
+      <div className="flex items-center justify-between border-b border-border-soft bg-text-high/[0.02] px-3 py-2">
+        <div className="flex items-center gap-1.5">
+          <Clock className="h-3 w-3 text-primary" strokeWidth={2.5} />
+          <span className="font-mono text-[11px] font-bold tabular-nums text-text-high">
+            01:23:45
+          </span>
+        </div>
+        <span className="font-mono text-[10px] text-text-muted">
+          <span className="font-bold text-text-mid">68</span>/100
+        </span>
+      </div>
+
+      {/* 진행 바 */}
+      <div className="h-1 bg-surface-mute">
+        <div
+          className="h-full bg-primary"
+          style={{ width: "68%" }}
+        />
+      </div>
+
+      {/* 과목별 성적 */}
+      <div className="p-3">
+        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+          과목별 (실시간)
+        </p>
+        <ul className="space-y-1.5">
+          {subjects.map((s) => (
+            <li
+              key={s.name}
+              className="flex items-center gap-2"
+            >
+              <span className="flex-1 text-[10.5px] font-medium text-text-high">
+                {s.name}
+              </span>
+              <div className="h-1.5 w-20 overflow-hidden rounded-sm bg-surface-mute">
+                <div
+                  className={cn(
+                    "h-full",
+                    s.pass ? "bg-accent" : "bg-danger",
+                  )}
+                  style={{ width: `${s.score}%` }}
+                />
+              </div>
+              <span
+                className={cn(
+                  "w-9 text-right font-mono text-[10px] font-bold tabular-nums",
+                  s.pass ? "text-accent" : "text-danger",
+                )}
+              >
+                {s.score}
+              </span>
+              {!s.pass && (
+                <span className="rounded-sm bg-danger/15 px-1 py-0.5 font-mono text-[8.5px] font-bold uppercase text-danger">
+                  과락
+                </span>
+              )}
             </li>
           ))}
         </ul>
       </div>
-    </section>
+    </div>
+  );
+}
+
+// 광고 없는 풀이 — Before/After 분할
+function NoAdsMockup() {
+  return (
+    <div className="grid w-full max-w-[320px] grid-cols-2 gap-2">
+      {/* Before: 광고 범벅 */}
+      <div className="relative overflow-hidden rounded-md border border-border bg-surface shadow-sm">
+        <div className="border-b border-border-soft bg-text-high/[0.03] px-2 py-1">
+          <p className="text-[8.5px] font-bold uppercase tracking-wider text-danger">
+            기존 사이트
+          </p>
+        </div>
+        <div className="space-y-1 p-2">
+          <div className="flex h-5 items-center justify-center rounded-sm bg-warning/20 text-[8px] font-bold text-warning">
+            🚨 광고 배너
+          </div>
+          <div className="h-3 w-3/4 rounded-sm bg-surface-mute" />
+          <div className="h-2 w-full rounded-sm bg-surface-mute" />
+          <div className="flex h-6 items-center justify-center rounded-sm bg-danger/15 text-[8px] font-bold text-danger">
+            💸 결제 유도
+          </div>
+          <div className="h-2 w-2/3 rounded-sm bg-surface-mute" />
+          <div className="flex h-4 items-center justify-center rounded-sm bg-warning/20 text-[8px] font-bold text-warning">
+            🔔 팝업
+          </div>
+        </div>
+      </div>
+
+      {/* After: PASSPOP */}
+      <div className="relative overflow-hidden rounded-md border-2 border-primary/40 bg-surface shadow-sm">
+        <div className="border-b border-border-soft bg-primary/[0.05] px-2 py-1">
+          <p className="text-[8.5px] font-bold uppercase tracking-wider text-primary">
+            PASSPOP
+          </p>
+        </div>
+        <div className="space-y-1.5 p-2">
+          <div className="h-3 w-3/4 rounded-sm bg-text-high/15" />
+          <div className="h-2 w-full rounded-sm bg-text-high/10" />
+          <div className="h-2 w-5/6 rounded-sm bg-text-high/10" />
+          <div className="mt-2 space-y-1">
+            <div className="h-2 w-full rounded-sm bg-text-high/8" />
+            <div className="h-2 w-full rounded-sm bg-accent/30" />
+            <div className="h-2 w-full rounded-sm bg-text-high/8" />
+            <div className="h-2 w-full rounded-sm bg-text-high/8" />
+          </div>
+          <div className="mt-2 flex items-center justify-center gap-1 rounded-sm border border-accent/30 bg-accent/10 py-1 text-[8px] font-bold text-accent">
+            <CheckCircle className="h-2 w-2" strokeWidth={2.5} />
+            깔끔
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -828,61 +1305,63 @@ function Features() {
 function PremiumExplanation() {
   return (
     <section className="border-b border-border-soft">
-      <div className="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-24">
+      <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
         <div className="max-w-2xl">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
             프리미엄 해설
           </p>
-          <h2 className="mt-2 text-[28px] font-extrabold tracking-[-0.025em] text-text-high md:text-[36px]">
-            정답을 알려주는 해설은 끝났습니다.
+          <h2 className="mt-3 text-[30px] font-extrabold leading-[1.15] tracking-[-0.025em] text-text-high md:text-[40px]">
+            정답을 알려주는 해설은
+            <br className="md:hidden" /> 끝났습니다.
           </h2>
-          <p className="mt-3 text-[14px] leading-[1.65] text-text-mid">
+          <p className="mt-3 text-[14.5px] leading-[1.65] text-text-mid md:text-[15px]">
             PASSPOP 은 '당신이 그 오답을 왜 골랐는가' 부터 시작합니다.
           </p>
         </div>
 
-        <div className="mt-10 grid items-stretch gap-3 lg:grid-cols-2">
+        <div className="mt-12 grid auto-rows-fr items-stretch gap-4 lg:grid-cols-2">
           {/* Before */}
-          <div className="flex flex-col rounded-md border border-border bg-surface p-5">
-            <span className="w-fit rounded-sm bg-danger/15 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-danger">
+          <div className="flex h-full flex-col rounded-lg border border-border bg-surface p-7">
+            <span className="w-fit rounded-md bg-danger/12 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.12em] text-danger">
               기존 사이트
             </span>
-            <h3 className="mt-3 text-[16px] font-bold text-text-high">
+            <h3 className="mt-4 text-[17px] font-bold tracking-[-0.01em] text-text-high">
               "정답은 ②번입니다."
             </h3>
-            <ul className="mt-3 space-y-1.5 text-[12.5px] leading-[1.65] text-text-mid">
+            <ul className="mt-4 space-y-2 text-[13px] leading-[1.7] text-text-mid">
               <li>▸ 공식을 외워서 대입하면 답이 나옵니다.</li>
-              <li>▸ ①은 부호가 반대라 오답.</li>
-              <li>▸ ③, ④는 단위가 다릅니다.</li>
+              <li>▸ ① 은 부호가 반대라 오답.</li>
+              <li>▸ ③, ④ 는 단위가 다릅니다.</li>
             </ul>
-            <p className="mt-4 text-[11.5px] italic text-text-muted">
+            <p className="mt-auto pt-6 text-[12px] italic text-text-muted">
               → 다음에 또 틀립니다. 왜 헷갈렸는지 안 알려줬으니까.
             </p>
           </div>
 
           {/* After */}
-          <div className="relative flex flex-col overflow-hidden rounded-md border-2 border-primary/40 bg-primary/[0.03] p-5">
-            <span className="w-fit rounded-sm bg-primary/20 px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-primary">
+          <div className="relative flex h-full flex-col overflow-hidden rounded-lg border-2 border-primary/40 bg-primary/[0.03] p-7">
+            <span className="w-fit rounded-md bg-primary/20 px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.12em] text-primary">
               PASSPOP 프리미엄
             </span>
-            <h3 className="mt-3 text-[16px] font-bold text-text-high">
-              "②번 찍으셨네요. 이 함정 자주 걸려요."
+            <h3 className="mt-4 text-[17px] font-bold tracking-[-0.01em] text-text-high">
+              "② 번 찍으셨네요. 이 함정 자주 걸려요."
             </h3>
-            <ul className="mt-3 space-y-1.5 text-[12.5px] leading-[1.65] text-text-mid">
+            <ul className="mt-4 space-y-2 text-[13px] leading-[1.7] text-text-mid">
               <li>
                 ▸{" "}
                 <strong className="text-text-high">
-                  ②와 ③의 차이가 부호 한 끗
+                  ② 와 ③ 의 차이가 부호 한 끗
                 </strong>
                 . 출제자가 의도적으로 헷갈리게 한 패턴.
               </li>
               <li>
-                ▸ 공식 자체보다, 단위 분석을 먼저 했으면 ②가 떨어져 나갔을 거예요.
+                ▸ 공식 자체보다, 단위 분석을 먼저 했으면 ② 가 떨어져 나갔을
+                거예요.
               </li>
               <li>
                 ▸{" "}
                 <strong className="text-accent">
-                  💡 외울 후크: 부호 = 방향, 방향 헷갈리면 단위부터.
+                  💡 외울 후크 — 부호 = 방향, 방향 헷갈리면 단위부터.
                 </strong>
               </li>
               <li>
@@ -892,7 +1371,7 @@ function PremiumExplanation() {
                 </span>
               </li>
             </ul>
-            <p className="mt-4 text-[11.5px] font-semibold text-primary">
+            <p className="mt-auto pt-6 text-[12px] font-semibold text-primary">
               → 망각곡선 큐에 들어갑니다. 3일 뒤 비슷한 함정으로 한 번 더.
             </p>
           </div>
@@ -907,31 +1386,34 @@ function PremiumExplanation() {
 // ─────────────────────────────────────────────────────────────
 function Faq() {
   return (
-    <section id="faq" className="border-b border-border-soft bg-surface-mute/30">
-      <div className="mx-auto max-w-3xl px-4 py-20 md:px-6 md:py-24">
+    <section
+      id="faq"
+      className="border-b border-border-soft bg-surface-mute/30"
+    >
+      <div className="mx-auto max-w-3xl px-6 py-24 md:py-28">
         <div className="text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
             자주 묻는 질문
           </p>
-          <h2 className="mt-2 text-[28px] font-extrabold tracking-[-0.025em] text-text-high md:text-[36px]">
+          <h2 className="mt-3 text-[30px] font-extrabold tracking-[-0.025em] text-text-high md:text-[40px]">
             궁금하실 만한 것들
           </h2>
         </div>
 
-        <ul className="mt-10 divide-y divide-border-soft overflow-hidden rounded-md border border-border bg-surface">
+        <ul className="mt-12 divide-y divide-border-soft overflow-hidden rounded-lg border border-border bg-surface">
           {FAQ.map((item) => (
             <li key={item.q}>
-              <details className="group p-5">
-                <summary className="flex cursor-pointer items-start justify-between gap-4 text-[14.5px] font-semibold text-text-high">
+              <details className="group p-6">
+                <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-[14.5px] font-semibold leading-[1.5] text-text-high marker:hidden">
                   <span>{item.q}</span>
                   <span
                     aria-hidden="true"
-                    className="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-mute text-text-mid transition-transform group-open:rotate-45"
+                    className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-mute text-[16px] font-bold text-text-mid transition-transform duration-200 group-open:rotate-45"
                   >
                     +
                   </span>
                 </summary>
-                <p className="mt-3 text-[13px] leading-[1.7] text-text-mid">
+                <p className="mt-4 text-[13px] leading-[1.7] text-text-mid">
                   {item.a}
                 </p>
               </details>
@@ -949,28 +1431,29 @@ function Faq() {
 function FinalCta() {
   return (
     <section id="waitlist" className="border-b border-border-soft">
-      <div className="mx-auto max-w-3xl px-4 py-24 text-center md:px-6 md:py-32">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/[0.06] px-3 py-1 text-[11.5px] font-bold uppercase tracking-wider text-accent">
+      <div className="mx-auto max-w-3xl px-6 py-28 text-center md:py-36">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/[0.06] px-3 py-1 text-[11.5px] font-bold uppercase tracking-[0.12em] text-accent">
           <Sparks className="h-3 w-3" strokeWidth={2.5} />
           Coming Soon
         </span>
 
-        <h2 className="mt-6 text-[36px] font-extrabold leading-[1.1] tracking-[-0.03em] text-text-high md:text-[56px]">
+        <h2 className="mt-8 text-[40px] font-extrabold leading-[1.05] tracking-[-0.03em] text-text-high md:text-[64px]">
           곧 오픈합니다.
           <br />
           <span className="text-primary">첫 풀이는 무료</span>, 영원히.
         </h2>
 
-        <p className="mx-auto mt-5 max-w-xl text-[14px] leading-[1.65] text-text-mid md:text-[15px]">
-          이메일을 남겨두시면 정식 오픈 즉시 안내드립니다. 베타 기간엔 모든
-          기능이 무제한 무료입니다.
+        <p className="mx-auto mt-6 max-w-xl text-[14.5px] leading-[1.65] text-text-mid md:text-[16px]">
+          이메일을 남겨두시면 정식 오픈 즉시 안내드립니다.
+          <br className="hidden md:block" />
+          베타 기간엔 모든 기능이 무제한 무료입니다.
         </p>
 
         <form
           action="mailto:hello@passpop.app"
           method="post"
           encType="text/plain"
-          className="mx-auto mt-8 flex max-w-md flex-col gap-2 sm:flex-row"
+          className="mx-auto mt-10 flex max-w-md flex-col gap-2 sm:flex-row"
         >
           <label htmlFor="waitlist-email" className="sr-only">
             오픈 알림을 받을 이메일
@@ -982,29 +1465,29 @@ function FinalCta() {
             required
             placeholder="you@example.com"
             autoComplete="email"
-            className="h-12 flex-1 rounded-md border border-border bg-surface px-4 text-[14px] text-text-high placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className="h-12 flex-1 rounded-lg border border-border bg-surface px-4 text-[14px] text-text-high placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
           <button
             type="submit"
-            className="inline-flex h-12 items-center justify-center gap-1.5 rounded-md bg-primary px-6 text-[14px] font-bold text-primary-fg transition-colors hover:bg-primary-hover active:scale-[0.98]"
+            className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg bg-primary px-6 text-[14px] font-bold text-primary-fg transition-colors hover:bg-primary-hover active:scale-[0.98]"
           >
             <Bell className="h-4 w-4" strokeWidth={2.5} />
             알림 신청
           </button>
         </form>
 
-        <ul className="mx-auto mt-6 flex max-w-md flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11.5px] text-text-muted">
-          <li className="inline-flex items-center gap-1">
+        <ul className="mx-auto mt-6 flex max-w-md flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[11.5px] text-text-muted">
+          <li className="inline-flex items-center gap-1.5">
             <Lock className="h-3 w-3" strokeWidth={2} />
             스팸 없음 · 오픈 안내만 1회
           </li>
-          <li className="inline-flex items-center gap-1">
+          <li className="inline-flex items-center gap-1.5">
             <ShieldCheck className="h-3 w-3" strokeWidth={2} />
             언제든지 수신 거부 가능
           </li>
         </ul>
 
-        <p className="mx-auto mt-10 max-w-lg text-[11.5px] leading-[1.6] text-text-muted">
+        <p className="mx-auto mt-12 max-w-lg text-[11.5px] leading-[1.65] text-text-muted">
           빠른 안내가 필요하시면{" "}
           <a
             href="mailto:hello@passpop.app"
