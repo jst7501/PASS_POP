@@ -251,9 +251,9 @@ function LandingHeader() {
           className="hidden items-center gap-1 md:flex"
           aria-label="섹션 이동"
         >
+          <HeaderAnchor href="#browse">둘러보기</HeaderAnchor>
+          <HeaderAnchor href="#categories">시험 등급</HeaderAnchor>
           <HeaderAnchor href="#features">기능</HeaderAnchor>
-          <HeaderAnchor href="#exams">시험</HeaderAnchor>
-          <HeaderAnchor href="#how">학습 방식</HeaderAnchor>
           <HeaderAnchor href="#faq">FAQ</HeaderAnchor>
         </nav>
 
