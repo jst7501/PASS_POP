@@ -1,1558 +1,984 @@
-import Link from "next/link";
+import type { Metadata } from "next";
+import Script from "next/script";
 import {
-  NavArrowRight,
-  Shuffle,
-  XmarkCircle,
-  GraphUp,
-  Notes,
-  Play,
-  BookStack,
+  Sparks,
   CheckCircle,
   Flash,
-  Bookmark as BookmarkIcon,
+  GraphUp,
+  Bell,
+  Lock,
+  Coins,
+  LightBulb,
+  BookmarkBook,
+  Timer,
+  Brain,
   Trophy,
-  WarningTriangle,
-  Sparks,
-  Clock,
+  MagicWand,
+  CursorPointer,
+  ShieldCheck,
 } from "iconoir-react";
-import { cn } from "@/lib/utils";
-import { DdayBanner } from "@/components/home/dday-banner";
-import { getHomeData } from "@/lib/actions/data/home";
+import { buildMeta } from "@/lib/seo/metadata";
+import { SITE_NAME, SITE_URL } from "@/lib/seo/site";
 
-// 빌드 시 정적 생성 시도 차단 — Prisma 연결 폭주 방지
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
+export const revalidate = 3600;
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ exam?: string }>;
-}) {
-  const sp = await searchParams;
-  const data = await getHomeData({ exam: sp.exam });
+export const metadata: Metadata = buildMeta({
+  title:
+    "PASSPOP — 세상에 없던 무료 CBT, 프리미엄 AI 해설 | 자격증·공무원 시험 올인원",
+  description:
+    "완전 무료 기출 CBT, 찍은 오답까지 분석하는 프리미엄 AI 해설, 망각곡선 복습, 합격 예측까지. 기사·산업기사·기능사·공무원 시험을 한곳에서. 오픈 임박 — 알림 신청 받는 중.",
+  path: "/",
+  keywords: [
+    "무료 CBT",
+    "무료 기출문제",
+    "프리미엄 해설",
+    "AI 오답 해설",
+    "AI 기출 해설",
+    "찍은 오답 분석",
+    "자격증 무료 사이트",
+    "공무원 기출문제 사이트",
+    "기사 시험 CBT",
+    "산업기사 CBT",
+    "기능사 CBT",
+    "공무원 CBT",
+    "망각곡선 복습",
+    "SM-2 복습 앱",
+    "합격 예측",
+    "토목기사 기출",
+    "공조냉동기계기사 기출",
+    "3D프린터운용기능사",
+    "정보처리기사 기출",
+    "전기기사 기출",
+    "건축기사 기출",
+    "9급 공무원 기출",
+    "7급 공무원 기출",
+    "PASSPOP",
+    "패스팝",
+  ],
+});
 
-  const {
-    showPicker,
-    isTempViewing,
-    userTargetSlug,
-    pickerCategories,
-    selectedSlug,
-    selected,
-  } = data;
+const FAQ = [
+  {
+    q: "정말 무료인가요? 결제 유도는 없나요?",
+    a: "네, 모든 기출 CBT와 AI 오답 해설이 전부 무료입니다. 회원가입조차 없이 바로 풀 수 있습니다. 광고도 학습을 방해하지 않는 선에서만 운영됩니다.",
+  },
+  {
+    q: "프리미엄 해설은 뭐가 다른가요?",
+    a: "일반 해설은 정답을 알려주지만, PASSPOP의 프리미엄 AI 해설은 '당신이 찍은 그 오답'을 기준으로 왜 헷갈렸는지 분석하고, 다음에 안 틀리도록 암기 후크와 추천 단원까지 제시합니다.",
+  },
+  {
+    q: "어떤 시험을 다루나요?",
+    a: "기능사·산업기사·기사·기술사·공무원(9급/7급) 등 한국산업인력공단·인사혁신처 주요 시험을 다룹니다. 토목기사, 공조냉동기계기사, 3D프린터운용기능사, 정보처리기사, 전기기사 등을 우선 오픈합니다.",
+  },
+  {
+    q: "망각곡선 복습은 어떻게 작동하나요?",
+    a: "SM-2 알고리즘 기반으로, 맞힌 문제는 간격을 늘려 재출제하고 틀린 문제는 다음 날 다시 띄워줍니다. '잊을 때쯤' 정확히 복습이 들어와 장기기억으로 굳히는 방식입니다.",
+  },
+  {
+    q: "합격 예측은 믿을 만한가요?",
+    a: "최근 풀이 기록을 기반으로 베이지안 추정을 돌려 합격 확률과 신뢰구간을 함께 제시합니다. 풀이가 3회 미만이면 '신뢰 낮음'으로 표기해 과신을 막습니다.",
+  },
+  {
+    q: "언제 오픈하나요?",
+    a: "정식 오픈은 곧 진행됩니다. 페이지 하단에서 알림 신청을 해두시면 오픈 즉시 메일로 안내드립니다.",
+  },
+];
+
+const SUPPORTED_EXAMS = [
+  { name: "토목기사", grade: "기사", desc: "응용역학 · 측량 · 수리수문 · 철근콘크리트 · 토질 · 상하수도" },
+  { name: "공조냉동기계기사", grade: "기사", desc: "기계열역학 · 냉동공학 · 공기조화 · 전기제어" },
+  { name: "3D프린터운용기능사", grade: "기능사", desc: "3D 모델링 · 출력 · 후가공 · 안전" },
+  { name: "정보처리기사", grade: "기사", desc: "소프트웨어 설계 · DB · 프로그래밍 · 정보시스템" },
+  { name: "전기기사", grade: "기사", desc: "전기자기학 · 회로이론 · 전력공학 · 전기기기" },
+  { name: "건축기사", grade: "기사", desc: "건축계획 · 시공 · 구조 · 설비 · 법규" },
+  { name: "9급 공무원", grade: "공무원", desc: "국어 · 영어 · 한국사 · 행정학 · 행정법" },
+  { name: "7급 공무원", grade: "공무원", desc: "PSAT · 헌법 · 행정법 · 경제학" },
+];
+
+export default function LandingPage() {
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
+
+  const softwareLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: SITE_NAME,
+    applicationCategory: "EducationalApplication",
+    applicationSubCategory: "Exam Preparation",
+    operatingSystem: "Web, iOS, Android",
+    url: SITE_URL,
+    description:
+      "자격증·공무원 시험 올인원 학습 플랫폼. 무료 기출 CBT, 프리미엄 AI 오답 해설, 망각곡선 복습, 합격 예측.",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "KRW",
+      availability: "https://schema.org/PreOrder",
+    },
+    aggregateRating: undefined,
+    inLanguage: "ko-KR",
+    featureList: [
+      "무료 기출문제 CBT",
+      "프리미엄 AI 오답 해설",
+      "망각곡선 기반 복습 (SM-2)",
+      "합격 예측 (베이지안)",
+      "오답노트 자동 생성",
+      "북마크 및 메모",
+      "약점 과목 자동 분석",
+      "회차별·과목별·랜덤 풀이",
+      "실전 CBT 모의고사",
+    ],
+    creator: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+  };
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "홈",
+        item: SITE_URL,
+      },
+    ],
+  };
+
+  const courseListLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "PASSPOP에서 준비할 수 있는 시험",
+    itemListElement: SUPPORTED_EXAMS.map((e, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "Course",
+        name: `${e.name} 기출문제 풀이`,
+        description: `${e.name} (${e.grade}) — ${e.desc}`,
+        provider: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
+        url: SITE_URL,
+        inLanguage: "ko-KR",
+        hasCourseInstance: {
+          "@type": "CourseInstance",
+          courseMode: "online",
+          courseWorkload: "PT10H",
+          inLanguage: "ko-KR",
+        },
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "KRW",
+          category: "Free",
+        },
+      },
+    })),
+  };
+
+  const howToLd = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: "PASSPOP으로 자격증·공무원 시험 공부하기",
+    description:
+      "회원가입 없이 무료로 기출 CBT를 풀고, AI 오답 해설로 약점을 잡고, 망각곡선 복습으로 합격까지 가는 방법.",
+    inLanguage: "ko-KR",
+    totalTime: "PT30M",
+    step: [
+      {
+        "@type": "HowToStep",
+        position: 1,
+        name: "종목 선택",
+        text: "기능사·산업기사·기사·공무원 등 준비하는 시험을 고릅니다. 회원가입·결제·인증 절차가 없습니다.",
+        url: `${SITE_URL}/#how`,
+      },
+      {
+        "@type": "HowToStep",
+        position: 2,
+        name: "기출 CBT 풀이",
+        text: "연습 모드는 즉시 채점 + 실시간 해설, 실전 모드는 시간 제한·과락 체크 CBT 환경에서 풀어봅니다.",
+        url: `${SITE_URL}/#how`,
+      },
+      {
+        "@type": "HowToStep",
+        position: 3,
+        name: "AI 오답 해설 확인",
+        text: "찍은 오답을 기준으로 왜 헷갈렸는지, 다음에 안 틀리는 암기 후크가 무엇인지 AI가 분석해 줍니다.",
+        url: `${SITE_URL}/#features`,
+      },
+      {
+        "@type": "HowToStep",
+        position: 4,
+        name: "망각곡선 복습 반복",
+        text: "SM-2 알고리즘이 잊을 때쯤 다시 띄워줍니다. 합격 예측 % 를 보며 진척률을 확인합니다.",
+        url: `${SITE_URL}/#features`,
+      },
+    ],
+  };
+
+  const serviceLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    serviceType: "온라인 자격증·공무원 시험 학습",
+    provider: { "@id": `${SITE_URL}/#organization` },
+    areaServed: { "@type": "Country", name: "Republic of Korea" },
+    audience: {
+      "@type": "EducationalAudience",
+      educationalRole: "student",
+    },
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "KRW",
+      availability: "https://schema.org/PreOrder",
+      url: SITE_URL,
+    },
+  };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pb-24 pt-6 md:px-6 md:pt-8">
-      {showPicker && (
-        <ExamPicker
-          categories={pickerCategories}
-          selectedSlug={selectedSlug}
-        />
-      )}
+    <>
+      <Script
+        id="ld-software-application"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareLd) }}
+      />
+      <Script
+        id="ld-faq"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+      />
+      <Script
+        id="ld-breadcrumb"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+      <Script
+        id="ld-course-list"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(courseListLd) }}
+      />
+      <Script
+        id="ld-how-to"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(howToLd) }}
+      />
+      <Script
+        id="ld-service"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceLd) }}
+      />
 
-      {isTempViewing && userTargetSlug && (
-        <div className="mb-2 flex items-center justify-between gap-2 rounded-md border border-warning/30 bg-warning/[0.05] px-3 py-2 text-[12px]">
-          <span className="text-text-mid">
-            <span className="font-semibold text-warning">임시로</span> 다른
-            시험 보고 있어요
-          </span>
-          <Link
-            href={`/?exam=${userTargetSlug}`}
-            scroll={false}
-            className="font-semibold text-primary hover:text-primary-hover"
-          >
-            내 시험으로
-          </Link>
-        </div>
-      )}
-
-      {selected && (
-        <>
-          <SelectedHeader
-            nickname={selected.nickname}
-            owner={selected.owner}
-            categoryName={selected.name}
-            passProb={selected.passProb}
-            passLow={selected.passLow}
-            passHigh={selected.passHigh}
-            attemptCount={selected.attemptCount}
-          />
-
-          <WeekStrip
-            streakDays={selected.streakDays}
-            weekTotal={selected.thisWeekTotal}
-            weekAcc={selected.thisWeekAcc}
-            avgScore={selected.avgScore}
-          />
-
-          {selected.dday && (
-            <DdayBanner
-              categoryId={selected.id}
-              categoryName={selected.name}
-              examDate={selected.dday.examDateIso}
-              dailyGoal={selected.dday.dailyGoal}
-              todaySolved={selected.dday.todaySolved}
-              isCurrentCategory={selected.dday.isCurrentCategory}
-            />
-          )}
-
-          <NudgeBanner
-            message={selected.nudge.message}
-            accent={selected.nudge.accent}
-          />
-
-          <TodayPanel
-            reviewDueCount={selected.reviewDueCount}
-            inProgress={selected.inProgress}
-            categorySlug={selected.slug}
-          />
-
-          <DailyQuestionCard categorySlug={selected.slug} />
-
-          {selected.yesterdayMistakes.length > 0 && (
-            <YesterdayMistakes
-              items={selected.yesterdayMistakes.map((r) => ({
-                ...r,
-                categorySlug: selected.slug,
-              }))}
-            />
-          )}
-
-          {selected.scoreTrendPoints.length >= 2 && (
-            <ScoreTrend points={selected.scoreTrendPoints} />
-          )}
-
-          {(selected.thisWeekTotal > 0 || selected.lastWeekTotal > 0) && (
-            <WeekCompareCard
-              thisWeek={{
-                total: selected.thisWeekTotal,
-                acc: selected.thisWeekAcc,
-              }}
-              lastWeek={{
-                total: selected.lastWeekTotal,
-                acc: selected.lastWeekAcc,
-              }}
-            />
-          )}
-
-          {selected.hourRecordsLength >= 20 && (
-            <TimeOfDayInsight buckets={selected.hourBuckets} />
-          )}
-
-          {selected.confidenceRecordsLength >= 5 && (
-            <ConfidenceAnalysis buckets={selected.confBuckets} />
-          )}
-
-          {selected.reviewAllLength > 0 && (
-            <ReviewDistribution buckets={selected.srsBuckets} />
-          )}
-
-          {selected.weakSubjects.length > 0 && (
-            <WeakSubjects
-              subjects={selected.weakSubjects}
-              categorySlug={selected.slug}
-            />
-          )}
-
-          <SubjectList
-            categorySlug={selected.slug}
-            subjects={selected.subjects}
-          />
-
-          <RoundList categorySlug={selected.slug} exams={selected.rounds} />
-
-          <ToolsDock
-            mistakeCount={selected.mistakeCount}
-            bookmarkCount={selected.bookmarkCount}
-            categorySlug={selected.slug}
-          />
-        </>
-      )}
-    </div>
+      <Hero />
+      <SocialProofStrip />
+      <Features />
+      <HowItWorks />
+      <SupportedExams />
+      <PremiumExplanationShowcase />
+      <ComparisonTable />
+      <FaqSection />
+      <FinalCta />
+    </>
   );
 }
 
 // ─────────────────────────────────────────────────────────────
-// Exam Picker
+// HERO
 // ─────────────────────────────────────────────────────────────
-function ExamPicker({
-  categories,
-  selectedSlug,
-}: {
-  categories: {
-    slug: string;
-    name: string;
-    owner: string;
-    publishedCount: number;
-  }[];
-  selectedSlug: string;
-}) {
+function Hero() {
   return (
-    <section>
-      <p className="text-[12px] font-medium text-text-muted">
-        누구 시험 볼까요?
-      </p>
-      <ul className="-mx-4 mt-2.5 flex snap-x snap-mandatory gap-1.5 overflow-x-auto px-4 pb-1 md:mx-0 md:px-0">
-        {categories.map((c) => {
-          const active = c.slug === selectedSlug;
-          const has = c.publishedCount > 0;
-          return (
-            <li
-              key={c.slug}
-              className="w-[60%] shrink-0 snap-start sm:w-auto sm:flex-1"
-            >
-              <Link
-                href={`/?exam=${c.slug}`}
-                scroll={false}
-                className={cn(
-                  "flex h-full items-center justify-between gap-3 rounded-md border px-3.5 py-2.5 transition-colors",
-                  active
-                    ? "border-text-high bg-text-high text-background"
-                    : has
-                      ? "border-border bg-surface text-text-mid hover:border-text-mid hover:text-text-high"
-                      : "border-border-soft bg-surface text-text-muted",
-                )}
-              >
-                <div className="min-w-0">
-                  <p
-                    className={cn(
-                      "text-[11px]",
-                      active ? "text-background/70" : "text-text-muted",
-                    )}
-                  >
-                    {c.owner || "\u00A0"}
-                  </p>
-                  <p className="mt-0.5 truncate text-[13px] font-semibold tracking-[-0.01em]">
-                    {c.name}
-                  </p>
-                </div>
-                <span
-                  className={cn(
-                    "shrink-0 rounded-sm px-1.5 py-0.5 text-[10px] font-semibold tabular-nums",
-                    active
-                      ? "bg-background/20 text-background"
-                      : has
-                        ? "bg-primary/10 text-primary"
-                        : "bg-surface-mute text-text-muted",
-                  )}
-                >
-                  {has ? `${c.publishedCount}회차` : "준비중"}
-                </span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
-function SelectedHeader({
-  nickname,
-  owner,
-  categoryName,
-  passProb,
-  passLow,
-  passHigh,
-  attemptCount,
-}: {
-  nickname: string | null;
-  owner: string;
-  categoryName: string;
-  passProb: number | null;
-  passLow: number | null;
-  passHigh: number | null;
-  attemptCount: number;
-}) {
-  const displayName = nickname || owner;
-  const lowConfidence = attemptCount < 3;
-  return (
-    <header className="mt-8 flex items-end justify-between gap-4 md:mt-10">
-      <div>
-        <h1 className="text-[26px] font-bold leading-[1.2] tracking-[-0.02em] text-text-high md:text-[30px]">
-          {displayName ? `${displayName}의 ` : ""}서재
-        </h1>
-        <p className="mt-1 text-[13px] text-text-muted">{categoryName}</p>
-      </div>
-      {passProb != null && (
-        <div className="shrink-0 rounded-md border border-border bg-surface px-3 py-2">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-            합격 예측
-          </p>
-          <p className="mt-0.5 flex items-baseline gap-0.5">
-            <span
-              className={cn(
-                "text-[22px] font-bold tabular-nums leading-none tracking-[-0.02em]",
-                lowConfidence
-                  ? "text-text-mid"
-                  : passProb >= 60
-                    ? "text-accent"
-                    : "text-text-high",
-              )}
-            >
-              {passProb}
-            </span>
-            <span className="text-[11px] font-medium text-text-muted">
-              %
-            </span>
-          </p>
-          {passLow != null && passHigh != null && passLow !== passHigh && (
-            <p className="text-[10px] tabular-nums text-text-muted">
-              {passLow}–{passHigh}%
-            </p>
-          )}
-          <p
-            className={cn(
-              "mt-0.5 text-[10px] tabular-nums",
-              lowConfidence ? "text-warning" : "text-text-muted",
-            )}
-          >
-            {lowConfidence
-              ? `${attemptCount}회 · 신뢰 낮음`
-              : `${attemptCount}회 기준`}
-          </p>
-        </div>
-      )}
-    </header>
-  );
-}
-
-function WeekStrip({
-  streakDays,
-  weekTotal,
-  weekAcc,
-  avgScore,
-}: {
-  streakDays: number;
-  weekTotal: number;
-  weekAcc: number | null;
-  avgScore: number | null;
-}) {
-  return (
-    <section className="mt-5">
-      <ul className="grid grid-cols-2 overflow-hidden rounded-md border border-border bg-surface sm:grid-cols-4">
-        <StripCell
-          icon={<Flash className="h-3.5 w-3.5" strokeWidth={2} />}
-          label="연속"
-          value={streakDays}
-          suffix="일"
-          tint={streakDays > 0 ? "primary" : "muted"}
-        />
-        <StripCell
-          icon={<BookStack className="h-3.5 w-3.5" strokeWidth={2} />}
-          label="이번주"
-          value={weekTotal}
-          suffix="문"
-          tint="default"
-          border
-        />
-        <StripCell
-          icon={<CheckCircle className="h-3.5 w-3.5" strokeWidth={2} />}
-          label="정답률"
-          value={weekAcc}
-          suffix="%"
-          tint={weekAcc != null && weekAcc >= 60 ? "accent" : "default"}
-          border
-        />
-        <StripCell
-          icon={<Trophy className="h-3.5 w-3.5" strokeWidth={2} />}
-          label="평균점수"
-          value={avgScore}
-          suffix="점"
-          tint={avgScore != null && avgScore >= 60 ? "accent" : "muted"}
-          border
-        />
-      </ul>
-    </section>
-  );
-}
-
-function StripCell({
-  icon,
-  label,
-  value,
-  suffix,
-  tint,
-  border,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number | null;
-  suffix: string;
-  tint: "primary" | "accent" | "default" | "muted";
-  border?: boolean;
-}) {
-  const color =
-    tint === "primary"
-      ? "text-primary"
-      : tint === "accent"
-        ? "text-accent"
-        : tint === "muted"
-          ? "text-text-muted"
-          : "text-text-high";
-  return (
-    <li
-      className={cn(
-        "flex flex-col px-3.5 py-3",
-        border && "sm:border-l border-border",
-      )}
-    >
-      <span className="inline-flex items-center gap-1 text-[11px] text-text-muted">
-        {icon}
-        {label}
-      </span>
-      <span className="mt-1 flex items-baseline gap-0.5">
-        <span
-          className={cn("text-[19px] font-bold tabular-nums leading-none", color)}
-        >
-          {value ?? "—"}
-        </span>
-        {value !== null && (
-          <span className="text-[11px] font-medium text-text-muted">
-            {suffix}
-          </span>
-        )}
-      </span>
-    </li>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// NudgeBanner — 상황 한 줄
-// ─────────────────────────────────────────────────────────────
-function NudgeBanner({
-  message,
-  accent,
-}: {
-  message: string;
-  accent: "primary" | "accent" | "warning" | "neutral";
-}) {
-  return (
-    <section className="mt-4">
+    <section className="relative overflow-hidden border-b border-border-soft">
+      {/* 배경 그라데이션 */}
       <div
-        className={cn(
-          "rounded-md border px-3.5 py-2.5",
-          accent === "primary" && "border-primary/30 bg-primary/[0.04]",
-          accent === "accent" && "border-accent/30 bg-accent/[0.04]",
-          accent === "warning" && "border-warning/30 bg-warning/[0.04]",
-          accent === "neutral" && "border-border bg-surface",
-        )}
-      >
-        <p className="text-[13px] leading-[1.55] text-text-high">
-          <Sparks
-            className={cn(
-              "mr-1 inline h-3.5 w-3.5 -translate-y-0.5",
-              accent === "primary" && "text-primary",
-              accent === "accent" && "text-accent",
-              accent === "warning" && "text-warning",
-              accent === "neutral" && "text-text-muted",
-            )}
-            strokeWidth={2}
-          />
-          {message}
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/[0.07] via-background to-background"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute -top-40 left-1/2 -z-10 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-primary/[0.12] blur-3xl"
+      />
+
+      <div className="mx-auto max-w-5xl px-4 pb-24 pt-16 text-center md:px-6 md:pb-32 md:pt-24">
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/[0.08] px-3 py-1 text-[12px] font-semibold text-primary">
+          <Sparks className="h-3.5 w-3.5" strokeWidth={2.5} />
+          오픈 임박 — 베타 알림 신청 받는 중
+        </div>
+
+        <h1 className="mt-6 text-[40px] font-extrabold leading-[1.1] tracking-[-0.03em] text-text-high md:text-[68px]">
+          세상에 없던{" "}
+          <span className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
+            완전 무료 CBT
+          </span>
+          .
+          <br />
+          그리고{" "}
+          <span className="relative inline-block">
+            <span className="relative z-10">프리미엄 해설.</span>
+            <span
+              aria-hidden="true"
+              className="absolute inset-x-0 bottom-1 -z-0 h-3 bg-primary/25 md:h-4"
+            />
+          </span>
+        </h1>
+
+        <p className="mx-auto mt-7 max-w-2xl text-[16px] leading-[1.7] text-text-mid md:text-[18px]">
+          기사·산업기사·기능사·공무원 시험을 한곳에서.
+          <br className="hidden md:block" /> 회원가입 없이 풀고, 찍은 오답까지
+          AI가 분석하고, 망각곡선이 복습 일정을 잡아줍니다.
         </p>
+
+        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <a
+            href="#waitlist"
+            className="inline-flex h-12 min-w-[200px] items-center justify-center gap-1.5 rounded-md bg-primary px-6 text-[15px] font-bold text-primary-fg shadow-lg shadow-primary/20 transition-all hover:bg-primary-hover hover:shadow-primary/30 active:scale-[0.98]"
+          >
+            <Bell className="h-4 w-4" strokeWidth={2.5} />
+            오픈 알림 받기
+          </a>
+          <a
+            href="#how"
+            className="inline-flex h-12 min-w-[200px] items-center justify-center rounded-md border border-border bg-surface px-6 text-[15px] font-semibold text-text-high transition-colors hover:border-text-mid"
+          >
+            어떻게 다른지 보기
+          </a>
+        </div>
+
+        <ul className="mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12.5px] text-text-mid">
+          <li className="inline-flex items-center gap-1.5">
+            <CheckCircle
+              className="h-4 w-4 text-accent"
+              strokeWidth={2.5}
+            />
+            회원가입 불필요
+          </li>
+          <li className="inline-flex items-center gap-1.5">
+            <CheckCircle
+              className="h-4 w-4 text-accent"
+              strokeWidth={2.5}
+            />
+            전 종목 완전 무료
+          </li>
+          <li className="inline-flex items-center gap-1.5">
+            <CheckCircle
+              className="h-4 w-4 text-accent"
+              strokeWidth={2.5}
+            />
+            AI 오답 해설 무제한
+          </li>
+          <li className="inline-flex items-center gap-1.5">
+            <CheckCircle
+              className="h-4 w-4 text-accent"
+              strokeWidth={2.5}
+            />
+            광고 없는 학습
+          </li>
+        </ul>
       </div>
     </section>
   );
 }
 
 // ─────────────────────────────────────────────────────────────
-// Today Panel
+// SOCIAL PROOF STRIP
 // ─────────────────────────────────────────────────────────────
-function TodayPanel({
-  reviewDueCount,
-  inProgress,
-  categorySlug,
-}: {
-  reviewDueCount: number;
-  inProgress: {
-    id: string;
-    title: string;
-    solved: number;
-    planned: number;
-  } | null;
-  categorySlug: string;
-}) {
-  const primary =
-    reviewDueCount > 0
-      ? ("review" as const)
-      : inProgress
-        ? ("continue" as const)
-        : ("start" as const);
+function SocialProofStrip() {
+  const items = [
+    { label: "지원 시험 종목", value: "8+", suffix: "개" },
+    { label: "보유 기출 문항", value: "10,000+", suffix: "문" },
+    { label: "AI 해설 톤", value: "3", suffix: "종" },
+    { label: "복습 알고리즘", value: "SM-2", suffix: "" },
+  ];
+  return (
+    <section className="border-b border-border-soft bg-surface/40">
+      <div className="mx-auto max-w-5xl px-4 py-10 md:px-6">
+        <ul className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+          {items.map((it) => (
+            <li key={it.label} className="text-center">
+              <p className="text-[28px] font-extrabold tracking-[-0.02em] text-text-high md:text-[32px]">
+                {it.value}
+                <span className="ml-0.5 text-[14px] font-semibold text-text-mid">
+                  {it.suffix}
+                </span>
+              </p>
+              <p className="mt-1 text-[12px] font-medium text-text-muted">
+                {it.label}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// FEATURES
+// ─────────────────────────────────────────────────────────────
+function Features() {
+  const features = [
+    {
+      Icon: Coins,
+      title: "100% 무료. 회원가입조차 없음",
+      desc: "결제도, 광고로 가린 해설도 없습니다. 들어와서 바로 풀고, 바로 닫고 가도 됩니다. 쿠키 하나로 기록은 그대로 남아요.",
+      tag: "FREE",
+    },
+    {
+      Icon: MagicWand,
+      title: "프리미엄 AI 오답 해설",
+      desc: "정답이 아니라 '당신이 찍은 오답'을 기준으로 왜 헷갈렸는지 짚어주고, 다음에 안 틀리는 암기 후크까지 던져줍니다.",
+      tag: "PRO 무료 공개",
+    },
+    {
+      Icon: Brain,
+      title: "잊을 때쯤 정확히 복습 (SM-2)",
+      desc: "맞힌 문제는 간격 늘려 재출제, 틀린 문제는 다음 날. 머리 안 쓰고 알고리즘이 잡아주는 일정대로만 풀면 됩니다.",
+      tag: "망각곡선",
+    },
+    {
+      Icon: GraphUp,
+      title: "합격 예측 + 신뢰구간",
+      desc: "최근 풀이 기반 베이지안 추정으로 합격 확률을 % 단위로 보여줍니다. 풀이가 적으면 '신뢰 낮음' 으로 솔직히 알려드려요.",
+      tag: "데이터 기반",
+    },
+    {
+      Icon: BookmarkBook,
+      title: "자동 오답노트 + 북마크",
+      desc: "틀리는 순간 오답노트에 들어가고, 어려운 문제는 한 번에 북마크. 풀이 메모도 문제별로 따로 남길 수 있어요.",
+      tag: "자동화",
+    },
+    {
+      Icon: Timer,
+      title: "실전 CBT 모의고사",
+      desc: "실제 시험과 동일한 시간 제한·과락 체크 환경. 전 과목 무작위 출제로 진짜 실력 측정.",
+      tag: "실전 모드",
+    },
+  ];
 
   return (
-    <section className="mt-6">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-        오늘 할 일
-      </p>
-      <div className="mt-2 grid gap-2 md:grid-cols-2">
-        {primary === "review" ? (
-          <TodayCard
-            href="/mistakes"
-            tone="accent"
-            badge="복습"
-            title={`잊을 때쯤 다시 풀 ${reviewDueCount}문제`}
-            desc="맞힌 건 간격 늘려 재출제, 틀린 건 다음날."
-            cta="바로 시작"
-          />
-        ) : primary === "continue" && inProgress ? (
-          <TodayCard
-            href={`/practice/${inProgress.id}`}
-            tone="primary"
-            badge="이어서"
-            title={inProgress.title}
-            desc={`${inProgress.solved}/${inProgress.planned} 풀었어요`}
-            cta="이어서 풀기"
-          />
-        ) : (
-          <TodayCard
-            href={`/exams/${categorySlug}`}
-            tone="primary"
-            badge="시작"
-            title="오늘 회차 하나 풀기"
-            desc="연습모드는 답 즉시 채점 + 해설 실시간."
-            cta="회차 고르기"
-          />
-        )}
+    <section
+      id="features"
+      className="border-b border-border-soft bg-background"
+    >
+      <div className="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
+        <SectionHeader
+          eyebrow="왜 PASSPOP인가"
+          title={
+            <>
+              무료 사이트인데,
+              <br className="md:hidden" /> 유료 앱보다 자세합니다.
+            </>
+          }
+          desc="기출 PDF만 풀던 시절은 끝났습니다. 이제 풀이 하나가 데이터가 되고, 데이터가 다음 풀이를 만듭니다."
+        />
 
-        {primary === "review" && inProgress ? (
-          <TodayCard
-            href={`/practice/${inProgress.id}`}
-            tone="primary"
-            badge="이어서"
-            title={inProgress.title}
-            desc={`${inProgress.solved}/${inProgress.planned} 풀었어요`}
-            cta="이어서"
-          />
-        ) : primary !== "review" && reviewDueCount > 0 ? (
-          <TodayCard
-            href="/mistakes"
-            tone="accent"
-            badge="복습"
-            title={`복습할 ${reviewDueCount}문제`}
-            desc="오답노트에서 바로 시작"
-            cta="열기"
-          />
-        ) : (
-          <TodayCard
-            href={`/practice?category=${categorySlug}&mode=random`}
-            tone="neutral"
-            badge="워밍업"
-            title="무작위 10문 풀기"
-            desc="짧게 머리 푸는 시간 3분."
-            cta="시작"
-          />
-        )}
+        <ul className="mt-14 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {features.map((f) => (
+            <li
+              key={f.title}
+              className="group relative flex flex-col rounded-lg border border-border bg-surface p-6 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+            >
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+                <f.Icon className="h-5 w-5" strokeWidth={2} />
+              </span>
+              <span className="mt-4 inline-block w-fit rounded-sm bg-accent/15 px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-accent">
+                {f.tag}
+              </span>
+              <h3 className="mt-2 text-[17px] font-bold tracking-[-0.01em] text-text-high">
+                {f.title}
+              </h3>
+              <p className="mt-2 text-[13.5px] leading-[1.65] text-text-mid">
+                {f.desc}
+              </p>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
 }
 
-function TodayCard({
-  href,
-  tone,
-  badge,
+function SectionHeader({
+  eyebrow,
   title,
   desc,
-  cta,
 }: {
-  href: string;
-  tone: "primary" | "accent" | "neutral";
-  badge: string;
-  title: string;
-  desc: string;
-  cta: string;
+  eyebrow: string;
+  title: React.ReactNode;
+  desc?: string;
 }) {
   return (
-    <Link
-      href={href}
-      className={cn(
-        "group flex items-stretch justify-between gap-3 rounded-md border p-4 transition-colors md:p-5",
-        tone === "primary" &&
-          "border-primary/30 bg-primary/[0.04] hover:border-primary/60",
-        tone === "accent" &&
-          "border-accent/30 bg-accent/[0.04] hover:border-accent/60",
-        tone === "neutral" && "border-border bg-surface hover:border-text-mid",
+    <div className="mx-auto max-w-3xl text-center">
+      <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-primary">
+        {eyebrow}
+      </p>
+      <h2 className="mt-3 text-[32px] font-extrabold leading-[1.15] tracking-[-0.02em] text-text-high md:text-[44px]">
+        {title}
+      </h2>
+      {desc && (
+        <p className="mx-auto mt-5 max-w-2xl text-[15px] leading-[1.7] text-text-mid md:text-[16px]">
+          {desc}
+        </p>
       )}
-    >
-      <div className="flex min-w-0 flex-col justify-between gap-2">
-        <div>
-          <span
-            className={cn(
-              "inline-block rounded-sm px-1.5 py-0.5 text-[10px] font-semibold",
-              tone === "primary" && "bg-primary/15 text-primary",
-              tone === "accent" && "bg-accent/15 text-accent",
-              tone === "neutral" && "bg-surface-mute text-text-mid",
-            )}
-          >
-            {badge}
-          </span>
-          <h3 className="mt-2 text-[15px] font-bold tracking-[-0.01em] text-text-high md:text-[16px]">
-            {title}
-          </h3>
-          <p className="mt-1 line-clamp-2 text-[12px] text-text-mid">{desc}</p>
-        </div>
-        <span
-          className={cn(
-            "inline-flex items-center gap-1 text-[12px] font-semibold",
-            tone === "primary" && "text-primary",
-            tone === "accent" && "text-accent",
-            tone === "neutral" && "text-text-mid group-hover:text-text-high",
-          )}
-        >
-          {cta}
-          <NavArrowRight className="h-3.5 w-3.5" strokeWidth={2.5} />
-        </span>
-      </div>
-    </Link>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Daily Question Card
-// ─────────────────────────────────────────────────────────────
-function DailyQuestionCard({ categorySlug }: { categorySlug: string }) {
-  return (
-    <section className="mt-6">
-      <Link
-        href={`/practice?category=${categorySlug}&mode=daily`}
-        className="group flex items-center gap-3 rounded-md border border-primary/30 bg-primary/[0.04] px-4 py-3.5 transition-colors hover:border-primary/60 md:px-5"
-      >
-        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-primary/15 text-primary">
-          <Sparks className="h-4 w-4" strokeWidth={2.5} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-            오늘의 한 문제
-          </p>
-          <p className="mt-0.5 text-[13.5px] font-semibold text-text-high">
-            매일 자정에 바뀌어요. 1분이면 끝나요.
-          </p>
-        </div>
-        <NavArrowRight
-          className="h-4 w-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5"
-          strokeWidth={2.5}
-        />
-      </Link>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Yesterday Mistakes
-// ─────────────────────────────────────────────────────────────
-function YesterdayMistakes({
-  items,
-}: {
-  items: {
-    recordId: string;
-    questionNumber: number;
-    stem: string;
-    subjectName: string;
-    examYear: number | null;
-    examRound: number | null;
-    categorySlug: string;
-  }[];
-}) {
-  return (
-    <section className="mt-6">
-      <div className="flex items-end justify-between">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-            어제 틀린 것
-          </p>
-          <h2 className="mt-1 text-[15px] font-bold tracking-[-0.01em] text-text-high">
-            다시 한 번만 볼까요?
-          </h2>
-        </div>
-        <Link
-          href="/mistakes"
-          className="text-[11.5px] font-medium text-text-muted hover:text-text-mid"
-        >
-          전체 →
-        </Link>
-      </div>
-      <ul className="-mx-4 mt-3 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:grid md:grid-cols-3 md:gap-2.5 md:overflow-visible md:px-0">
-        {items.map((it) => {
-          const href =
-            it.examYear && it.examRound
-              ? `/exams/${it.categorySlug}/rounds/${it.examYear}-${it.examRound}`
-              : "/mistakes";
-          return (
-            <li
-              key={it.recordId}
-              className="w-[76%] shrink-0 snap-start md:w-auto"
-            >
-              <Link
-                href={href}
-                className="group flex h-full flex-col gap-2 rounded-md border border-danger/20 bg-danger/[0.03] p-3.5 transition-colors hover:border-danger/40"
-              >
-                <div className="flex items-center gap-2 text-[10.5px] text-text-muted">
-                  <span className="inline-flex h-4 items-center rounded-sm bg-danger/15 px-1 font-semibold text-danger">
-                    오답
-                  </span>
-                  <span className="font-semibold text-text-mid">
-                    Q.{String(it.questionNumber).padStart(2, "0")}
-                  </span>
-                  <span>·</span>
-                  <span>{it.subjectName}</span>
-                </div>
-                <p className="line-clamp-3 whitespace-pre-wrap text-[13px] leading-[1.55] text-text-high">
-                  {stripTagsShort(it.stem)}
-                </p>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Score Trend
-// ─────────────────────────────────────────────────────────────
-function ScoreTrend({
-  points,
-}: {
-  points: { score: number; dateIso: string }[];
-}) {
-  const w = 600;
-  const h = 80;
-  const pad = 8;
-  const n = points.length;
-  const stepX = (w - pad * 2) / Math.max(n - 1, 1);
-
-  const coords = points.map((p, i) => {
-    const x = pad + i * stepX;
-    const y = pad + (h - pad * 2) * (1 - p.score / 100);
-    return { x, y, score: p.score };
-  });
-
-  const path = coords
-    .map((c, i) => `${i === 0 ? "M" : "L"}${c.x.toFixed(1)},${c.y.toFixed(1)}`)
-    .join(" ");
-  const guideY = pad + (h - pad * 2) * (1 - 60 / 100);
-
-  const last = points[points.length - 1];
-  const first = points[0];
-  const diff = last.score - first.score;
-
-  return (
-    <section className="mt-6">
-      <div className="flex items-end justify-between">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-          점수 흐름
-        </p>
-        <p
-          className={cn(
-            "text-[11.5px] font-semibold tabular-nums",
-            diff > 0
-              ? "text-accent"
-              : diff < 0
-                ? "text-danger"
-                : "text-text-muted",
-          )}
-        >
-          {diff > 0 ? "▲" : diff < 0 ? "▼" : "—"} {Math.abs(diff)}점
-          <span className="ml-1 font-normal text-text-muted">
-            ({points.length}회)
-          </span>
-        </p>
-      </div>
-      <div className="mt-2 rounded-md border border-border bg-surface p-3">
-        <svg
-          viewBox={`0 0 ${w} ${h}`}
-          className="w-full"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <line
-            x1={pad}
-            x2={w - pad}
-            y1={guideY}
-            y2={guideY}
-            stroke="rgb(var(--border))"
-            strokeDasharray="3 3"
-            strokeWidth={1}
-          />
-          <path
-            d={path}
-            fill="none"
-            stroke="rgb(var(--primary))"
-            strokeWidth={2}
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          />
-          {coords.map((c, i) => (
-            <circle
-              key={i}
-              cx={c.x}
-              cy={c.y}
-              r={i === n - 1 ? 3.5 : 2}
-              fill="rgb(var(--primary))"
-            />
-          ))}
-          <text
-            x={w - pad}
-            y={guideY - 3}
-            textAnchor="end"
-            className="fill-text-muted"
-            style={{ fontSize: 9 }}
-          >
-            합격선 60
-          </text>
-        </svg>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Week Compare
-// ─────────────────────────────────────────────────────────────
-function WeekCompareCard({
-  thisWeek,
-  lastWeek,
-}: {
-  thisWeek: { total: number; acc: number | null };
-  lastWeek: { total: number; acc: number | null };
-}) {
-  const totalDelta = thisWeek.total - lastWeek.total;
-  const accDelta =
-    thisWeek.acc != null && lastWeek.acc != null
-      ? thisWeek.acc - lastWeek.acc
-      : null;
-  return (
-    <section className="mt-6">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-        이번 주 vs 지난 주
-      </p>
-      <div className="mt-2 grid grid-cols-2 overflow-hidden rounded-md border border-border bg-surface">
-        <CompareCell
-          icon={<BookStack className="h-3.5 w-3.5" strokeWidth={2} />}
-          label="풀이량"
-          current={`${thisWeek.total}문`}
-          prev={`지난주 ${lastWeek.total}문`}
-          delta={totalDelta}
-          suffix="문"
-          positiveIsGood
-        />
-        <CompareCell
-          icon={<CheckCircle className="h-3.5 w-3.5" strokeWidth={2} />}
-          label="정답률"
-          current={thisWeek.acc != null ? `${thisWeek.acc}%` : "—"}
-          prev={lastWeek.acc != null ? `지난주 ${lastWeek.acc}%` : "지난주 —"}
-          delta={accDelta}
-          suffix="%p"
-          positiveIsGood
-          bordered
-        />
-      </div>
-    </section>
-  );
-}
-
-function CompareCell({
-  icon,
-  label,
-  current,
-  prev,
-  delta,
-  suffix,
-  positiveIsGood,
-  bordered,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  current: string;
-  prev: string;
-  delta: number | null;
-  suffix: string;
-  positiveIsGood: boolean;
-  bordered?: boolean;
-}) {
-  const goodColor = positiveIsGood ? "text-accent" : "text-danger";
-  const badColor = positiveIsGood ? "text-danger" : "text-accent";
-  return (
-    <div className={cn("px-4 py-3.5", bordered && "border-l border-border")}>
-      <span className="inline-flex items-center gap-1 text-[11px] text-text-muted">
-        {icon}
-        {label}
-      </span>
-      <p className="mt-1 text-[20px] font-bold tabular-nums leading-none tracking-[-0.01em] text-text-high">
-        {current}
-      </p>
-      <div className="mt-1.5 flex items-center gap-1.5 text-[10.5px]">
-        <span className="text-text-muted">{prev}</span>
-        {delta != null && delta !== 0 && (
-          <span
-            className={cn(
-              "font-semibold tabular-nums",
-              delta > 0 ? goodColor : badColor,
-            )}
-          >
-            {delta > 0 ? "▲" : "▼"}
-            {Math.abs(delta)}
-            {suffix}
-          </span>
-        )}
-      </div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────
-// Time of Day Insight
+// HOW IT WORKS
 // ─────────────────────────────────────────────────────────────
-function TimeOfDayInsight({
-  buckets,
-}: {
-  buckets: { name: string; from: number; to: number; total: number; correct: number }[];
-}) {
-  const withData = buckets.filter((b) => b.total > 0);
-  if (withData.length === 0) return null;
-  const best = [...withData].sort(
-    (a, b) => b.correct / b.total - a.correct / a.total,
-  )[0];
-  const worst = [...withData].sort(
-    (a, b) => a.correct / a.total - b.correct / b.total,
-  )[0];
-
-  return (
-    <section className="mt-6">
-      <div className="flex items-end justify-between">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-          시간대별 정답률
-        </p>
-        <p className="text-[11.5px] text-text-muted">
-          <Clock className="mr-0.5 inline h-3 w-3" strokeWidth={2} />
-          최근 기록
-        </p>
-      </div>
-      <div className="mt-2 rounded-md border border-border bg-surface p-4">
-        <ul className="grid grid-cols-4 gap-2">
-          {buckets.map((b) => {
-            const rate =
-              b.total > 0 ? Math.round((b.correct / b.total) * 100) : null;
-            return (
-              <li key={b.name} className="flex flex-col items-center gap-1.5">
-                <div className="h-16 w-full overflow-hidden rounded-sm bg-surface-mute">
-                  <div
-                    className={cn(
-                      "w-full transition-all",
-                      rate == null
-                        ? ""
-                        : rate >= 60
-                          ? "bg-accent"
-                          : rate >= 40
-                            ? "bg-warning"
-                            : "bg-danger",
-                    )}
-                    style={{
-                      height: rate != null ? `${rate}%` : "0%",
-                      marginTop: rate != null ? `${100 - rate}%` : "100%",
-                    }}
-                  />
-                </div>
-                <p className="text-[11px] font-medium text-text-mid">
-                  {b.name}
-                </p>
-                <p
-                  className={cn(
-                    "text-[11.5px] font-bold tabular-nums",
-                    rate == null
-                      ? "text-text-muted"
-                      : rate >= 60
-                        ? "text-accent"
-                        : rate >= 40
-                          ? "text-warning"
-                          : "text-danger",
-                  )}
-                >
-                  {rate != null ? `${rate}%` : "—"}
-                </p>
-              </li>
-            );
-          })}
-        </ul>
-        {best && worst && best.name !== worst.name && (
-          <p className="mt-3 border-t border-border-soft pt-3 text-[12px] leading-[1.55] text-text-mid">
-            <strong className="text-text-high">{best.name}</strong>에 가장
-            잘 맞추고 (<span className="tabular-nums">
-              {Math.round((best.correct / best.total) * 100)}%
-            </span>
-            ),{" "}
-            <strong className="text-danger">{worst.name}</strong>엔 떨어져요
-            (<span className="tabular-nums">
-              {Math.round((worst.correct / worst.total) * 100)}%
-            </span>
-            ).
-          </p>
-        )}
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Confidence Analysis
-// ─────────────────────────────────────────────────────────────
-function ConfidenceAnalysis({
-  buckets,
-}: {
-  buckets: {
-    GUESS: { total: number; correct: number };
-    UNSURE: { total: number; correct: number };
-    CONFIDENT: { total: number; correct: number };
-  };
-}) {
-  const rows = [
-    { key: "CONFIDENT", label: "확신", color: "accent" as const },
-    { key: "UNSURE", label: "애매", color: "warning" as const },
-    { key: "GUESS", label: "찍음", color: "danger" as const },
-  ] as const;
-
-  return (
-    <section className="mt-6">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-        자신감 vs 정답률
-      </p>
-      <div className="mt-2 rounded-md border border-border bg-surface p-4">
-        <ul className="space-y-3">
-          {rows.map((r) => {
-            const b = buckets[r.key];
-            const rate =
-              b.total > 0 ? Math.round((b.correct / b.total) * 100) : null;
-            return (
-              <li key={r.key} className="space-y-1">
-                <div className="flex items-baseline justify-between text-[12.5px]">
-                  <span className="font-medium text-text-mid">{r.label}</span>
-                  <span className="tabular-nums text-text-muted">
-                    <span className="text-text-mid">{b.correct}</span>/{b.total}{" "}
-                    ·{" "}
-                    <span
-                      className={cn(
-                        "font-bold",
-                        rate == null
-                          ? "text-text-muted"
-                          : r.color === "accent"
-                            ? "text-accent"
-                            : r.color === "warning"
-                              ? "text-warning"
-                              : "text-danger",
-                      )}
-                    >
-                      {rate != null ? `${rate}%` : "—"}
-                    </span>
-                  </span>
-                </div>
-                <div className="h-1.5 overflow-hidden rounded-sm bg-surface-mute">
-                  <div
-                    className={cn(
-                      "h-full",
-                      r.color === "accent" && "bg-accent",
-                      r.color === "warning" && "bg-warning",
-                      r.color === "danger" && "bg-danger",
-                    )}
-                    style={{ width: rate != null ? `${rate}%` : "0%" }}
-                  />
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-        {buckets.GUESS.total > 0 && buckets.GUESS.correct > 0 && (
-          <p className="mt-3 border-t border-border-soft pt-3 text-[12px] leading-[1.55] text-text-mid">
-            찍어서 맞은 게{" "}
-            <strong className="tabular-nums text-danger">
-              {buckets.GUESS.correct}문제
-            </strong>
-            . 이건 실력 아니에요, 복습 1순위.
-          </p>
-        )}
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Review Distribution — 망각 곡선
-// ─────────────────────────────────────────────────────────────
-function ReviewDistribution({
-  buckets,
-}: {
-  buckets: { label: string; count: number }[];
-}) {
-  const max = Math.max(...buckets.map((b) => b.count), 1);
-  const total = buckets.reduce((s, b) => s + b.count, 0);
-  return (
-    <section className="mt-6">
-      <div className="flex items-end justify-between">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-          복습 대기
-        </p>
-        <p className="text-[11.5px] text-text-muted">
-          총 <span className="tabular-nums font-semibold">{total}</span>문 예정
-        </p>
-      </div>
-      <div className="mt-2 rounded-md border border-border bg-surface p-4">
-        <ul className="flex items-end gap-2 h-24">
-          {buckets.map((b) => {
-            const h = (b.count / max) * 100;
-            const isToday = b.label === "오늘" && b.count > 0;
-            return (
-              <li
-                key={b.label}
-                className="flex flex-1 flex-col items-center gap-1"
-              >
-                <span className="text-[10.5px] tabular-nums font-semibold text-text-mid">
-                  {b.count}
-                </span>
-                <div
-                  className={cn(
-                    "w-full rounded-t-sm",
-                    isToday ? "bg-primary" : "bg-text-mid/30",
-                  )}
-                  style={{ height: b.count > 0 ? `${Math.max(h, 6)}%` : "2px" }}
-                />
-                <span
-                  className={cn(
-                    "text-[10.5px]",
-                    isToday ? "font-semibold text-primary" : "text-text-muted",
-                  )}
-                >
-                  {b.label}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Weak Subjects (linkable to subject page)
-// ─────────────────────────────────────────────────────────────
-function WeakSubjects({
-  subjects,
-  categorySlug,
-}: {
-  subjects: { name: string; slug: string; rate: number; total: number }[];
-  categorySlug: string;
-}) {
-  return (
-    <section className="mt-6">
-      <div className="flex items-end justify-between">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-          약점 과목
-        </p>
-        <Link
-          href="/dashboard"
-          className="text-[11.5px] font-medium text-text-muted hover:text-text-mid"
-        >
-          상세 →
-        </Link>
-      </div>
-      <ul className="mt-2 space-y-1 rounded-md border border-border bg-surface p-2">
-        {subjects.map((s) => (
-          <li key={s.slug}>
-            <Link
-              href={`/exams/${categorySlug}/subjects/${s.slug}`}
-              className="group flex items-center gap-3 rounded-sm px-2 py-1.5 transition-colors hover:bg-surface-mute"
-            >
-              <WarningTriangle
-                className={cn(
-                  "h-3.5 w-3.5 shrink-0",
-                  s.rate < 40 ? "text-danger" : "text-warning",
-                )}
-                strokeWidth={2}
-              />
-              <span className="truncate text-[13px] font-medium text-text-high">
-                {s.name}
-              </span>
-              <span className="ml-auto flex items-center gap-2 text-[11.5px]">
-                <span className="text-text-muted tabular-nums">
-                  {s.total}문
-                </span>
-                <span
-                  className={cn(
-                    "font-semibold tabular-nums",
-                    s.rate >= 60 ? "text-accent" : "text-danger",
-                  )}
-                >
-                  {s.rate}%
-                </span>
-                <NavArrowRight
-                  className="h-3.5 w-3.5 text-text-muted transition-transform group-hover:translate-x-0.5"
-                  strokeWidth={2}
-                />
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Subject List — 과목별 풀어보기
-// ─────────────────────────────────────────────────────────────
-function SubjectList({
-  categorySlug,
-  subjects,
-}: {
-  categorySlug: string;
-  subjects: {
-    slug: string;
-    name: string;
-    questionCount: number;
-    solved: number;
-    mastered: number;
-    progress: number;
-  }[];
-}) {
-  if (subjects.length === 0) return null;
-  return (
-    <section className="mt-10">
-      <div className="flex items-end justify-between">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-            과목별 마스터율
-          </p>
-          <h2 className="mt-1 text-[17px] font-bold tracking-[-0.01em] text-text-high md:text-[18px]">
-            단원별 연습 + 마스터
-          </h2>
-          <p className="mt-1 text-[11px] text-text-muted">
-            마스터 = 가장 최근 풀이가 정답인 문제
-          </p>
-        </div>
-      </div>
-      <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-        {subjects.map((s) => {
-          const pct = Math.round(s.progress * 100);
-          const solvedPct =
-            s.questionCount > 0
-              ? Math.round((s.solved / s.questionCount) * 100)
-              : 0;
-          return (
-            <li key={s.slug}>
-              <Link
-                href={`/exams/${categorySlug}/subjects/${s.slug}`}
-                className="group flex flex-col gap-2 rounded-md border border-border bg-surface px-4 py-3 transition-colors hover:border-text-mid"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <p className="min-w-0 truncate text-[13.5px] font-semibold text-text-high">
-                    {s.name}
-                  </p>
-                  <span
-                    className={cn(
-                      "shrink-0 text-[11.5px] font-bold tabular-nums",
-                      pct >= 80
-                        ? "text-accent"
-                        : pct > 0
-                          ? "text-primary"
-                          : "text-text-muted",
-                    )}
-                  >
-                    {pct}%
-                  </span>
-                </div>
-                {/* 마스터(진한) + 풀이만 한 비율(연한) 이중 바 */}
-                <div className="relative h-[4px] overflow-hidden rounded-sm bg-border-soft">
-                  <div
-                    className="absolute inset-y-0 left-0 bg-text-mid/30"
-                    style={{ width: `${solvedPct}%` }}
-                  />
-                  <div
-                    className={cn(
-                      "absolute inset-y-0 left-0",
-                      pct >= 80 ? "bg-accent" : "bg-primary",
-                    )}
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-                <p className="text-[11px] text-text-muted">
-                  마스터{" "}
-                  <span className="tabular-nums font-semibold text-text-mid">
-                    {s.mastered}
-                  </span>{" "}
-                  · 풀이{" "}
-                  <span className="tabular-nums">{s.solved}</span>/
-                  <span className="tabular-nums">{s.questionCount}</span>
-                </p>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Round List
-// ─────────────────────────────────────────────────────────────
-function RoundList({
-  categorySlug,
-  exams,
-}: {
-  categorySlug: string;
-  exams: {
-    id: string;
-    year: number;
-    round: number;
-    title: string;
-    totalQuestions: number;
-    published: boolean;
-    attempt: {
-      id: string;
-      finished: boolean;
-      score: number | null;
-      solved: number;
-      planned: number;
-    } | null;
-  }[];
-}) {
-  const visible = exams.filter((e) => e.published);
-  const shown = visible.length > 0 ? visible : exams;
-  if (shown.length === 0) return null;
-
-  return (
-    <section className="mt-10">
-      <div className="flex items-end justify-between">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-            기출 회차
-          </p>
-          <h2 className="mt-1 text-[17px] font-bold tracking-[-0.01em] text-text-high md:text-[18px]">
-            회차 골라 풀기
-          </h2>
-        </div>
-        <Link
-          href={`/exams/${categorySlug}`}
-          className="text-[12px] font-medium text-text-muted transition-colors hover:text-text-mid"
-        >
-          전체 회차 →
-        </Link>
-      </div>
-
-      <ul className="mt-3 divide-y divide-border-soft overflow-hidden rounded-md border border-border bg-surface">
-        {shown.slice(0, 6).map((e) => (
-          <li key={e.id}>
-            <RoundRow categorySlug={categorySlug} exam={e} />
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-function RoundRow({
-  categorySlug,
-  exam,
-}: {
-  categorySlug: string;
-  exam: {
-    id: string;
-    year: number;
-    round: number;
-    title: string;
-    totalQuestions: number;
-    published: boolean;
-    attempt: {
-      id: string;
-      finished: boolean;
-      score: number | null;
-      solved: number;
-      planned: number;
-    } | null;
-  };
-}) {
-  const { attempt, published } = exam;
-  const href = published
-    ? `/exams/${categorySlug}/rounds/${exam.year}-${exam.round}`
-    : `/exams/${categorySlug}`;
-
-  const status = attempt?.finished
-    ? "done"
-    : attempt
-      ? "inprogress"
-      : "fresh";
-
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "group flex items-center gap-3 px-4 py-3.5 transition-colors md:px-5",
-        published ? "hover:bg-surface-mute" : "opacity-50",
-      )}
-    >
-      <span
-        className={cn(
-          "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-sm",
-          status === "done" && "bg-accent/15 text-accent",
-          status === "inprogress" && "bg-primary/15 text-primary",
-          status === "fresh" && "bg-surface-mute text-text-muted",
-        )}
-      >
-        {status === "done" ? (
-          <CheckCircle className="h-3.5 w-3.5" strokeWidth={2.5} />
-        ) : status === "inprogress" ? (
-          <Play className="h-3.5 w-3.5" strokeWidth={2.5} />
-        ) : (
-          <BookStack className="h-3.5 w-3.5" strokeWidth={2} />
-        )}
-      </span>
-
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="text-[14.5px] font-semibold text-text-high md:text-[15px]">
-            {exam.year}년 {exam.round}회차
-          </span>
-          {!published && (
-            <span className="rounded-sm border border-border px-1.5 py-0 text-[10px] text-text-muted">
-              준비중
-            </span>
-          )}
-        </div>
-        <p className="mt-0.5 text-[11.5px] text-text-muted">
-          {exam.totalQuestions > 0 ? (
-            <>
-              <span className="tabular-nums">{exam.totalQuestions}</span>문제
-              {attempt && !attempt.finished && (
-                <>
-                  <span className="mx-1.5">·</span>
-                  <span className="text-primary">
-                    <span className="tabular-nums">{attempt.solved}</span>
-                    /<span className="tabular-nums">{attempt.planned}</span>{" "}
-                    풀이중
-                  </span>
-                </>
-              )}
-              {attempt?.finished && attempt.score != null && (
-                <>
-                  <span className="mx-1.5">·</span>
-                  <span
-                    className={cn(
-                      "font-semibold tabular-nums",
-                      attempt.score >= 60 ? "text-accent" : "text-danger",
-                    )}
-                  >
-                    {attempt.score}점
-                  </span>
-                </>
-              )}
-            </>
-          ) : (
-            <span>문제 준비중</span>
-          )}
-        </p>
-      </div>
-
-      <NavArrowRight
-        className={cn(
-          "h-4 w-4 shrink-0 text-text-muted transition-all",
-          published && "group-hover:translate-x-0.5 group-hover:text-text-high",
-        )}
-        strokeWidth={2}
-      />
-    </Link>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Tools Dock
-// ─────────────────────────────────────────────────────────────
-function ToolsDock({
-  mistakeCount,
-  bookmarkCount,
-  categorySlug,
-}: {
-  mistakeCount: number;
-  bookmarkCount: number;
-  categorySlug: string;
-}) {
-  const items = [
+function HowItWorks() {
+  const steps = [
     {
-      href: "/review",
-      label: "복습",
+      n: "01",
+      Icon: CursorPointer,
+      title: "들어와서 종목 선택",
+      desc: "회원가입·결제·인증 없습니다. 토목기사·정보처리기사·9급 공무원 같은 종목을 고르고 바로 시작.",
+    },
+    {
+      n: "02",
       Icon: Flash,
-      badge: null,
+      title: "풀고, 채점받고, 해설 본다",
+      desc: "연습 모드는 즉시 채점 + 실시간 해설. 실전 모드는 시간 제한·과락 체크 CBT 환경.",
     },
     {
-      href: "/mistakes",
-      label: "오답",
-      Icon: XmarkCircle,
-      badge: mistakeCount > 0 ? mistakeCount : null,
+      n: "03",
+      Icon: LightBulb,
+      title: "찍은 오답을 AI가 분석",
+      desc: "단순 정답 해설이 아닌, '당신이 왜 ②번을 골랐는지' 까지 들어가 다음에 안 틀리는 후크를 만들어줍니다.",
     },
     {
-      href: "/bookmarks",
-      label: "북마크",
-      Icon: BookmarkIcon,
-      badge: bookmarkCount > 0 ? bookmarkCount : null,
-    },
-    {
-      href: "/dashboard",
-      label: "내 기록",
-      Icon: GraphUp,
-      badge: null,
-    },
-    {
-      href: `/practice?category=${categorySlug}&mode=random`,
-      label: "무작위",
-      Icon: Shuffle,
-      badge: null,
-    },
-    {
-      href: "/exams",
-      label: "다른 시험",
-      Icon: Notes,
-      badge: null,
+      n: "04",
+      Icon: Trophy,
+      title: "복습 알고리즘이 합격으로",
+      desc: "SM-2가 잊을 때쯤 다시 띄우고, 합격 예측이 진척률을 % 로 보여줍니다.",
     },
   ];
   return (
-    <section className="mt-10">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">
-        도구
-      </p>
-      <ul className="mt-3 grid grid-cols-3 gap-1.5 sm:grid-cols-6">
-        {items.map((it) => (
-          <li key={it.href}>
-            <Link
-              href={it.href}
-              className="group flex flex-col items-center gap-1.5 rounded-md border border-border bg-surface py-3 transition-colors hover:border-text-mid"
+    <section
+      id="how"
+      className="border-b border-border-soft bg-surface/40"
+    >
+      <div className="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
+        <SectionHeader
+          eyebrow="어떻게 작동하나"
+          title={
+            <>
+              4단계면 끝.
+              <br className="md:hidden" /> 머리 안 써도 됩니다.
+            </>
+          }
+          desc="다른 사이트가 '문제를 모아두고 알아서 풀어라' 라면, PASSPOP은 알고리즘이 다음 한 문제를 골라줍니다."
+        />
+
+        <ol className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {steps.map((s) => (
+            <li
+              key={s.n}
+              className="relative flex flex-col rounded-lg border border-border bg-surface p-6"
             >
-              <span className="relative inline-flex h-8 w-8 items-center justify-center rounded-sm bg-surface-mute text-text-mid group-hover:text-text-high">
-                <it.Icon className="h-4 w-4" strokeWidth={2} />
-                {it.badge != null && (
-                  <span className="absolute -right-1 -top-1 min-w-[16px] rounded-full bg-primary px-1 py-0 text-center font-mono text-[9px] font-bold tabular-nums text-primary-fg">
-                    {it.badge > 99 ? "99+" : it.badge}
-                  </span>
-                )}
-              </span>
-              <span className="text-[10.5px] font-medium text-text-mid group-hover:text-text-high">
-                {it.label}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[12px] font-bold tracking-[0.14em] text-primary">
+                  STEP {s.n}
+                </span>
+                <s.Icon
+                  className="h-5 w-5 text-text-muted"
+                  strokeWidth={2}
+                />
+              </div>
+              <h3 className="mt-5 text-[17px] font-bold tracking-[-0.01em] text-text-high">
+                {s.title}
+              </h3>
+              <p className="mt-2 text-[13.5px] leading-[1.65] text-text-mid">
+                {s.desc}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </div>
     </section>
   );
 }
 
+// ─────────────────────────────────────────────────────────────
+// SUPPORTED EXAMS
+// ─────────────────────────────────────────────────────────────
+function SupportedExams() {
+  return (
+    <section
+      id="exams"
+      className="border-b border-border-soft bg-background"
+    >
+      <div className="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
+        <SectionHeader
+          eyebrow="지원 시험"
+          title={
+            <>
+              기능사부터 공무원까지,
+              <br className="md:hidden" /> 한 사이트에서.
+            </>
+          }
+          desc="기능사·산업기사·기사·기술사·공무원(9급/7급) 등 한국산업인력공단·인사혁신처 주요 시험을 다룹니다."
+        />
 
+        <ul className="mt-14 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          {SUPPORTED_EXAMS.map((e) => (
+            <li
+              key={e.name}
+              className="flex flex-col rounded-lg border border-border bg-surface p-5 transition-colors hover:border-primary/30"
+            >
+              <span className="w-fit rounded-sm bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
+                {e.grade}
+              </span>
+              <h3 className="mt-3 text-[15px] font-bold text-text-high">
+                {e.name}
+              </h3>
+              <p className="mt-1.5 text-[12px] leading-[1.55] text-text-muted">
+                {e.desc}
+              </p>
+              <p className="mt-4 inline-flex items-center gap-1 text-[11.5px] font-semibold text-primary">
+                <Bell className="h-3 w-3" strokeWidth={2.5} />
+                오픈 즉시 풀이 가능
+              </p>
+            </li>
+          ))}
+        </ul>
 
-
-
-function stripTagsShort(s: string): string {
-  return s
-    .replace(/<[^>]+>/g, "")
-    .replace(/\$[^$]+\$/g, "[식]")
-    .replace(/\s+/g, " ")
-    .trim();
+        <p className="mt-10 text-center text-[12.5px] text-text-muted">
+          이 외에도 정보처리산업기사, 산업안전기사, 위험물기능사 등 순차 추가
+          예정입니다. 원하시는 종목은 알림 신청 시 함께 알려주세요.
+        </p>
+      </div>
+    </section>
+  );
 }
 
+// ─────────────────────────────────────────────────────────────
+// PREMIUM EXPLANATION SHOWCASE
+// ─────────────────────────────────────────────────────────────
+function PremiumExplanationShowcase() {
+  return (
+    <section className="border-b border-border-soft bg-surface/40">
+      <div className="mx-auto max-w-6xl px-4 py-20 md:px-6 md:py-28">
+        <SectionHeader
+          eyebrow="프리미엄 해설"
+          title={
+            <>
+              정답을 알려주는 해설은
+              <br className="md:hidden" /> 끝났습니다.
+            </>
+          }
+          desc="PASSPOP은 '당신이 그 오답을 왜 골랐는가' 부터 시작합니다."
+        />
 
+        <div className="mt-14 grid items-stretch gap-6 lg:grid-cols-2">
+          {/* 기존 해설 */}
+          <div className="flex flex-col rounded-lg border border-border bg-surface p-6">
+            <span className="w-fit rounded-sm bg-danger/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-danger">
+              기존 사이트
+            </span>
+            <h3 className="mt-3 text-[18px] font-bold tracking-[-0.01em] text-text-high">
+              "정답은 ②번입니다."
+            </h3>
+            <div className="mt-4 space-y-2 text-[13.5px] leading-[1.7] text-text-mid">
+              <p>
+                ▸ 공식을 외워서 대입하면 답이 나옵니다.
+              </p>
+              <p>
+                ▸ ①은 부호가 반대라 오답.
+              </p>
+              <p>
+                ▸ ③, ④는 단위가 다릅니다.
+              </p>
+            </div>
+            <p className="mt-5 text-[12px] italic text-text-muted">
+              → 다음에 또 틀립니다. 왜 헷갈렸는지 아무도 안 알려줬으니까.
+            </p>
+          </div>
+
+          {/* PASSPOP 해설 */}
+          <div className="relative flex flex-col overflow-hidden rounded-lg border-2 border-primary/40 bg-primary/[0.03] p-6 shadow-lg shadow-primary/[0.08]">
+            <div
+              aria-hidden="true"
+              className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-primary/20 blur-2xl"
+            />
+            <span className="w-fit rounded-sm bg-primary/20 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider text-primary">
+              PASSPOP 프리미엄 해설
+            </span>
+            <h3 className="mt-3 text-[18px] font-bold tracking-[-0.01em] text-text-high">
+              "②번 찍으셨네요. 이 함정 자주 걸려요."
+            </h3>
+            <div className="mt-4 space-y-2 text-[13.5px] leading-[1.7] text-text-mid">
+              <p>
+                ▸{" "}
+                <strong className="text-text-high">
+                  ②와 ③의 차이가 부호 한 끗
+                </strong>
+                . 출제자가 의도적으로 헷갈리게 한 패턴이에요.
+              </p>
+              <p>
+                ▸ 공식 자체보다, 단위 분석을 먼저 했으면 ②가 떨어져 나갔을 거예요.
+              </p>
+              <p>
+                ▸{" "}
+                <strong className="text-accent">
+                  💡 외울 후크: 부호 = 방향, 방향 헷갈리면 단위부터.
+                </strong>
+              </p>
+              <p>
+                ▸ 같은 함정이 자주 나오는 단원:{" "}
+                <span className="font-semibold text-text-high">
+                  응용역학 · 보의 처짐
+                </span>{" "}
+                — 약점 분석에 추가합니다.
+              </p>
+            </div>
+            <p className="mt-5 text-[12px] font-semibold text-primary">
+              → 망각곡선 큐에 들어갑니다. 3일 뒤 비슷한 함정으로 한 번 더
+              물어볼게요.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// COMPARISON TABLE
+// ─────────────────────────────────────────────────────────────
+function ComparisonTable() {
+  const rows: { feat: string; us: string | true; them: string | true | false }[] =
+    [
+      { feat: "전 종목 완전 무료", us: true, them: "일부만 무료" },
+      { feat: "회원가입 없이 풀이", us: true, them: false },
+      { feat: "찍은 오답 기준 AI 해설", us: true, them: false },
+      { feat: "망각곡선 자동 복습", us: "SM-2", them: false },
+      { feat: "합격 예측 + 신뢰구간", us: true, them: false },
+      { feat: "약점 과목 자동 분석", us: true, them: "수동" },
+      { feat: "실전 CBT 모의고사", us: true, them: true },
+      { feat: "광고 없는 풀이 화면", us: true, them: false },
+    ];
+  return (
+    <section className="border-b border-border-soft bg-background">
+      <div className="mx-auto max-w-5xl px-4 py-20 md:px-6 md:py-28">
+        <SectionHeader
+          eyebrow="비교"
+          title="다른 무료 기출 사이트와 뭐가 다른가"
+        />
+
+        <div className="mt-14 overflow-hidden rounded-lg border border-border">
+          <table className="w-full text-left text-[13.5px]">
+            <thead className="bg-surface">
+              <tr>
+                <th
+                  scope="col"
+                  className="px-4 py-4 font-semibold text-text-mid md:px-6"
+                >
+                  기능
+                </th>
+                <th
+                  scope="col"
+                  className="px-4 py-4 text-center font-bold text-primary md:px-6"
+                >
+                  PASSPOP
+                </th>
+                <th
+                  scope="col"
+                  className="px-4 py-4 text-center font-semibold text-text-muted md:px-6"
+                >
+                  기존 무료 사이트
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border-soft bg-background">
+              {rows.map((r) => (
+                <tr key={r.feat}>
+                  <td className="px-4 py-4 font-medium text-text-high md:px-6">
+                    {r.feat}
+                  </td>
+                  <td className="px-4 py-4 text-center md:px-6">
+                    <Mark v={r.us} highlight />
+                  </td>
+                  <td className="px-4 py-4 text-center md:px-6">
+                    <Mark v={r.them} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Mark({
+  v,
+  highlight,
+}: {
+  v: string | true | false;
+  highlight?: boolean;
+}) {
+  if (v === true) {
+    return (
+      <span
+        className={
+          highlight
+            ? "inline-flex items-center gap-1 font-bold text-accent"
+            : "inline-flex items-center gap-1 text-text-mid"
+        }
+      >
+        <CheckCircle className="h-4 w-4" strokeWidth={2.5} />
+        있음
+      </span>
+    );
+  }
+  if (v === false) {
+    return <span className="text-text-muted">—</span>;
+  }
+  return (
+    <span
+      className={
+        highlight
+          ? "font-bold text-accent"
+          : "text-text-mid"
+      }
+    >
+      {v}
+    </span>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// FAQ
+// ─────────────────────────────────────────────────────────────
+function FaqSection() {
+  return (
+    <section id="faq" className="border-b border-border-soft bg-surface/40">
+      <div className="mx-auto max-w-3xl px-4 py-20 md:px-6 md:py-28">
+        <SectionHeader eyebrow="자주 묻는 질문" title="궁금하실 만한 것들" />
+        <ul className="mt-14 divide-y divide-border-soft overflow-hidden rounded-lg border border-border bg-surface">
+          {FAQ.map((item) => (
+            <li key={item.q}>
+              <details className="group p-5 md:p-6">
+                <summary className="flex cursor-pointer items-start justify-between gap-4 text-[15px] font-semibold text-text-high">
+                  <span>{item.q}</span>
+                  <span
+                    aria-hidden="true"
+                    className="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-mute text-text-mid transition-transform group-open:rotate-45"
+                  >
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-[13.5px] leading-[1.7] text-text-mid">
+                  {item.a}
+                </p>
+              </details>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// FINAL CTA — "곧 오픈"
+// ─────────────────────────────────────────────────────────────
+function FinalCta() {
+  return (
+    <section
+      id="waitlist"
+      className="relative overflow-hidden bg-background"
+    >
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-primary/[0.05] to-background"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute left-1/2 top-1/2 -z-10 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/[0.10] blur-3xl"
+      />
+
+      <div className="mx-auto max-w-3xl px-4 py-24 text-center md:px-6 md:py-32">
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/[0.08] px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-accent">
+          <Sparks className="h-3.5 w-3.5" strokeWidth={2.5} />
+          Coming Soon
+        </div>
+        <h2 className="mt-6 text-[40px] font-extrabold leading-[1.15] tracking-[-0.02em] text-text-high md:text-[56px]">
+          곧 오픈합니다.
+          <br />
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            첫 풀이는 무료
+          </span>
+          , 영원히.
+        </h2>
+        <p className="mx-auto mt-6 max-w-xl text-[16px] leading-[1.7] text-text-mid">
+          이메일을 남겨두시면 정식 오픈 즉시 안내드립니다. 베타 기간에는 모든
+          기능이 무제한 무료입니다.
+        </p>
+
+        <form
+          action={`mailto:${"hello@passpop.app"}`}
+          method="post"
+          encType="text/plain"
+          className="mx-auto mt-10 flex max-w-md flex-col gap-3 sm:flex-row"
+        >
+          <label htmlFor="waitlist-email" className="sr-only">
+            오픈 알림을 받을 이메일
+          </label>
+          <input
+            id="waitlist-email"
+            type="email"
+            name="email"
+            required
+            placeholder="you@example.com"
+            autoComplete="email"
+            className="h-12 flex-1 rounded-md border border-border bg-surface px-4 text-[14px] text-text-high placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+          />
+          <button
+            type="submit"
+            className="inline-flex h-12 items-center justify-center gap-1.5 rounded-md bg-primary px-6 text-[14px] font-bold text-primary-fg shadow-lg shadow-primary/20 transition-all hover:bg-primary-hover hover:shadow-primary/30 active:scale-[0.98]"
+          >
+            <Bell className="h-4 w-4" strokeWidth={2.5} />
+            알림 신청
+          </button>
+        </form>
+
+        <ul className="mx-auto mt-10 flex max-w-md flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12px] text-text-muted">
+          <li className="inline-flex items-center gap-1">
+            <Lock className="h-3.5 w-3.5" strokeWidth={2} />
+            스팸 없음 · 오픈 안내만 1회
+          </li>
+          <li className="inline-flex items-center gap-1">
+            <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2} />
+            언제든지 수신 거부 가능
+          </li>
+        </ul>
+
+        <p className="mx-auto mt-12 max-w-lg text-[12px] leading-[1.7] text-text-muted">
+          오픈 전까지 종목별 기출 데이터·해설 품질을 다듬고 있어요. 빠른 안내가
+          필요하시면{" "}
+          <a
+            href="mailto:hello@passpop.app"
+            className="font-semibold text-text-mid underline-offset-2 hover:text-text-high hover:underline"
+          >
+            hello@passpop.app
+          </a>{" "}
+          으로도 연락 주세요.
+        </p>
+      </div>
+    </section>
+  );
+}
