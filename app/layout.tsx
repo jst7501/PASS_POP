@@ -98,8 +98,7 @@ export const metadata: Metadata = {
   verification: {
     google: "AIRz6AnqF7sf3Hn2E3aurJbjqW0sL2LDjtNnC5qb5NM",
     other: {
-      "naver-site-verification":
-        process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION ?? "",
+      "naver-site-verification": "aaee194d9b66b14ccda4d054e96c68900681557d",
     },
   },
   other: {
@@ -180,6 +179,11 @@ export default function RootLayout({
         <meta
           name="google-site-verification"
           content="AIRz6AnqF7sf3Hn2E3aurJbjqW0sL2LDjtNnC5qb5NM"
+        />
+        {/* Naver 서치어드바이저 소유권 확인 — 절대 삭제 금지 */}
+        <meta
+          name="naver-site-verification"
+          content="aaee194d9b66b14ccda4d054e96c68900681557d"
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
