@@ -472,18 +472,24 @@ function Hero() {
 function BrowseSection() {
   return (
     <section id="browse" className="border-b border-border-soft">
-      <div className="mx-auto max-w-6xl px-6 pb-24 pt-20 md:pb-28 md:pt-24">
+      <div className="mx-auto max-w-6xl px-6 pb-16 pt-16 md:pb-28 md:pt-24">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
               둘러보기 · 미리보기
             </p>
-            <h2 className="mt-3 text-[30px] font-extrabold tracking-[-0.025em] text-text-high md:text-[40px]">
+            <h2 className="mt-3 text-[28px] font-extrabold tracking-[-0.025em] text-text-high md:text-[40px]">
               실제 풀이 화면, 그대로.
             </h2>
-            <p className="mt-3 text-[14.5px] leading-[1.65] text-text-mid md:text-[15px]">
-              오픈 시 모든 종목에서 동일한 인터페이스. 지문 · 선지 · 즉시 채점 ·
-              AI 해설까지.
+            <p className="mt-3 text-[14px] leading-[1.6] text-text-mid md:text-[15px]">
+              오픈 시 모든 종목에서 동일한 인터페이스.
+              <br className="md:hidden" /> 지문 · 선지 · 즉시 채점 · AI 해설까지.
+            </p>
+
+            {/* 모바일 swipe hint */}
+            <p className="mt-4 inline-flex items-center gap-1 text-[11.5px] text-text-muted md:hidden">
+              <ArrowRight className="h-3 w-3" strokeWidth={2.5} />
+              좌우로 넘겨서 더 보기 · {EXAM_CARDS.length}개 종목
             </p>
           </div>
 
@@ -497,10 +503,16 @@ function BrowseSection() {
           </div>
         </div>
 
-        {/* 정렬된 grid — 한 행 카드끼리 높이 자동 맞춤 */}
-        <ul className="mt-10 grid auto-rows-fr grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* 모바일: 가로 snap 캐러셀 · 데스크탑: 정렬된 grid */}
+        <ul
+          className="no-scrollbar -mx-6 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-4 md:mx-0 md:mt-12 md:grid md:auto-rows-fr md:grid-cols-2 md:gap-4 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3"
+          style={{ scrollPadding: "0 1.5rem" }}
+        >
           {EXAM_CARDS.map((c, i) => (
-            <li key={i}>
+            <li
+              key={i}
+              className="w-[82%] shrink-0 snap-start md:w-auto md:shrink"
+            >
               <ExamPreviewCard exam={c} />
             </li>
           ))}

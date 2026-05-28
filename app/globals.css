@@ -141,6 +141,15 @@ body {
   color: rgb(var(--text-high));
 }
 
+/* 가로 스크롤 캐러셀용 — 스크롤바 숨김 */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* details > summary 기본 마커(▶) 제거 — list-none 클래스와 함께 동작 보장 */
 summary::-webkit-details-marker {
   display: none;
