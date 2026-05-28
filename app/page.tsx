@@ -5,18 +5,17 @@ import {
   CheckCircle,
   Search,
   ArrowRight,
-  Bell,
-  Lock,
-  ShieldCheck,
   MagicWand,
   Brain,
   Clock,
   Bookmark,
   GraphUp,
+  ShieldCheck,
 } from "iconoir-react";
 import { buildMeta } from "@/lib/seo/metadata";
 import { SITE_NAME, SITE_URL } from "@/lib/seo/site";
 import { cn } from "@/lib/utils";
+import { WaitlistForm } from "@/components/waitlist-form";
 
 export const dynamic = "force-static";
 export const revalidate = 3600;
@@ -1461,43 +1460,9 @@ function FinalCta() {
           베타 기간엔 모든 기능이 무제한 무료입니다.
         </p>
 
-        <form
-          action="mailto:hello@passpop.app"
-          method="post"
-          encType="text/plain"
-          className="mx-auto mt-10 flex max-w-md flex-col gap-2 sm:flex-row"
-        >
-          <label htmlFor="waitlist-email" className="sr-only">
-            오픈 알림을 받을 이메일
-          </label>
-          <input
-            id="waitlist-email"
-            type="email"
-            name="email"
-            required
-            placeholder="you@example.com"
-            autoComplete="email"
-            className="h-12 flex-1 rounded-lg border border-border bg-surface px-4 text-[14px] text-text-high placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-          <button
-            type="submit"
-            className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg bg-primary px-6 text-[14px] font-bold text-primary-fg transition-colors hover:bg-primary-hover active:scale-[0.98]"
-          >
-            <Bell className="h-4 w-4" strokeWidth={2.5} />
-            알림 신청
-          </button>
-        </form>
-
-        <ul className="mx-auto mt-6 flex max-w-md flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[11.5px] text-text-muted">
-          <li className="inline-flex items-center gap-1.5">
-            <Lock className="h-3 w-3" strokeWidth={2} />
-            스팸 없음 · 오픈 안내만 1회
-          </li>
-          <li className="inline-flex items-center gap-1.5">
-            <ShieldCheck className="h-3 w-3" strokeWidth={2} />
-            언제든지 수신 거부 가능
-          </li>
-        </ul>
+        <div className="mt-10">
+          <WaitlistForm />
+        </div>
 
         <p className="mx-auto mt-12 max-w-lg text-[11.5px] leading-[1.65] text-text-muted">
           빠른 안내가 필요하시면{" "}

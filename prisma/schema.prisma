@@ -364,3 +364,31 @@ model QuestionNote {
   @@unique([userId, questionId])
   @@index([userId, updatedAt])
 }
+
+// ─────────────────────────────────────────────────────────────
+// Waitlist — 오픈 알림 신청 명단 (랜딩 페이지 폼)
+// ─────────────────────────────────────────────────────────────
+
+enum WaitlistStatus {
+  PENDING        // 가입 직후 기본 상태
+  CONFIRMED      // 더블 옵트인 등으로 확인됨
+  UNSUBSCRIBED   // 수신 거부
+  SPAM           // 스팸으로 마킹
+}
+
+model Waitlist {
+  id          String          @id @default(cuid())
+  email       String          @unique
+  source      String?                                  // utm_source, referer 등 분석용
+  referer     String?         @db.Text                 // 어디서 왔는지
+  userAgent   String?         @db.Text                 // UA snapshot (스팸 필터링용)
+  ipHash      String?                                  // PII 회피용 SHA-256 prefix
+  status      WaitlistStatus  @default(PENDING)
+  notes       String?         @db.Text                 // 관리자 메모
+  confirmedAt DateTime?
+  notifiedAt  DateTime?                                // 오픈 안내 메일 발송 시점
+  createdAt   DateTime        @default(now())
+
+  @@index([status, createdAt])
+  @@index([createdAt])
+}
