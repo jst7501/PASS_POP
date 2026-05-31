@@ -4,6 +4,8 @@ import { unstable_cache } from "next/cache";
 import { NavArrowLeft, NavArrowRight } from "iconoir-react";
 import prisma from "@/lib/prisma";
 import { GRADE_LABEL } from "@/lib/queries";
+import { ExamGrade } from "@/lib/generated/prisma-client";
+import { DP, DP_SLUG } from "@/lib/content/3dp";
 import { buildMeta } from "@/lib/seo/metadata";
 import { breadcrumbLd, collectionPageLd } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/json-ld";
@@ -70,8 +72,29 @@ const getExamsList = unstable_cache(
   { revalidate: 3600, tags: ["home-public", "categories", "explanations"] },
 );
 
+type ExamCard = Awaited<ReturnType<typeof getExamsList>>[number];
+
 export default async function ExamsIndexPage() {
-  const categories = await getExamsList();
+  let dbCategories: ExamCard[] = [];
+  try {
+    dbCategories = await getExamsList();
+  } catch {
+    // 무료 DB 미연결/지연 시에도 JSON 종목(3D프린터)은 노출
+    dbCategories = [];
+  }
+  const dpCard: ExamCard = {
+    id: "json-3dp",
+    slug: DP_SLUG,
+    name: DP.category.name,
+    grade: ExamGrade.GI_NEUNG_SA,
+    subjectCount: DP.subjects.length,
+    examCount: 1,
+    publishedCount: 1,
+  };
+  const categories = [
+    dpCard,
+    ...dbCategories.filter((c) => c.slug !== DP_SLUG),
+  ];
 
   return (
     <>

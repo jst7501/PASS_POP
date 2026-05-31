@@ -17,6 +17,8 @@ import { getCurrentUser } from "@/lib/auth/anon";
 import { buildMeta } from "@/lib/seo/metadata";
 import { breadcrumbLd } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/json-ld";
+import { DP, DP_SLUG, dpSubject } from "@/lib/content/3dp";
+import { ThreeDPSubjectPage } from "@/components/exams/threedp-subject";
 import { ReviewStartButton } from "@/components/review-start-button";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +33,28 @@ export async function generateMetadata({
     subjectSlug = decodeURIComponent(raw);
   } catch {
     /* 원본 유지 */
+  }
+  if (slug === DP_SLUG) {
+    const dp = dpSubject(subjectSlug);
+    if (!dp) {
+      return buildMeta({
+        title: "과목을 찾을 수 없어요",
+        path: `/exams/${slug}/subjects/${encodeURIComponent(subjectSlug)}`,
+        index: false,
+      });
+    }
+    return buildMeta({
+      title: `${dp.name} — ${DP.category.name} 기출 문제`,
+      description: `${DP.category.name} ${dp.name} 과목 ${dp.questionCount}문항을 무료로. 지문·보기 미리보기와 찍은 오답까지 분석하는 프리미엄 해설. 회원가입 없이 바로 풀이.`,
+      path: `/exams/${slug}/subjects/${dp.slug}`,
+      keywords: [
+        dp.name,
+        `${DP.category.name} ${dp.name}`,
+        `3D프린터 ${dp.name}`,
+        `${DP.category.name} 기출`,
+        "기능사",
+      ],
+    });
   }
   const subject = await getSubjectDetail(slug, subjectSlug);
   if (!subject) {
@@ -67,6 +91,10 @@ export default async function SubjectDetailPage({
     subjectSlug = decodeURIComponent(rawSubjectSlug);
   } catch {
     /* 이미 디코딩됐거나 invalid sequence → 원본 유지 */
+  }
+  if (slug === DP_SLUG) {
+    if (!dpSubject(subjectSlug)) notFound();
+    return <ThreeDPSubjectPage subjectSlug={subjectSlug} />;
   }
   const subject = await getSubjectDetail(slug, subjectSlug);
   if (!subject) notFound();

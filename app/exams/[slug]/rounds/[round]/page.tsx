@@ -14,6 +14,8 @@ import { getExamDetail, parseRoundSlug, GRADE_LABEL } from "@/lib/queries";
 import { buildMeta } from "@/lib/seo/metadata";
 import { breadcrumbLd } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/json-ld";
+import { DP, DP_SLUG } from "@/lib/content/3dp";
+import { ThreeDPRoundPage } from "@/components/exams/threedp-round";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +27,27 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug, round } = await params;
   const parsed = parseRoundSlug(round);
+  if (slug === DP_SLUG) {
+    if (!parsed || parsed.year !== DP.exam.year || parsed.round !== DP.exam.round) {
+      return buildMeta({
+        title: "회차를 찾을 수 없어요",
+        path: `/exams/${slug}/rounds/${round}`,
+        index: false,
+      });
+    }
+    return buildMeta({
+      title: `${DP.category.name} ${DP.exam.year}년 ${DP.exam.round}회 필기 모의고사`,
+      description: `${DP.category.name} 필기 ${DP.exam.totalQuestions}문항을 실제 시험과 동일한 ${DP.exam.durationMin}분 모의고사로. 과목별 출제 현황과 찍은 오답까지 분석하는 프리미엄 해설. 무료, 회원가입 없이.`,
+      path: `/exams/${slug}/rounds/${round}`,
+      keywords: [
+        DP.category.name,
+        `${DP.category.name} 기출`,
+        `${DP.category.name} 필기`,
+        `${DP.category.name} 모의고사`,
+        "기능사",
+      ],
+    });
+  }
   const exam = parsed
     ? await getExamDetail(slug, parsed.year, parsed.round)
     : null;
@@ -59,6 +82,13 @@ export default async function RoundDetailPage({
   const { slug, round } = await params;
   const parsed = parseRoundSlug(round);
   if (!parsed) notFound();
+
+  if (slug === DP_SLUG) {
+    if (parsed.year !== DP.exam.year || parsed.round !== DP.exam.round) {
+      notFound();
+    }
+    return <ThreeDPRoundPage />;
+  }
 
   const exam = await getExamDetail(slug, parsed.year, parsed.round);
   if (!exam) notFound();

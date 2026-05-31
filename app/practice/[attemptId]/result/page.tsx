@@ -16,6 +16,7 @@ import { getCurrentUser } from "@/lib/auth/anon";
 import { MathText } from "@/components/practice/math-text";
 import { ExplanationHtml } from "@/components/practice/explanation-html";
 import { getQuestionImages, type QuestionImages } from "@/lib/exam-images";
+import { LocalResult } from "@/components/practice/local-result";
 import { cn } from "@/lib/utils";
 
 const PASS_THRESHOLD = 60;
@@ -26,6 +27,11 @@ export default async function ResultPage({
   params: Promise<{ attemptId: string }>;
 }) {
   const { attemptId } = await params;
+
+  // 로컬(localStorage) 결과 — DB 미사용 JSON 종목
+  if (attemptId.startsWith("local-")) {
+    return <LocalResult attemptId={attemptId} />;
+  }
 
   const attempt = await prisma.attempt.findUnique({
     where: { id: attemptId },

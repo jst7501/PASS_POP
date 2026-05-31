@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 160" width="320" height="160" font-family="'Apple SD Gothic Neo','Malgun Gothic',sans-serif" role="img" aria-label="격리식 방진마스크 구조">
+  <rect width="320" height="160" fill="#ffffff"/>
+  <!-- facepiece (반면형 안면부) -->
+  <path d="M58,46 C38,52 34,88 54,106 C72,122 98,116 106,98 L106,56 C98,42 76,40 58,46 Z"
+        fill="#eef0ff" stroke="#2b2f38" stroke-width="2.2" stroke-linejoin="round"/>
+  <!-- head strap -->
+  <path d="M60,50 C28,60 28,98 56,110" fill="none" stroke="#aab0bd" stroke-width="2" stroke-dasharray="5 4"/>
+  <!-- exhalation valve -->
+  <circle cx="92" cy="88" r="9" fill="#ffffff" stroke="#2b2f38" stroke-width="2"/>
+  <!-- hose (연결관) -->
+  <path d="M106,78 C142,76 150,58 180,56" fill="none" stroke="#7a818d" stroke-width="10" stroke-linecap="round"/>
+  <path d="M106,78 C142,76 150,58 180,56" fill="none" stroke="#d3d8e0" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- filter canister (여과재/정화통) -->
+  <rect x="180" y="36" width="64" height="54" rx="9" fill="#f0f2f6" stroke="#2b2f38" stroke-width="2.2"/>
+  <g stroke="#b9bfc9" stroke-width="2">
+    <line x1="189" y1="49" x2="235" y2="49"/><line x1="189" y1="59" x2="235" y2="59"/>
+    <line x1="189" y1="69" x2="235" y2="69"/><line x1="189" y1="79" x2="235" y2="79"/>
+  </g>
+  <!-- labels -->
+  <g font-size="12" fill="#3c424f">
+    <text x="62" y="140" text-anchor="middle">안면부</text>
+    <text x="142" y="132" text-anchor="middle">연결관(호스)</text>
+    <text x="212" y="112" text-anchor="middle">여과재(정화통)</text>
+  </g>
+</svg>

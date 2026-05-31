@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import prisma from "@/lib/prisma";
 import { absoluteUrl } from "@/lib/seo/site";
+import { DP, DP_SLUG } from "@/lib/content/3dp";
 
 // 사이트맵은 매 빌드/요청마다 DB에서 카테고리·과목·회차를 끌어와 동적으로 구성한다.
 // Next.js 가 ISR 처럼 캐시하므로 revalidate 로 갱신 주기 제어.
@@ -101,6 +102,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const dynamicEntries: MetadataRoute.Sitemap = [];
 
   for (const c of categories) {
+    // DP(3D프린터)는 JSON 콘텐츠 기반이라 DB 파생 URL(시드 잔재) 대신 아래에서 별도 생성
+    if (c.slug === DP_SLUG) continue;
     dynamicEntries.push({
       url: absoluteUrl(`/exams/${c.slug}`),
       lastModified: c.updatedAt,
@@ -128,6 +131,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     }
   }
+
+  // DP(3D프린터운용기능사) — JSON 콘텐츠 기반. 종목/과목/회차를 3dp.ts 에서 생성.
+  const dpBase = `/exams/${DP_SLUG}`;
+  dynamicEntries.push({
+    url: absoluteUrl(dpBase),
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.85,
+  });
+  for (const s of DP.subjects) {
+    dynamicEntries.push({
+      url: absoluteUrl(`${dpBase}/subjects/${s.slug}`),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    });
+  }
+  dynamicEntries.push({
+    url: absoluteUrl(`${dpBase}/rounds/${DP.exam.year}-${DP.exam.round}`),
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.75,
+  });
 
   return [...staticEntries, ...dynamicEntries];
 }

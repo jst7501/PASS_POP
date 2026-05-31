@@ -44,9 +44,19 @@ type Question = {
   hasMath: boolean;
   subject: { name: string; slug: string };
   images?: QuestionImages | null;
+  imageUrl?: string | null;
+  imageAlt?: string | null;
   // 연습모드 전용 — 실전 CBT에서는 undefined
   correctAnswer?: string;
   explanations?: ExplEntry[];
+};
+
+type SubmitPayload = {
+  questionId: string;
+  userAnswer: string;
+  timeSpentSec: number;
+  flagged: boolean;
+  confidence: "GUESS" | "UNSURE" | "CONFIDENT" | null;
 };
 
 type Props = {
@@ -58,6 +68,11 @@ type Props = {
   initialBookmarks?: string[];
   /** 초기 노트 (questionId → content) */
   initialNotes?: Record<string, string>;
+  /** 로컬(localStorage) 모드 주입 — 없으면 서버 액션 사용 */
+  onSubmit?: (attemptId: string, payload: SubmitPayload[]) => Promise<void> | void;
+  onToggleBookmark?: (questionId: string) => Promise<{ bookmarked: boolean }>;
+  onSaveNote?: (questionId: string, content: string) => Promise<void> | void;
+  resultHref?: string;
 };
 
 export function PracticeSession({
@@ -67,6 +82,10 @@ export function PracticeSession({
   durationMin,
   initialBookmarks,
   initialNotes,
+  onSubmit,
+  onToggleBookmark,
+  onSaveNote,
+  resultHref,
 }: Props) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
@@ -197,7 +216,9 @@ export function PracticeSession({
     if (!noteDirty.current) return;
     const { id, content } = noteDirty.current;
     noteDirty.current = null;
-    void saveQuestionNote(id, content).catch(() => null);
+    void Promise.resolve((onSaveNote ?? saveQuestionNote)(id, content)).catch(
+      () => null,
+    );
   };
   const queueSaveNote = (content: string) => {
     if (!current) return;
@@ -237,8 +258,8 @@ export function PracticeSession({
     });
     setBookmarkPending((prev) => new Set(prev).add(id));
 
-    // DB 반영 (실패 시 롤백)
-    void toggleBookmark(id)
+    // 저장 반영 (실패 시 롤백)
+    void (onToggleBookmark ?? toggleBookmark)(id)
       .then((res) => {
         setFlagged((prev) => {
           const next = new Set(prev);
@@ -289,8 +310,9 @@ export function PracticeSession({
     }));
 
     startTransition(async () => {
-      await submitAttempt(attemptId, payload);
-      router.push(`/practice/${attemptId}/result`);
+      if (onSubmit) await onSubmit(attemptId, payload);
+      else await submitAttempt(attemptId, payload);
+      router.push(resultHref ?? `/practice/${attemptId}/result`);
     });
   };
 
@@ -378,6 +400,17 @@ export function PracticeSession({
             <div className="mt-5 whitespace-pre-wrap text-[17px] leading-[1.75] text-text-high md:text-[18px]">
               <MathText text={current.stem} />
             </div>
+
+            {current.imageUrl && (
+              <div className="mt-5 overflow-hidden rounded-md border border-border bg-white p-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={current.imageUrl}
+                  alt={current.imageAlt ?? ""}
+                  className="mx-auto max-h-72 w-auto"
+                />
+              </div>
+            )}
 
             {/* 베타 알림 — 옛 attempt 에 그림 문제가 남아있는 경우 보일 수 있음 */}
             {((current.images?.body?.length ?? 0) > 0 ||

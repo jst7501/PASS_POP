@@ -7,6 +7,7 @@ import { PracticeSession } from "@/components/practice/practice-session";
 import { renderMathInHtml } from "@/components/practice/explanation-html";
 import { AttemptMode } from "@/lib/generated/prisma-client";
 import { isImageDependentQuestion } from "@/lib/exam-images";
+import { LocalPractice } from "@/components/practice/local-practice";
 
 export default async function PracticeSessionPage({
   params,
@@ -14,6 +15,11 @@ export default async function PracticeSessionPage({
   params: Promise<{ attemptId: string }>;
 }) {
   const { attemptId } = await params;
+
+  // 로컬(localStorage) 풀이 — DB 미사용 JSON 종목 (3D프린터 등)
+  if (attemptId.startsWith("local-")) {
+    return <LocalPractice attemptId={attemptId} />;
+  }
 
   const attempt = await prisma.attempt.findUnique({
     where: { id: attemptId },

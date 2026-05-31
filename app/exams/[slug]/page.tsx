@@ -14,6 +14,8 @@ import { buildMeta } from "@/lib/seo/metadata";
 import { breadcrumbLd, courseLd } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/json-ld";
 import { cn } from "@/lib/utils";
+import { DP, DP_SLUG } from "@/lib/content/3dp";
+import { ThreeDPExamHome } from "@/components/exams/threedp-exam-home";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +25,13 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  if (slug === DP_SLUG) {
+    return buildMeta({
+      title: `${DP.category.name} 필기 모의고사 · 프리미엄 해설`,
+      description: DP.category.description,
+      path: `/exams/${slug}`,
+    });
+  }
   const category = await getCategoryDetail(slug);
   if (!category) {
     return buildMeta({
@@ -64,6 +73,9 @@ export default async function CategoryDetailPage({
   searchParams: Promise<{ view?: string }>;
 }) {
   const { slug } = await params;
+  if (slug === DP_SLUG) {
+    return <ThreeDPExamHome />;
+  }
   const sp = await searchParams;
   const view: ViewKey =
     sp.view === "rounds" || sp.view === "mock" ? sp.view : "subjects";
