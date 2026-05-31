@@ -63,7 +63,7 @@ export const ORG_INFO = {
   name: SITE_NAME,
   legalName: "PASSPOP",
   url: SITE_URL,
-  logo: `${SITE_URL}/icon.png`,
+  logo: `${SITE_URL}/icon-512`,
   sameAs: [] as string[],
   contactPoint: {
     contactType: "customer support",

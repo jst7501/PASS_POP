@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import {
   Sparks,
   CheckCircle,
@@ -15,6 +14,7 @@ import {
 import { buildMeta } from "@/lib/seo/metadata";
 import { SITE_NAME, SITE_URL } from "@/lib/seo/site";
 import { cn } from "@/lib/utils";
+import { JsonLd } from "@/components/json-ld";
 import { WaitlistForm } from "@/components/waitlist-form";
 
 export const dynamic = "force-static";
@@ -332,24 +332,7 @@ export default function LandingPage() {
 
   return (
     <>
-      <Script
-        id="ld-software-application"
-        type="application/ld+json"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareLd) }}
-      />
-      <Script
-        id="ld-faq"
-        type="application/ld+json"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
-      />
-      <Script
-        id="ld-breadcrumb"
-        type="application/ld+json"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
-      />
+      <JsonLd data={[softwareLd, faqLd, breadcrumbLd]} />
 
       <Hero />
       <BrowseSection />

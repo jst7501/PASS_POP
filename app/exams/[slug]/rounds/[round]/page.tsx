@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -10,9 +11,45 @@ import {
   SortDown,
 } from "iconoir-react";
 import { getExamDetail, parseRoundSlug, GRADE_LABEL } from "@/lib/queries";
+import { buildMeta } from "@/lib/seo/metadata";
+import { breadcrumbLd } from "@/lib/seo/structured-data";
+import { JsonLd } from "@/components/json-ld";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string; round: string }>;
+}): Promise<Metadata> {
+  const { slug, round } = await params;
+  const parsed = parseRoundSlug(round);
+  const exam = parsed
+    ? await getExamDetail(slug, parsed.year, parsed.round)
+    : null;
+  if (!exam) {
+    return buildMeta({
+      title: "회차를 찾을 수 없어요",
+      path: `/exams/${slug}/rounds/${round}`,
+      index: false,
+    });
+  }
+  const gradeLabel = GRADE_LABEL[exam.category.grade];
+  return buildMeta({
+    title: `${exam.category.name} ${exam.year}년 ${exam.round}회 기출문제 CBT`,
+    description: `${exam.category.name} ${exam.year}년 ${exam.round}회 기출문제를 실제 시험과 동일한 ${exam.durationMin}분 CBT로. 과목별 출제 현황과 찍은 오답까지 분석하는 AI 해설. 무료, 회원가입 없이.`,
+    path: `/exams/${slug}/rounds/${round}`,
+    keywords: [
+      exam.category.name,
+      `${exam.category.name} 기출`,
+      `${exam.category.name} ${exam.year}년 ${exam.round}회`,
+      `${exam.category.name} CBT`,
+      `${exam.category.name} 기출문제`,
+      gradeLabel,
+    ],
+  });
+}
 
 export default async function RoundDetailPage({
   params,
@@ -27,8 +64,20 @@ export default async function RoundDetailPage({
   if (!exam) notFound();
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-24 md:px-6">
-      <nav className="pt-6 text-[13px] text-text-muted">
+    <>
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "홈", path: "/" },
+          { name: "시험 종목", path: "/exams" },
+          { name: exam.category.name, path: `/exams/${slug}` },
+          {
+            name: `${exam.year}년 ${exam.round}회`,
+            path: `/exams/${slug}/rounds/${round}`,
+          },
+        ])}
+      />
+      <div className="mx-auto max-w-4xl px-4 pb-24 md:px-6">
+        <nav className="pt-6 text-[13px] text-text-muted">
         <Link
           href={`/exams/${slug}?view=rounds`}
           className="inline-flex items-center gap-1 transition-colors hover:text-text-mid"
@@ -130,7 +179,8 @@ export default async function RoundDetailPage({
           풀이를 이용해 주세요.
         </p>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 
