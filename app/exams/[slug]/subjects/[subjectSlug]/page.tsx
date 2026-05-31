@@ -10,11 +10,50 @@ import {
   XmarkCircle,
   Book,
 } from "iconoir-react";
+import type { Metadata } from "next";
 import prisma from "@/lib/prisma";
 import { getSubjectDetail, GRADE_LABEL } from "@/lib/queries";
 import { getCurrentUser } from "@/lib/auth/anon";
+import { buildMeta } from "@/lib/seo/metadata";
+import { breadcrumbLd } from "@/lib/seo/structured-data";
+import { JsonLd } from "@/components/json-ld";
 import { ReviewStartButton } from "@/components/review-start-button";
 import { cn } from "@/lib/utils";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string; subjectSlug: string }>;
+}): Promise<Metadata> {
+  const { slug, subjectSlug: raw } = await params;
+  let subjectSlug = raw;
+  try {
+    subjectSlug = decodeURIComponent(raw);
+  } catch {
+    /* 원본 유지 */
+  }
+  const subject = await getSubjectDetail(slug, subjectSlug);
+  if (!subject) {
+    return buildMeta({
+      title: "과목을 찾을 수 없어요",
+      path: `/exams/${slug}/subjects/${encodeURIComponent(subjectSlug)}`,
+      index: false,
+    });
+  }
+  const gradeLabel = GRADE_LABEL[subject.category.grade];
+  return buildMeta({
+    title: `${subject.name} — ${subject.category.name} 기출 문제풀이`,
+    description: `${subject.category.name} ${subject.name} 과목 기출문제 ${subject._count.questions}문제를 무료로. 순서대로·랜덤·오답만 모드와 찍은 오답까지 분석하는 AI 해설. 회원가입 없이 바로 풀이.`,
+    path: `/exams/${slug}/subjects/${encodeURIComponent(subjectSlug)}`,
+    keywords: [
+      subject.name,
+      `${subject.category.name} ${subject.name}`,
+      `${subject.category.name} 기출`,
+      `${subject.name} 기출문제`,
+      gradeLabel,
+    ],
+  });
+}
 
 export default async function SubjectDetailPage({
   params,
@@ -78,12 +117,24 @@ export default async function SubjectDetailPage({
       : 0;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pb-24 md:px-6">
-      <nav className="pt-6 text-[13px] text-text-muted">
-        <Link
-          href={`/exams/${slug}`}
-          className="inline-flex items-center gap-1 transition-colors hover:text-text-mid"
-        >
+    <>
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "홈", path: "/" },
+          { name: "시험 종목", path: "/exams" },
+          { name: subject.category.name, path: `/exams/${slug}` },
+          {
+            name: subject.name,
+            path: `/exams/${slug}/subjects/${encodeURIComponent(subjectSlug)}`,
+          },
+        ])}
+      />
+      <div className="mx-auto max-w-3xl px-4 pb-24 md:px-6">
+        <nav className="pt-6 text-[13px] text-text-muted">
+          <Link
+            href={`/exams/${slug}`}
+            className="inline-flex items-center gap-1 transition-colors hover:text-text-mid"
+          >
           <NavArrowLeft className="h-3.5 w-3.5" strokeWidth={2} />
           {subject.category.name}
         </Link>
@@ -301,7 +352,8 @@ export default async function SubjectDetailPage({
           다시 출제됩니다.
         </p>
       </section>
-    </div>
+      </div>
+    </>
   );
 }
 

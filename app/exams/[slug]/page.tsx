@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -9,9 +10,43 @@ import {
   StatsReport,
 } from "iconoir-react";
 import { getCategoryDetail, GRADE_LABEL } from "@/lib/queries";
+import { buildMeta } from "@/lib/seo/metadata";
+import { breadcrumbLd, courseLd } from "@/lib/seo/structured-data";
+import { JsonLd } from "@/components/json-ld";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const category = await getCategoryDetail(slug);
+  if (!category) {
+    return buildMeta({
+      title: "종목을 찾을 수 없어요",
+      path: `/exams/${slug}`,
+      index: false,
+    });
+  }
+  const gradeLabel = GRADE_LABEL[category.grade];
+  return buildMeta({
+    title: `${category.name} 기출문제 무료 CBT · AI 오답 해설`,
+    description: `${category.name}(${gradeLabel}) 기출문제 ${category.totalQuestions}문제를 무료 CBT로. 과목별·회차별 풀이와 찍은 오답까지 분석하는 AI 해설. 회원가입 없이 바로 시작하세요.`,
+    path: `/exams/${slug}`,
+    keywords: [
+      category.name,
+      `${category.name} 기출`,
+      `${category.name} 기출문제`,
+      `${category.name} CBT`,
+      `${category.name} 필기`,
+      `${category.name} 무료`,
+      gradeLabel,
+    ],
+  });
+}
 
 type ViewKey = "subjects" | "rounds" | "mock";
 
@@ -36,9 +71,27 @@ export default async function CategoryDetailPage({
   const category = await getCategoryDetail(slug);
   if (!category) notFound();
 
+  const gradeLabel = GRADE_LABEL[category.grade];
+
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-24 md:px-6">
-      <nav className="pt-6 text-[13px] text-text-muted">
+    <>
+      <JsonLd
+        data={[
+          breadcrumbLd([
+            { name: "홈", path: "/" },
+            { name: "시험 종목", path: "/exams" },
+            { name: category.name, path: `/exams/${slug}` },
+          ]),
+          courseLd({
+            name: `${category.name} 기출문제`,
+            description: `${category.name}(${gradeLabel}) 기출문제 무료 CBT와 찍은 오답까지 분석하는 AI 해설.`,
+            path: `/exams/${slug}`,
+            gradeLabel,
+          }),
+        ]}
+      />
+      <div className="mx-auto max-w-6xl px-4 pb-24 md:px-6">
+        <nav className="pt-6 text-[13px] text-text-muted">
         <Link
           href="/"
           className="inline-flex items-center gap-1 transition-colors hover:text-text-mid"
@@ -118,7 +171,8 @@ export default async function CategoryDetailPage({
         {view === "rounds" && <RoundsView category={category} slug={slug} />}
         {view === "mock" && <MockView category={category} slug={slug} />}
       </section>
-    </div>
+      </div>
+    </>
   );
 }
 
