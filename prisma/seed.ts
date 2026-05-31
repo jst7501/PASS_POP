@@ -12,7 +12,9 @@ const prisma = new PrismaClient();
 // ─────────────────────────────────────────────────────────────
 // 기출 데이터 소스
 // ─────────────────────────────────────────────────────────────
-const DATA_ROOT = "C:/Users/jst75/pro/jst7501.github.io/c";
+// 외부 기출 데이터 루트. 작성자 로컬 경로가 기본값이며,
+// 다른 머신에서는 PASSPOP_DATA_ROOT 로 덮어쓸 수 있음.
+const DATA_ROOT = process.env.PASSPOP_DATA_ROOT ?? "C:/Users/jst75/pro/jst7501.github.io/c";
 
 type RawChoice = { n: number; text: string };
 type RawQuestion = {
@@ -208,7 +210,9 @@ async function importTarget(t: ImportTarget) {
     roundsRaw.push(json);
   }
   if (roundsRaw.length === 0) {
-    throw new Error(`[etl] ${t.appName} 회차 데이터 없음`);
+    // 외부 data.json 이 없는 환경 → 이 종목은 건너뜀 (전체 시드 중단 방지)
+    console.warn(`[etl] ${t.appName} 회차 데이터 없음 — 건너뜀 (PASSPOP_DATA_ROOT 설정 시 적재됨)`);
+    return null;
   }
 
   // 4) 전체 과목 합집합 수집 + 순서 유지
@@ -567,6 +571,7 @@ async function main() {
   for (const t of TARGETS) {
     console.log(`\n[etl] ${t.appName} 시작`);
     const r = await importTarget(t);
+    if (!r) continue;
     console.log(
       `[etl] ${r.name} — 과목 ${r.subjects}, 회차 ${r.rounds}, 문제 ${r.questions}, 해설 ${r.explanations}`,
     );
