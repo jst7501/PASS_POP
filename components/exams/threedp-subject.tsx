@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { NavArrowLeft, NavArrowRight, Sparks } from "iconoir-react";
+import { NavArrowLeft, NavArrowRight, Sparks, CheckCircle } from "iconoir-react";
 import { DP, DP_SLUG, dpSubject, dpQuestionsBySubject } from "@/lib/content/3dp";
 import { breadcrumbLd } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/json-ld";
 import { ThreeDPStartButton } from "@/components/exams/threedp-start-button";
+import { ExplanationHtml } from "@/components/practice/explanation-html";
+import { cn } from "@/lib/utils";
 
 /**
  * DP 과목 상세 — 서버 렌더(색인 가능). 수록 문제(지문+보기)를 미리 보여주고,
@@ -65,38 +67,77 @@ export function ThreeDPSubjectPage({ subjectSlug }: { subjectSlug: string }) {
           </ThreeDPStartButton>
         </div>
 
-        {/* 수록 문제 미리보기 — 지문 + 보기 (정답/해설은 풀이에서만) */}
+        {/* 수록 문제 — 지문 + 보기 + 정답 + 해설 (전부 공개, 색인 대상) */}
         <section className="mt-10">
           <h2 className="text-[15px] font-semibold tracking-[-0.01em] text-text-high">
-            수록 문제
+            수록 문제 · 정답 · 해설
           </h2>
           <ol className="mt-4 space-y-3">
-            {questions.map((q) => (
-              <li
-                key={q.id}
-                className="rounded-md border border-border bg-surface p-4"
-              >
-                <p className="text-[14px] font-semibold leading-[1.6] text-text-high">
-                  <span className="mr-1 font-mono text-text-muted">
-                    {String(q.number).padStart(2, "0")}.
-                  </span>
-                  {q.stem}
-                </p>
-                <ul className="mt-2.5 space-y-1">
-                  {q.choices.map((c) => (
-                    <li
-                      key={c.label}
-                      className="text-[13px] leading-[1.5] text-text-mid"
-                    >
-                      <span className="mr-1 font-mono text-text-muted">
-                        {c.label}
-                      </span>
-                      {c.text}
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
+            {questions.map((q) => {
+              const general =
+                q.explanations.find((e) => e.wrongChoice === null) ?? null;
+              return (
+                <li
+                  key={q.id}
+                  className="rounded-md border border-border bg-surface p-4"
+                >
+                  <p className="text-[14px] font-semibold leading-[1.6] text-text-high">
+                    <span className="mr-1 font-mono text-text-muted">
+                      {String(q.number).padStart(2, "0")}.
+                    </span>
+                    {q.stem}
+                  </p>
+                  <ul className="mt-2.5 space-y-1">
+                    {q.choices.map((c) => {
+                      const correct = c.label === q.correctAnswer;
+                      return (
+                        <li
+                          key={c.label}
+                          className={cn(
+                            "flex items-start gap-1.5 rounded-sm px-1.5 py-1 text-[13px] leading-[1.5]",
+                            correct
+                              ? "bg-accent/[0.07] font-medium text-text-high"
+                              : "text-text-mid",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "font-mono",
+                              correct ? "text-accent" : "text-text-muted",
+                            )}
+                          >
+                            {c.label}
+                          </span>
+                          <span className="flex-1">{c.text}</span>
+                          {correct && (
+                            <CheckCircle
+                              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent"
+                              strokeWidth={2.5}
+                            />
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  {general && (
+                    <details className="group mt-3 border-t border-border-soft pt-3">
+                      <summary className="flex cursor-pointer list-none items-center gap-1.5 text-[12px] font-semibold text-primary marker:hidden">
+                        <Sparks className="h-3.5 w-3.5" strokeWidth={2} />
+                        해설 보기
+                      </summary>
+                      <div className="mt-2 text-[13px] leading-[1.7] text-text-mid">
+                        <ExplanationHtml html={general.html} />
+                        {general.memoryHook && (
+                          <p className="mt-2 rounded-sm bg-accent/[0.06] px-2.5 py-2 text-[12.5px] text-text-mid">
+                            💡 {general.memoryHook}
+                          </p>
+                        )}
+                      </div>
+                    </details>
+                  )}
+                </li>
+              );
+            })}
           </ol>
         </section>
 
