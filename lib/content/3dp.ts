@@ -8,6 +8,29 @@ export type DpExpl = {
   html: string;
   memoryHook: string | null;
 };
+export type DpStatus =
+  | "correct"
+  | "common_trap"
+  | "weak_trap"
+  | "trap"
+  | "dummy";
+export type DpPoint = { k: string; text: string };
+export type DpDiagnosis = {
+  n: number;
+  status: DpStatus;
+  headline: string;
+  points: DpPoint[];
+};
+export type DpTerm = { term: string; def: string };
+export type DpPremium = {
+  answerSummary: string;
+  hook: string;
+  theory: { title: string; body: string; terms: DpTerm[] };
+  trapDesign: string;
+  metaStrategy: { title: string; text: string };
+  tags: string[];
+  diagnoses: DpDiagnosis[];
+};
 export type DpQuestion = {
   id: string;
   number: number;
@@ -22,6 +45,7 @@ export type DpQuestion = {
   imageUrl: string | null;
   imageAlt: string | null;
   explanations: DpExpl[];
+  premium: DpPremium;
 };
 export type DpSubject = {
   slug: string;

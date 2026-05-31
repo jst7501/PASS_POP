@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CheckCircle, XmarkCircle, NavArrowRight } from "iconoir-react";
 import { DP, dpQuestionsByIds, type DpQuestion } from "@/lib/content/3dp";
+import { PremiumExplanation } from "./premium-explanation";
 import {
   getLocalAttempt,
   getLocalMistakeIds,
@@ -145,9 +146,6 @@ function ReviewItem({
   isCorrect: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const general = q.explanations.find((e) => e.wrongChoice === null) ?? null;
-  const picked =
-    q.explanations.find((e) => e.wrongChoice === userAnswer) ?? general;
 
   return (
     <li className="overflow-hidden rounded-md border border-border bg-surface">
@@ -181,9 +179,9 @@ function ReviewItem({
         />
       </button>
       {open && (
-        <div className="border-t border-border-soft px-4 py-4">
+        <div className="border-t border-border-soft px-4 pb-4 pt-2">
           {q.imageUrl && (
-            <div className="mb-4 overflow-hidden rounded-md border border-border bg-white p-3">
+            <div className="mb-1 mt-3 overflow-hidden rounded-md border border-border bg-white p-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={q.imageUrl}
@@ -192,18 +190,11 @@ function ReviewItem({
               />
             </div>
           )}
-          {picked && (
-            <div
-              className="explanation-html"
-              dangerouslySetInnerHTML={{ __html: picked.html }}
-            />
-          )}
-          {general?.memoryHook && (
-            <p className="mt-4 border-t border-border-soft pt-3 text-[13px] leading-[1.6] text-text-mid">
-              <span className="font-semibold text-primary">암기 팁 · </span>
-              {general.memoryHook}
-            </p>
-          )}
+          <PremiumExplanation
+            premium={q.premium}
+            userAnswer={userAnswer}
+            correctAnswer={q.correctAnswer}
+          />
         </div>
       )}
     </li>

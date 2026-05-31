@@ -55,6 +55,7 @@ export function LocalPractice({ attemptId }: { attemptId: string }) {
     imageAlt: q.imageAlt,
     correctAnswer: q.correctAnswer,
     explanations: q.explanations,
+    premium: q.premium,
   }));
 
   const correctById = new Map(qs.map((q) => [q.id, q.correctAnswer]));

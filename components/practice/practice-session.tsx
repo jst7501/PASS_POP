@@ -20,6 +20,8 @@ import {
   saveQuestionNote,
 } from "@/lib/actions/user-actions";
 import { cn } from "@/lib/utils";
+import { PremiumExplanation } from "./premium-explanation";
+import type { DpPremium } from "@/lib/content/3dp";
 
 const LONG_PRESS_MS = 350;
 const MOVE_CANCEL_PX = 12; // 이 거리 이상 손가락이 움직이면 스크롤로 간주
@@ -49,6 +51,7 @@ type Question = {
   // 연습모드 전용 — 실전 CBT에서는 undefined
   correctAnswer?: string;
   explanations?: ExplEntry[];
+  premium?: DpPremium;
 };
 
 type SubmitPayload = {
@@ -557,6 +560,7 @@ export function PracticeSession({
                 correctAnswer={current.correctAnswer!}
                 userAnswer={answers[current.id]!}
                 explanations={current.explanations ?? []}
+                premium={current.premium}
               />
             )}
 
@@ -796,12 +800,24 @@ function PracticeExplanation({
   correctAnswer,
   userAnswer,
   explanations,
+  premium,
 }: {
   correct: boolean;
   correctAnswer: string;
   userAnswer: string;
   explanations: ExplEntry[];
+  premium?: DpPremium;
 }) {
+  // 3D프린터(JSON 종목) — 구조화 프리미엄 해설 카드로 렌더
+  if (premium) {
+    return (
+      <PremiumExplanation
+        premium={premium}
+        userAnswer={userAnswer}
+        correctAnswer={correctAnswer}
+      />
+    );
+  }
   // 데이터 구조:
   //  - general(wrongChoice=null): 문제 전체 풀이
   //  - wrongChoice="1"~"4": 선택지별 개별 피드백 (정답 선택지 포함, "정답이에요"/"오답이에요"로 시작)
