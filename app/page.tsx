@@ -10,6 +10,10 @@ import {
   Bookmark,
   GraphUp,
   ShieldCheck,
+  OpenBook,
+  NumberedListLeft,
+  BookmarkBook,
+  WarningTriangle,
 } from "iconoir-react";
 import { buildMeta } from "@/lib/seo/metadata";
 import { SITE_NAME, SITE_URL } from "@/lib/seo/site";
@@ -66,6 +70,10 @@ const FAQ = [
   {
     q: "프리미엄 해설은 뭐가 다른가요?",
     a: "일반 해설은 정답을 알려주지만, PASSPOP 프리미엄 AI 해설은 '당신이 찍은 그 오답'을 기준으로 왜 헷갈렸는지 분석하고, 다음에 안 틀리도록 암기 후크와 추천 단원까지 제시합니다.",
+  },
+  {
+    q: "교재 없이 PASSPOP만으로 공부해도 되나요?",
+    a: "그게 목표입니다. 틀린 문제에서 바로 개념 카드를 펼쳐 공식·함정까지 익히고, 풀이는 건너뛰는 단계 없이 단계별로 보여줍니다. 핵심 개념 해설은 검수를 거치며, 검수 전 AI 생성분은 별도로 표기합니다.",
   },
   {
     q: "어떤 시험을 다루나요?",
@@ -311,8 +319,12 @@ export default function LandingPage() {
     featureList: [
       "무료 기출문제 CBT",
       "프리미엄 AI 오답 해설",
+      "개념 카드 즉시 학습 (교재 없이)",
+      "단계별 완전 풀이",
       "망각곡선 기반 복습 (SM-2)",
+      "AI 자동 단권화 노트",
       "합격 예측 (베이지안)",
+      "과락 위험 진단 및 맞춤 출제",
       "오답노트 자동 생성",
       "북마크 및 메모",
       "약점 과목 자동 분석",
@@ -812,6 +824,24 @@ function Features() {
           </FeatureRow>
 
           <FeatureRow
+            Icon={OpenBook}
+            title="개념 카드 — 막히면 그 자리에서"
+            desc="틀린 그 문제에서 바로 개념을 펼칩니다. 공식 유도부터 단골 함정까지 — 교재 펴지 않고 막힌 자리에서 학습."
+            tone="primary"
+          >
+            <ConceptCardMockup />
+          </FeatureRow>
+
+          <FeatureRow
+            Icon={NumberedListLeft}
+            title="단계별 완전 풀이"
+            desc="계산 과목도 건너뛰는 단계 없이. 모르는 줄은 '이 줄 왜?' 로 그 한 줄만 더 자세히. 책 없이도 메울 빈틈이 없습니다."
+            tone="accent"
+          >
+            <StepSolutionMockup />
+          </FeatureRow>
+
+          <FeatureRow
             Icon={Brain}
             title="망각곡선 복습 (SM-2)"
             desc="맞힌 건 간격 늘려 재출제, 틀린 건 다음 날. 알고리즘이 잊을 때쯤 정확히 복습을 띄워줍니다."
@@ -821,12 +851,30 @@ function Features() {
           </FeatureRow>
 
           <FeatureRow
+            Icon={BookmarkBook}
+            title="AI 자동 단권화 노트"
+            desc="당신이 틀린 문제와 약한 개념만 모아 한 장으로. 시험 전날 단권화, AI가 자동으로 만들어 PDF까지."
+            tone="primary"
+          >
+            <ConsolidatedNoteMockup />
+          </FeatureRow>
+
+          <FeatureRow
             Icon={GraphUp}
             title="합격 예측 + 신뢰구간"
             desc="베이지안 추정으로 합격 확률을 % 단위로. 풀이 적으면 '신뢰 낮음' 으로 솔직히 알려드립니다."
             tone="primary"
           >
             <PassPredictionMockup />
+          </FeatureRow>
+
+          <FeatureRow
+            Icon={WarningTriangle}
+            title="과락 위험 진단 → 맞춤 출제"
+            desc="평균이 합격권이어도 한 과목 과락이면 불합격. 과목별 과락 위험을 짚고, 그 과목만 집중하는 모의고사를 바로 처방합니다."
+            tone="warning"
+          >
+            <FailRiskMockup />
           </FeatureRow>
 
           <FeatureRow
@@ -1288,6 +1336,210 @@ function NoAdsMockup() {
             깔끔
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// 개념 카드 — 문제에서 그 자리 펼치는 개념
+function ConceptCardMockup() {
+  return (
+    <div className="w-full max-w-[300px] space-y-2">
+      {/* 문제 + 펼치기 트리거 */}
+      <div className="flex items-center justify-between gap-2 rounded-md border border-border bg-surface px-3 py-2 shadow-sm">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <span className="font-mono text-[10px] font-bold text-text-mid">
+            Q.07
+          </span>
+          <span className="truncate text-[10.5px] font-semibold text-text-high">
+            단순보 최대 처짐 위치는?
+          </span>
+        </div>
+        <span className="inline-flex shrink-0 items-center rounded-sm bg-primary/10 px-1.5 py-0.5 font-mono text-[9px] font-bold text-primary">
+          개념 펼치기 ▾
+        </span>
+      </div>
+
+      {/* 펼쳐진 개념 카드 */}
+      <div className="rounded-md border-2 border-primary/40 bg-primary/[0.04] px-3 py-2.5 shadow-sm">
+        <div className="flex items-center gap-1.5">
+          <span className="inline-flex h-4 w-4 items-center justify-center rounded-sm bg-primary text-primary-fg">
+            <OpenBook className="h-2.5 w-2.5" strokeWidth={2.5} />
+          </span>
+          <span className="font-mono text-[9.5px] font-bold uppercase tracking-wider text-primary">
+            개념 · 단순보 처짐
+          </span>
+        </div>
+        <p className="mt-1.5 text-[10.5px] leading-[1.5] text-text-high">
+          중앙 집중하중이면{" "}
+          <strong className="font-bold">최대 처짐은 보의 중앙</strong>에서 발생.
+        </p>
+        <p className="mt-1.5 rounded-sm bg-surface px-2 py-1 text-center font-mono text-[11px] font-bold text-text-high">
+          δ<sub>max</sub> = PL³ / 48EI
+        </p>
+        <p className="mt-1.5 text-[9.5px] leading-[1.45] text-warning">
+          ⚠ 함정: 등분포하중이면 5wL⁴ / 384EI — 공식이 다름
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// 단계별 완전 풀이 — 빠짐없는 스텝 + '이 줄 왜?'
+function StepSolutionMockup() {
+  const steps = [
+    { n: "①", t: "반력 산정", v: "R_A = P/2", why: false },
+    { n: "②", t: "처짐 공식 적용", v: "δ = PL³/48EI", why: true },
+    { n: "③", t: "값 대입·계산", v: "δ = 2.1 mm", why: false },
+  ];
+  return (
+    <div className="w-full max-w-[300px] rounded-md border border-border bg-surface p-3.5 shadow-sm">
+      <div className="flex items-center justify-between border-b border-border-soft pb-2">
+        <p className="text-[11px] font-bold text-text-high">풀이 · 단계별</p>
+        <span className="font-mono text-[9px] text-text-muted">건너뛴 단계 0</span>
+      </div>
+      <ul className="mt-2.5 space-y-2">
+        {steps.map((s) => (
+          <li key={s.n}>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[11px] font-bold text-accent">
+                {s.n}
+              </span>
+              <span className="flex-1 text-[10.5px] font-medium text-text-high">
+                {s.t}
+              </span>
+              <span className="font-mono text-[10px] text-text-mid">{s.v}</span>
+            </div>
+            {s.why && (
+              <div className="ml-5 mt-1 flex items-start gap-1.5 rounded-sm border-l-2 border-accent/50 bg-accent/[0.06] px-2 py-1">
+                <span className="shrink-0 font-mono text-[9px] font-bold text-accent">
+                  이 줄 왜?
+                </span>
+                <span className="text-[9.5px] leading-[1.4] text-text-mid">
+                  중앙하중 단순보의 표준 처짐식이라서.
+                </span>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// 자동 단권화 노트 — 내 약점만 모은 한 장 + PDF
+function ConsolidatedNoteMockup() {
+  return (
+    <div className="w-full max-w-[280px] rounded-md border border-border bg-surface shadow-sm">
+      <div className="flex items-center justify-between border-b border-border-soft px-3 py-2">
+        <div className="flex items-center gap-1.5">
+          <BookmarkBook className="h-3 w-3 text-primary" strokeWidth={2} />
+          <p className="text-[11px] font-bold text-text-high">
+            나만의 단권화 노트
+          </p>
+        </div>
+        <span className="rounded-sm bg-primary/10 px-1.5 py-0.5 font-mono text-[8.5px] font-bold uppercase text-primary">
+          PDF
+        </span>
+      </div>
+      <div className="space-y-2.5 p-3">
+        <div>
+          <p className="font-mono text-[9px] font-bold uppercase tracking-wider text-text-muted">
+            응용역학
+          </p>
+          <ul className="mt-1 space-y-1 text-[10px] leading-[1.4] text-text-mid">
+            <li className="flex items-center gap-1.5">
+              <span className="text-text-muted">•</span>
+              <span className="flex-1">처짐 공식 δ=PL³/48EI</span>
+              <span className="shrink-0 rounded-sm bg-danger/15 px-1 font-mono text-[8px] font-bold text-danger">
+                내 약점
+              </span>
+            </li>
+            <li className="flex items-center gap-1.5">
+              <span className="text-text-muted">•</span>
+              <span>전단력·모멘트 부호 규약</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <p className="font-mono text-[9px] font-bold uppercase tracking-wider text-warning">
+            측량학 · 과락 주의
+          </p>
+          <ul className="mt-1 space-y-1 text-[10px] leading-[1.4] text-text-mid">
+            <li className="flex items-center gap-1.5">
+              <span className="text-text-muted">•</span>
+              <span>오차론: 표준편차 ∝ √n</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <p className="border-t border-border-soft px-3 py-1.5 text-[9px] text-text-muted">
+        틀린 문제에서 12개 약점 개념 자동 수집
+      </p>
+    </div>
+  );
+}
+
+// 과락 위험 진단 — 과목별 위험 + 맞춤 출제 처방
+function FailRiskMockup() {
+  const subjects = [
+    { name: "측량학", risk: 68, level: "danger" as const },
+    { name: "토질역학", risk: 24, level: "mid" as const },
+    { name: "응용역학", risk: 6, level: "safe" as const },
+  ];
+  const labelOf = (s: (typeof subjects)[number]) =>
+    s.level === "danger"
+      ? `위험 ${s.risk}%`
+      : s.level === "mid"
+        ? `주의 ${s.risk}%`
+        : `안전 ${s.risk}%`;
+  return (
+    <div className="w-full max-w-[300px] rounded-md border border-border bg-surface p-4 shadow-sm">
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] font-bold text-text-high">과락 위험 진단</p>
+        <span className="rounded-sm bg-accent/15 px-1.5 py-0.5 font-mono text-[9px] font-bold text-accent">
+          평균은 합격권
+        </span>
+      </div>
+      <ul className="mt-3 space-y-2">
+        {subjects.map((s) => (
+          <li key={s.name} className="flex items-center gap-2.5">
+            <span className="w-14 shrink-0 text-[10.5px] font-medium text-text-high">
+              {s.name}
+            </span>
+            <div className="relative h-1.5 flex-1 overflow-hidden rounded-sm bg-surface-mute">
+              <div
+                className={cn(
+                  "h-full rounded-sm",
+                  s.level === "danger" && "bg-danger",
+                  s.level === "mid" && "bg-warning",
+                  s.level === "safe" && "bg-accent",
+                )}
+                style={{ width: `${s.risk}%` }}
+              />
+            </div>
+            <span
+              className={cn(
+                "w-16 shrink-0 text-right font-mono text-[9.5px] font-bold tabular-nums",
+                s.level === "danger" && "text-danger",
+                s.level === "mid" && "text-warning",
+                s.level === "safe" && "text-text-muted",
+              )}
+            >
+              {labelOf(s)}
+            </span>
+          </li>
+        ))}
+      </ul>
+      {/* 처방 — 약점 과목 집중 출제 */}
+      <div className="mt-3 flex items-center gap-1.5 rounded-md border border-primary/30 bg-primary/[0.05] px-2.5 py-2">
+        <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-primary text-primary-fg">
+          <Sparks className="h-2.5 w-2.5" strokeWidth={2.5} />
+        </span>
+        <span className="flex-1 text-[10px] font-semibold text-text-high">
+          측량학 집중 모의고사 20문 생성
+        </span>
+        <ArrowRight className="h-3 w-3 shrink-0 text-primary" strokeWidth={2.5} />
       </div>
     </div>
   );
