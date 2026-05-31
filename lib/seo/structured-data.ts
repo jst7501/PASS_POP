@@ -52,6 +52,30 @@ export function courseLd(input: {
   };
 }
 
+/** 개별 문제 페이지 — QAPage(Question + acceptedAnswer). 리치 결과 후보. */
+export function qaPageLd(input: {
+  question: string;
+  answerText: string;
+  path: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "QAPage",
+    inLanguage: "ko-KR",
+    mainEntity: {
+      "@type": "Question",
+      name: input.question,
+      text: input.question,
+      answerCount: 1,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: input.answerText,
+        url: absoluteUrl(input.path),
+      },
+    },
+  };
+}
+
 /** 종목 목록 등 컬렉션 페이지 — ItemList 포함. */
 export function collectionPageLd(input: {
   name: string;

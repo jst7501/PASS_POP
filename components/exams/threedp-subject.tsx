@@ -4,7 +4,6 @@ import { DP, DP_SLUG, dpSubject, dpQuestionsBySubject } from "@/lib/content/3dp"
 import { breadcrumbLd } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/json-ld";
 import { ThreeDPStartButton } from "@/components/exams/threedp-start-button";
-import { ExplanationHtml } from "@/components/practice/explanation-html";
 import { cn } from "@/lib/utils";
 
 /**
@@ -74,8 +73,6 @@ export function ThreeDPSubjectPage({ subjectSlug }: { subjectSlug: string }) {
           </h2>
           <ol className="mt-4 space-y-3">
             {questions.map((q) => {
-              const general =
-                q.explanations.find((e) => e.wrongChoice === null) ?? null;
               return (
                 <li
                   key={q.id}
@@ -119,22 +116,14 @@ export function ThreeDPSubjectPage({ subjectSlug }: { subjectSlug: string }) {
                       );
                     })}
                   </ul>
-                  {general && (
-                    <details className="group mt-3 border-t border-border-soft pt-3">
-                      <summary className="flex cursor-pointer list-none items-center gap-1.5 text-[12px] font-semibold text-primary marker:hidden">
-                        <Sparks className="h-3.5 w-3.5" strokeWidth={2} />
-                        해설 보기
-                      </summary>
-                      <div className="mt-2 text-[13px] leading-[1.7] text-text-mid">
-                        <ExplanationHtml html={general.html} />
-                        {general.memoryHook && (
-                          <p className="mt-2 rounded-sm bg-accent/[0.06] px-2.5 py-2 text-[12.5px] text-text-mid">
-                            💡 {general.memoryHook}
-                          </p>
-                        )}
-                      </div>
-                    </details>
-                  )}
+                  <Link
+                    href={`/exams/${DP_SLUG}/questions/${q.number}`}
+                    className="mt-3 flex items-center gap-1.5 border-t border-border-soft pt-3 text-[12px] font-semibold text-primary transition-colors hover:text-primary-hover"
+                  >
+                    <Sparks className="h-3.5 w-3.5" strokeWidth={2} />
+                    정답·해설 전체 보기
+                    <NavArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
+                  </Link>
                 </li>
               );
             })}

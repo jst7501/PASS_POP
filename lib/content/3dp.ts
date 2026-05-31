@@ -98,3 +98,12 @@ export function dpQuestionsByIds(ids: string[]): DpQuestion[] {
 export function dpSubject(slug: string): DpSubject | undefined {
   return DP.subjects.find((s) => s.slug === slug);
 }
+
+/** number 오름차순 전체 문제 (이전/다음 내비, 사이트맵용). */
+export function dpQuestionsSorted(): DpQuestion[] {
+  return [...DP.questions].sort((a, b) => a.number - b.number);
+}
+
+export function dpQuestionByNumber(n: number): DpQuestion | undefined {
+  return DP.questions.find((q) => q.number === n);
+}

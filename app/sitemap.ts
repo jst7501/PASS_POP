@@ -154,6 +154,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "monthly",
     priority: 0.75,
   });
+  // 개별 문제 페이지 (지문+정답+전체 해설, 색인 대상)
+  for (const q of DP.questions) {
+    dynamicEntries.push({
+      url: absoluteUrl(`${dpBase}/questions/${q.number}`),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    });
+  }
 
   return [...staticEntries, ...dynamicEntries];
 }
