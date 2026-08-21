@@ -194,6 +194,11 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        {/* 스크롤 리빌은 JS 로 보이게 만든다. JS 가 죽으면 본문이 통째로
+            안 보이므로 여기서 되돌린다 (크롤러는 JS 를 실행하므로 영향 없음). */}
+        <noscript>
+          <style>{`[data-reveal]{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
       </head>
       <body className="min-h-screen bg-background text-text-high antialiased">
         <JsonLd data={[orgLd, websiteLd, eduOrgLd]} />

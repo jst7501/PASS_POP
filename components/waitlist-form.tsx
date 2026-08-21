@@ -47,12 +47,15 @@ function readUtm() {
 export function WaitlistForm({
   variant = "full",
   source = "landing",
+  defaultCert = "",
 }: {
   variant?: "inline" | "full";
   source?: string;
+  /** 종목별 랜딩에서 넘겨받아 "목표 종목" 을 미리 채운다. */
+  defaultCert?: string;
 }) {
   const [email, setEmail] = useState("");
-  const [targetCert, setTargetCert] = useState("");
+  const [targetCert, setTargetCert] = useState(defaultCert);
   const [targetGrade, setTargetGrade] = useState("");
   const [timing, setTiming] = useState("");
   const [marketingOptIn, setMarketingOptIn] = useState(false);
@@ -89,7 +92,7 @@ export function WaitlistForm({
       } else {
         setState({ kind: "success" });
         setEmail("");
-        setTargetCert("");
+        setTargetCert(defaultCert);
         setTargetGrade("");
         setTiming("");
       }

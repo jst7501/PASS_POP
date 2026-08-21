@@ -23,6 +23,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.9,
     },
+    // 종목 허브 — 검색 유입의 진입점. 개별 종목 안내 페이지(/cbt/<slug>) 는
+    // 아직 문제가 없어 noindex 이므로 사이트맵에 넣지 않는다.
+    {
+      url: absoluteUrl("/cbt"),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
   ];
 
   // 카테고리 / 과목 / 회차 동적 수집
