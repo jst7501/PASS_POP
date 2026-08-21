@@ -19,6 +19,8 @@ import { WaitlistForm, WaitlistCount } from "@/components/waitlist-form";
 import { SEO_EXAMS, GRADE_LABEL } from "@/lib/seo/exams";
 import { HeroDemo } from "@/components/hero-demo";
 import { Reveal } from "@/components/reveal";
+import { AiTechCards } from "@/components/ai-tech-cards";
+import { DemoAfterWrong } from "@/components/demo-after-wrong";
 
 export const dynamic = "force-static";
 export const revalidate = 3600;
@@ -297,8 +299,8 @@ const EXAM_CARDS: ExamCard[] = [
   },
 ];
 
-const LANDING_SAMPLE_CARDS: ExamCard[] = LANDING_SAMPLE_SLOTS.map(
-  (grade) => EXAM_CARDS.find((c) => c.grade === grade),
+const LANDING_SAMPLE_CARDS: ExamCard[] = LANDING_SAMPLE_SLOTS.map((grade) =>
+  EXAM_CARDS.find((c) => c.grade === grade),
 ).filter((c): c is ExamCard => Boolean(c));
 
 // ─────────────────────────────────────────────────────────────
@@ -363,18 +365,39 @@ export default function LandingPage() {
       <JsonLd data={[softwareLd, faqLd, breadcrumbLd]} />
 
       <Hero />
-      <CertStrip />
-      <HowItWorks />
+      <Reveal>
+        <CertStrip />
+      </Reveal>
+      <Reveal>
+        <AfterWrong />
+      </Reveal>
+      <Reveal>
+        <HowItWorks />
+      </Reveal>
       <AllInOne />
-      <BrowseSection />
+      <Reveal>
+        <BrowseSection />
+      </Reveal>
       <Stats />
-      <Features />
-      <PremiumExplanation />
+      <Reveal>
+        <Features />
+      </Reveal>
+      <Reveal>
+        <PremiumExplanation />
+      </Reveal>
       <AiTech />
-      <Categories />
-      <Faq />
-      <FinalCta />
-      <Support />
+      <Reveal>
+        <Categories />
+      </Reveal>
+      <Reveal>
+        <Faq />
+      </Reveal>
+      <Reveal>
+        <FinalCta />
+      </Reveal>
+      <Reveal>
+        <Support />
+      </Reveal>
     </>
   );
 }
@@ -448,11 +471,6 @@ function Hero() {
   );
 }
 
-
-
-
-
-
 // ─────────────────────────────────────────────────────────────
 // CERT STRIP — 지원 종목 무한 스트립
 // ─────────────────────────────────────────────────────────────
@@ -471,7 +489,10 @@ function CertStrip() {
             "풀이 화면에 광고 없음",
           ].map((t) => (
             <li key={t} className="inline-flex items-center gap-1.5">
-              <CheckCircle className="h-3.5 w-3.5 text-accent" strokeWidth={2.5} />
+              <CheckCircle
+                className="h-3.5 w-3.5 text-accent"
+                strokeWidth={2.5}
+              />
               {t}
             </li>
           ))}
@@ -495,10 +516,61 @@ function CertStrip() {
   );
 }
 
-
 // ─────────────────────────────────────────────────────────────
 // HOW IT WORKS — 3 스텝
 // ─────────────────────────────────────────────────────────────
+/**
+ * 채점 이후에 뭐가 자동으로 일어나는지를 재생해서 보여준다.
+ * 글로 "개인화 학습" 이라고 쓰면 아무 뜻도 전달되지 않는다.
+ * 노트가 쌓이고 복습이 잡히는 걸 눈으로 봐야 한다.
+ */
+function AfterWrong() {
+  return (
+    <section className="border-y border-border-soft bg-surface-mute/50">
+      <div className="mx-auto max-w-6xl px-6 py-14 md:py-24">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:items-center lg:gap-16">
+          <div>
+            <h2 className="text-2xl font-extrabold leading-[1.2] tracking-[-0.03em] text-text-high md:text-3xl">
+              한 문제 틀렸을 뿐인데
+              <br />
+              혼자 이만큼 움직여요.
+            </h2>
+            <p className="mt-4 max-w-lg text-base text-text-mid">
+              해설을 읽고 나면 끝이 아니에요. 어떤 단원에서 계속 걸리는지
+              짚어두고, 오답노트와 개념카드를 만들고, 다시 낼 날짜까지
+              잡아둡니다.
+            </p>
+
+            <ul className="mt-7 space-y-3">
+              {[
+                "내가 고른 선택지 기준으로 쓰인 해설",
+                "계속 걸리는 단원 진단",
+                "오답노트 · 개념카드 자동 생성",
+                "SM-2 가 계산한 날짜에 재출제",
+              ].map((t) => (
+                <li
+                  key={t}
+                  className="flex items-start gap-2.5 text-sm text-text-mid"
+                >
+                  <CheckCircle
+                    className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+                    strokeWidth={2.5}
+                  />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mx-auto w-full max-w-[440px]">
+            <DemoAfterWrong />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function HowItWorks() {
   const steps = [
     {
@@ -522,8 +594,7 @@ function HowItWorks() {
     <section className="mx-auto max-w-6xl px-6 pb-12 pt-14 md:pb-20 md:pt-24">
       <h2 className="max-w-lg text-3xl font-extrabold tracking-[-0.03em] text-text-high md:text-4xl">
         공부 계획,
-        <br />
-        안 짜도 돼요.
+        <br />안 짜도 돼요.
       </h2>
       <p className="mt-4 max-w-xl text-base text-text-mid">
         세 단계가 알아서 돌아가거든요.
@@ -545,7 +616,6 @@ function HowItWorks() {
     </section>
   );
 }
-
 
 // ─────────────────────────────────────────────────────────────
 // ALL IN ONE — 한 곳에서 되는 것들 (아이콘 그리드)
@@ -595,8 +665,7 @@ function AllInOne() {
           <div className="max-w-2xl">
             <h2 className="text-2xl font-extrabold leading-[1.15] tracking-[-0.03em] text-text-high md:text-3xl">
               앱 여러 개,
-              <br />
-              안 켜도 돼요.
+              <br />안 켜도 돼요.
             </h2>
             <p className="mt-4 max-w-lg text-base text-text-mid">
               문제집 · 해설강의 · 오답노트 · 복습앱을 따로 쓸 필요 없어요.
@@ -626,14 +695,15 @@ function AllInOne() {
   );
 }
 
-
-
 // ─────────────────────────────────────────────────────────────
 // BROWSE — Mobbin masonry 스타일 mock 기출 카드
 // ─────────────────────────────────────────────────────────────
 function BrowseSection() {
   return (
-    <section id="browse" className="border-t border-border-soft bg-surface-mute/50">
+    <section
+      id="browse"
+      className="border-t border-border-soft bg-surface-mute/50"
+    >
       <div className="mx-auto max-w-6xl px-6 pb-12 pt-14 md:pb-20 md:pt-24">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-xl">
@@ -690,7 +760,6 @@ function BrowseSection() {
   );
 }
 
-
 function ExamPreviewCard({ exam }: { exam: ExamCard }) {
   const choiceLabels = ["①", "②", "③", "④"];
 
@@ -709,10 +778,7 @@ function ExamPreviewCard({ exam }: { exam: ExamCard }) {
       {/* 좌측 thin accent bar */}
       <span
         aria-hidden="true"
-        className={cn(
-          "absolute left-0 top-0 h-full w-[3px]",
-          accentBar,
-        )}
+        className={cn("absolute left-0 top-0 h-full w-[3px]", accentBar)}
       />
 
       {/* 헤더 — 등급 뱃지 + 종목명 + 태그 */}
@@ -822,14 +888,16 @@ function Stats() {
     <section className="bg-surface-mute/50">
       <div className="mx-auto max-w-6xl border-y border-border px-6 py-10 md:py-14">
         <ul className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4">
-          {items.map((it) => (
+          {items.map((it, i) => (
             <li key={it.label}>
-              <p className="text-4xl font-extrabold tabular-nums leading-none tracking-[-0.045em] text-primary md:text-5xl">
-                {it.value}
-              </p>
-              <p className="mt-3 text-xs font-semibold text-text-mid">
-                {it.label}
-              </p>
+              <Reveal delay={i * 70}>
+                <p className="text-4xl font-extrabold tabular-nums leading-none tracking-[-0.045em] text-primary md:text-5xl">
+                  {it.value}
+                </p>
+                <p className="mt-3 text-xs font-semibold text-text-mid">
+                  {it.label}
+                </p>
+              </Reveal>
             </li>
           ))}
         </ul>
@@ -837,7 +905,6 @@ function Stats() {
     </section>
   );
 }
-
 
 // ─────────────────────────────────────────────────────────────
 // CATEGORIES — 시험 등급별 카드 row
@@ -890,34 +957,38 @@ function Categories() {
         </div>
 
         <ul className="mt-8 grid md:mt-12 auto-rows-fr gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {cats.map((c) => (
+          {cats.map((c, i) => (
             <li key={c.name}>
-              <article className="group flex h-full flex-col rounded-lg border border-border bg-surface p-6 transition-colors hover:border-text-mid hover:shadow-[0_8px_24px_-12px_rgb(var(--text-high)/0.1)]">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-lg font-bold tracking-[-0.01em] text-text-high">
-                    {c.name}
-                  </h3>
-                  <span
-                    className={cn(
-                      "shrink-0 rounded-full px-2.5 py-0.5 font-mono text-3xs font-semibold tabular-nums",
-                      certCount(c.name) > 0
-                        ? "bg-primary/10 text-primary"
-                        : "bg-surface-mute text-text-muted",
-                    )}
-                  >
-                    {certCount(c.name) > 0 ? `${certCount(c.name)}개 종목` : "준비중"}
-                  </span>
-                </div>
-                <p className="mt-3 text-sm leading-[1.6] text-text-mid">
-                  {c.desc}
-                </p>
-                <p className="mt-auto pt-5 text-2xs leading-[1.55] text-text-muted">
-                  <span className="font-semibold uppercase tracking-wider">
-                    예시
-                  </span>{" "}
-                  · {c.examples}
-                </p>
-              </article>
+              <Reveal delay={Math.min(i * 50, 250)}>
+                <article className="group flex h-full flex-col rounded-lg border border-border bg-surface p-6 transition-colors hover:border-text-mid hover:shadow-[0_8px_24px_-12px_rgb(var(--text-high)/0.1)]">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-lg font-bold tracking-[-0.01em] text-text-high">
+                      {c.name}
+                    </h3>
+                    <span
+                      className={cn(
+                        "shrink-0 rounded-full px-2.5 py-0.5 font-mono text-3xs font-semibold tabular-nums",
+                        certCount(c.name) > 0
+                          ? "bg-primary/10 text-primary"
+                          : "bg-surface-mute text-text-muted",
+                      )}
+                    >
+                      {certCount(c.name) > 0
+                        ? `${certCount(c.name)}개 종목`
+                        : "준비중"}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm leading-[1.6] text-text-mid">
+                    {c.desc}
+                  </p>
+                  <p className="mt-auto pt-5 text-2xs leading-[1.55] text-text-muted">
+                    <span className="font-semibold uppercase tracking-wider">
+                      예시
+                    </span>{" "}
+                    · {c.examples}
+                  </p>
+                </article>
+              </Reveal>
             </li>
           ))}
         </ul>
@@ -941,7 +1012,7 @@ function Features() {
           </h2>
         </div>
 
-        <ul className="mt-8 grid md:mt-12 auto-rows-fr gap-5 md:grid-cols-2">
+        <ul className="mt-8 grid gap-3 md:mt-12 md:auto-rows-fr md:grid-cols-2 md:gap-5">
           <FeatureRow
             title="프리미엄 AI 오답 해설"
             desc="내가 고른 그 선택지를 기준으로 분석해요. 왜 헷갈렸는지부터, 다음에 안 틀리게 외울 후크까지."
@@ -976,6 +1047,7 @@ function Features() {
 
           <FeatureRow
             title="AI 자동 단권화 노트"
+            foldOnMobile
             desc="당신이 틀린 문제와 약한 개념만 모아 한 장으로. 시험 전날 단권화, AI가 자동으로 만들어 PDF까지."
             tone="primary"
           >
@@ -984,6 +1056,7 @@ function Features() {
 
           <FeatureRow
             title="합격 예측 + 신뢰구간"
+            foldOnMobile
             desc="베이지안 추정으로 합격 확률을 % 단위로. 풀이 적으면 '신뢰 낮음' 으로 솔직히 알려드립니다."
             tone="primary"
           >
@@ -992,6 +1065,7 @@ function Features() {
 
           <FeatureRow
             title="과락 위험 진단 → 맞춤 출제"
+            foldOnMobile
             desc="평균이 합격권이어도 한 과목 과락이면 떨어져요. 위험한 과목을 짚고, 그 과목만 집중하는 모의고사를 바로 내줘요."
             tone="warning"
           >
@@ -1000,6 +1074,7 @@ function Features() {
 
           <FeatureRow
             title="자동 오답노트 + 북마크"
+            foldOnMobile
             desc="틀리는 순간 노트에 자동 수집. 어려운 문제는 한 번에 북마크하고, 풀이별 메모도 가능."
             tone="warning"
           >
@@ -1008,6 +1083,7 @@ function Features() {
 
           <FeatureRow
             title="실전 CBT 모의고사"
+            foldOnMobile
             desc="실제 시험과 동일한 시간 제한 · 과목별 과락 체크. 전 과목 무작위 출제."
             tone="accent"
           >
@@ -1016,6 +1092,7 @@ function Features() {
 
           <FeatureRow
             title="광고 없는 풀이 화면"
+            foldOnMobile
             desc="풀이와 해설 화면엔 광고가 없어요. 팝업도 배너도 안 띄워요."
             tone="neutral"
           >
@@ -1035,27 +1112,43 @@ function FeatureRow({
   desc,
   tone,
   children,
+  /**
+   * 모바일에서 목업을 접고 제목·설명만 남긴다.
+   * 같은 카드 10장이 세로로 쌓이면 그 구간만 화면 몇 개 분량이 된다.
+   * 앞쪽 4개는 목업을 보여주고 나머지는 목록으로 읽히게 한다.
+   * (DOM 을 두 벌 만들지 않으므로 본문이 중복되지 않는다)
+   */
+  foldOnMobile = false,
 }: {
   title: string;
   desc: string;
   tone: "primary" | "accent" | "warning" | "neutral";
   children: React.ReactNode;
+  foldOnMobile?: boolean;
 }) {
   return (
     <li className="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface transition-colors hover:border-text-muted">
       <div
         className={cn(
           "h-[190px] overflow-hidden border-b border-border-soft p-4 md:h-[260px] md:p-5",
+          foldOnMobile && "hidden md:block",
           tone === "primary" && "bg-primary/[0.07]",
           tone === "accent" && "bg-accent/[0.07]",
           tone === "warning" && "bg-warning/[0.08]",
           tone === "neutral" && "bg-surface-mute",
         )}
       >
-        <div className="flex h-full items-center justify-center">{children}</div>
+        <div className="flex h-full items-center justify-center">
+          {children}
+        </div>
       </div>
 
-      <div className="flex flex-1 flex-col p-5 md:p-6">
+      <div
+        className={cn(
+          "flex flex-1 flex-col md:p-6",
+          foldOnMobile ? "p-4" : "p-5",
+        )}
+      >
         <span
           aria-hidden="true"
           className={cn(
@@ -1088,9 +1181,7 @@ function AiExplanationMockup() {
           <span className="font-mono text-3xs font-bold text-text-mid">
             Q.07
           </span>
-          <span className="font-mono text-4xs text-text-muted">
-            응용역학
-          </span>
+          <span className="font-mono text-4xs text-text-muted">응용역학</span>
         </div>
         <div className="mt-1.5 space-y-1">
           {[
@@ -1175,10 +1266,7 @@ function ReviewScheduleMockup() {
       </div>
       <ul className="mt-3 space-y-2">
         {schedule.map((s) => (
-          <li
-            key={s.label}
-            className="flex items-center gap-2.5"
-          >
+          <li key={s.label} className="flex items-center gap-2.5">
             <span
               className={cn(
                 "w-12 shrink-0 text-3xs font-medium",
@@ -1273,8 +1361,18 @@ function PassPredictionMockup() {
 function MistakesMockup() {
   const items = [
     { q: "Q.03 정규화의 주된 목적은?", subj: "DB", bookmark: true, days: 1 },
-    { q: "Q.07 단순보 최대 처짐 위치는?", subj: "응용역학", bookmark: false, days: 1 },
-    { q: "Q.12 등엔트로피 관계식 아닌 것은?", subj: "열역학", bookmark: true, days: 3 },
+    {
+      q: "Q.07 단순보 최대 처짐 위치는?",
+      subj: "응용역학",
+      bookmark: false,
+      days: 1,
+    },
+    {
+      q: "Q.12 등엔트로피 관계식 아닌 것은?",
+      subj: "열역학",
+      bookmark: true,
+      days: 3,
+    },
     { q: "Q.18 FDM 서포트 각도는?", subj: "3D모델", bookmark: false, days: 7 },
   ];
   return (
@@ -1290,10 +1388,7 @@ function MistakesMockup() {
       </div>
       <ul className="divide-y divide-border-soft">
         {items.map((it, i) => (
-          <li
-            key={i}
-            className="flex items-center gap-2 px-3 py-2"
-          >
+          <li key={i} className="flex items-center gap-2 px-3 py-2">
             <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-danger/15 font-mono text-4xs font-bold text-danger">
               ✕
             </span>
@@ -1344,10 +1439,7 @@ function CbtMockMockup() {
 
       {/* 진행 바 */}
       <div className="h-1 bg-surface-mute">
-        <div
-          className="h-full bg-primary"
-          style={{ width: "68%" }}
-        />
+        <div className="h-full bg-primary" style={{ width: "68%" }} />
       </div>
 
       {/* 과목별 성적 */}
@@ -1357,19 +1449,13 @@ function CbtMockMockup() {
         </p>
         <ul className="space-y-1.5">
           {subjects.map((s) => (
-            <li
-              key={s.name}
-              className="flex items-center gap-2"
-            >
+            <li key={s.name} className="flex items-center gap-2">
               <span className="flex-1 text-3xs font-medium text-text-high">
                 {s.name}
               </span>
               <div className="h-1.5 w-20 overflow-hidden rounded-sm bg-surface-mute">
                 <div
-                  className={cn(
-                    "h-full",
-                    s.pass ? "bg-accent" : "bg-danger",
-                  )}
+                  className={cn("h-full", s.pass ? "bg-accent" : "bg-danger")}
                   style={{ width: `${s.score}%` }}
                 />
               </div>
@@ -1503,7 +1589,9 @@ function StepSolutionMockup() {
     <div className="w-full max-w-[300px] rounded-md border border-border bg-surface p-3.5 shadow-sm">
       <div className="flex items-center justify-between border-b border-border-soft pb-2">
         <p className="text-2xs font-bold text-text-high">풀이 · 단계별</p>
-        <span className="font-mono text-4xs text-text-muted">건너뛴 단계 0</span>
+        <span className="font-mono text-4xs text-text-muted">
+          건너뛴 단계 0
+        </span>
       </div>
       <ul className="mt-2.5 space-y-2">
         {steps.map((s) => (
@@ -1646,7 +1734,10 @@ function FailRiskMockup() {
         <span className="flex-1 text-3xs font-semibold text-text-high">
           측량학 집중 모의고사 20문 생성
         </span>
-        <ArrowRight className="h-3 w-3 shrink-0 text-primary" strokeWidth={2.5} />
+        <ArrowRight
+          className="h-3 w-3 shrink-0 text-primary"
+          strokeWidth={2.5}
+        />
       </div>
     </div>
   );
@@ -1736,7 +1827,10 @@ function PremiumExplanation() {
 // ─────────────────────────────────────────────────────────────
 function Faq() {
   return (
-    <section id="faq" className="border-t border-border-soft bg-surface-mute/50">
+    <section
+      id="faq"
+      className="border-t border-border-soft bg-surface-mute/50"
+    >
       <div className="mx-auto max-w-3xl px-6 py-14 md:py-24">
         <div className="text-center">
           <h2 className="text-2xl font-extrabold tracking-[-0.025em] text-text-high md:text-3xl">
@@ -1773,62 +1867,43 @@ function Faq() {
 // AI TECH — 반전 톤 다크 섹션
 // ─────────────────────────────────────────────────────────────
 function AiTech() {
-  const cards = [
-    {
-      title: "선택지 단위 해설 생성",
-      desc: "선택지가 4개면 해설도 4개 써요. 같은 문제라도 ② 를 고른 사람과 ④ 를 고른 사람이 서로 다른 설명을 받아요.",
-    },
-    {
-      title: "지식 상태 추정",
-      desc: "정오답 기록을 문항 태그(단원·유형·난이도)에 비춰봐요. 점수 말고 무엇을 모르는지를 추정해요.",
-    },
-    {
-      title: "SM-2 복습 스케줄러",
-      desc: "문항별 난이도 계수와 반복 횟수로 다음 복습일을 계산해요. 맞히면 간격이 벌어지고, 틀리면 처음으로 돌아가요.",
-    },
-    {
-      title: "베이지안 합격 예측",
-      desc: "최근 풀이를 반영해 합격 확률과 신뢰구간을 같이 내요. 표본이 적으면 구간을 넓게, 솔직하게 보여줘요.",
-    },
-  ];
-
   return (
     <section className="bg-text-high text-background">
-      <div className="mx-auto max-w-6xl px-6 py-14 md:py-20">
-        <div className="max-w-2xl">
-          <h2 className="text-3xl font-extrabold leading-[1.15] tracking-[-0.03em] md:text-4xl">
-            이걸 사람이 다 쓸 순 없어요.
-          </h2>
-          <p className="mt-5 text-base leading-[1.7] text-background/70">
-            기출 10,000 문제에 선택지가 4개씩이면
-            &lsquo;왜 틀렸는지&rsquo; 가 4만 개 필요해요.
+      <div className="mx-auto max-w-6xl px-6 py-14 md:py-24">
+        <Reveal>
+          <div className="max-w-2xl">
+            <h2 className="text-3xl font-extrabold leading-[1.15] tracking-[-0.03em] md:text-4xl">
+              이걸 사람이 다 쓸 순 없어요.
+            </h2>
+            <p className="mt-5 text-base leading-[1.7] text-background/70">
+              기출 10,000 문제에 선택지가 4개씩이면 &lsquo;왜 틀렸는지&rsquo; 가
+              4만 개 필요해요.
+              <br className="hidden sm:block" />
+              강사 한 명이 감당할 분량이 아니라서, 그걸 전부 채우는 쪽을
+              택했어요.
+            </p>
+            <p className="mt-4 text-sm text-background/50">
+              눌러보면 각 기능이 실제로 어떤 화면을 내보내는지 볼 수 있어요.
+            </p>
+          </div>
+        </Reveal>
+
+        <Reveal delay={80}>
+          <AiTechCards />
+        </Reveal>
+
+        <Reveal delay={120}>
+          <p className="mt-10 max-w-3xl text-xs leading-[1.7] text-background/50">
+            AI 가 쓴 해설에는 오류가 있을 수 있어요. 핵심 개념 해설은 검수를
+            거치고, 검수 전 생성분은 화면에 따로 표시해요.
             <br />
-            강사 한 명이 감당할 분량이 아니라서, 그걸 전부 채우는 쪽을 택했어요.
+            합격 예측은 참고용 추정치예요. 실제 시험 결과를 보장하지 않아요.
           </p>
-        </div>
-
-        <ul className="mt-10 grid md:mt-14 gap-x-12 gap-y-10 md:grid-cols-2">
-          {cards.map(({ title, desc }) => (
-            <li key={title} className="border-t border-background/20 pt-5">
-              <h3 className="text-lg font-bold tracking-[-0.02em]">{title}</h3>
-              <p className="mt-2.5 text-sm leading-[1.7] text-background/70">
-                {desc}
-              </p>
-            </li>
-          ))}
-        </ul>
-
-        <p className="mt-14 max-w-3xl border-t border-background/15 pt-6 text-xs leading-[1.7] text-background/55">
-          AI 가 쓴 해설에는 오류가 있을 수 있어요. 핵심 개념 해설은 검수를
-          거치고, 검수 전 생성분은 화면에 따로 표시해요.
-          <br />
-          합격 예측은 참고용 추정치예요. 실제 시험 결과를 보장하지 않아요.
-        </p>
+        </Reveal>
       </div>
     </section>
   );
 }
-
 
 // ─────────────────────────────────────────────────────────────
 // FINAL CTA — 사전예약
@@ -1862,7 +1937,10 @@ function FinalCta() {
             "베타 기간 전 기능 무료",
           ].map((t) => (
             <li key={t} className="inline-flex items-center gap-1.5">
-              <CheckCircle className="h-3.5 w-3.5 text-accent" strokeWidth={2.5} />
+              <CheckCircle
+                className="h-3.5 w-3.5 text-accent"
+                strokeWidth={2.5}
+              />
               {t}
             </li>
           ))}
@@ -1877,7 +1955,6 @@ function FinalCta() {
     </section>
   );
 }
-
 
 // ─────────────────────────────────────────────────────────────
 // SUPPORT — 문의 / 제보 창구
@@ -1947,4 +2024,3 @@ function Support() {
     </section>
   );
 }
-

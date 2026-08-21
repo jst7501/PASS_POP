@@ -36,6 +36,8 @@ export default {
           subtle: "rgb(var(--primary-subtle) / <alpha-value>)",
           fg: "rgb(var(--primary-fg) / <alpha-value>)",
         },
+        /** 잉크 배경 위 전용 그린 — 반전 섹션에서만 쓴다 */
+        "primary-invert": "rgb(var(--primary-invert) / <alpha-value>)",
         accent: {
           DEFAULT: "rgb(var(--accent) / <alpha-value>)",
           hover: "rgb(var(--accent-hover) / <alpha-value>)",
