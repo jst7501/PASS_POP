@@ -37,15 +37,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const exam = bySlug(slug);
-  if (!exam) return buildMeta({ title: "종목을 찾을 수 없습니다", index: false });
+  if (!exam) return buildMeta({ title: "종목을 찾을 수 없어요", index: false });
 
   return buildMeta({
     title: `${exam.name} 기출문제 CBT — 무료 준비 중`,
-    description: `${exam.name}(${exam.aliases[0]}) 기출문제를 무료 CBT로 준비하고 있습니다. ${exam.blurb} 오픈 알림을 신청하면 이 종목부터 채웁니다.`,
+    description: `${exam.name}(${exam.aliases[0]}) 기출문제를 무료 CBT로 준비하고 있어요. ${exam.blurb} 알림을 신청하면 이 종목부터 채울게요.`,
     path: `/cbt/${exam.slug}`,
     keywords: examKeywords(exam),
-    // 문제 데이터가 들어가기 전까지는 색인하지 않는다
-    index: false,
+    // 그 종목만의 내용이 실리기 전까지는 색인하지 않는다 (exams.ts 의 indexable 참고)
+    index: Boolean(exam.indexable),
   });
 }
 

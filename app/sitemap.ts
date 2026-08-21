@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import prisma from "@/lib/prisma";
 import { absoluteUrl } from "@/lib/seo/site";
 import { DP, DP_SLUG } from "@/lib/content/3dp";
+import { indexablePreparing } from "@/lib/seo/exams";
 
 // 사이트맵은 매 빌드/요청마다 DB에서 카테고리·과목·회차를 끌어와 동적으로 구성한다.
 // Next.js 가 ISR 처럼 캐시하므로 revalidate 로 갱신 주기 제어.
@@ -169,6 +170,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.6,
+    });
+  }
+
+  // 색인을 허용한 준비중 종목만 (기본은 없음 — exams.ts 의 indexable 참고)
+  for (const e of indexablePreparing()) {
+    dynamicEntries.push({
+      url: absoluteUrl(`/cbt/${e.slug}`),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
     });
   }
 

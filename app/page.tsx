@@ -27,7 +27,7 @@ export const metadata: Metadata = buildMeta({
   title:
     "PASSPOP — 세상에 없던 무료 CBT, 프리미엄 AI 해설 | 자격증·공무원 시험 올인원",
   description:
-    "기출 10,000+ 문제, 12개 시험 종목. 회원가입 없이 풀고, 찍은 오답까지 AI가 분석합니다. 망각곡선 복습과 합격 예측까지. 곧 오픈, 알림 신청 중.",
+    "한국사·컴활·정처기부터 9급 공무원까지. 가입 없이 기출 CBT를 풀고, 내가 고른 선택지를 기준으로 쓰인 해설을 받아요. 망각곡선 복습과 합격 예측까지. 곧 열어요.",
   path: "/",
   keywords: [
     "무료 CBT",
@@ -397,40 +397,43 @@ export default function LandingPage() {
 function Hero() {
   return (
     <section className="border-b border-border-soft">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-16 pt-14 md:pt-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)] lg:gap-14 lg:pb-24">
-        {/* ── 좌: 카피 + 사전예약 ───────────────────────────── */}
-        <div>
-          <h1 className="text-4xl font-extrabold leading-[1.1] tracking-[-0.035em] text-text-high md:text-5xl">
-            <span className="text-primary">②</span> 를 고른 사람과{" "}
-            <span className="text-primary">④</span> 를 고른 사람은
-            <br />
-            다른 해설을 받아요.
-          </h1>
+      <div className="mx-auto max-w-3xl px-6 pb-16 pt-16 text-center md:pt-24">
+        {/* 등장은 CSS 애니메이션으로만 — JS 가 없어도 반드시 보인다.
+            fill-mode:both 라 지연 중에도 최종 상태가 보장된다. */}
+        <h1 className="animate-slide-up text-4xl font-extrabold leading-[1.1] tracking-[-0.04em] text-text-high [animation-fill-mode:both] md:text-5xl">
+          <span className="text-primary">②</span> 를 고른 사람과{" "}
+          <span className="text-primary">④</span> 를 고른 사람은
+          <br />
+          다른 해설을 받아요.
+        </h1>
 
-          <p className="mt-6 max-w-xl text-base text-text-mid">
-            기출 CBT 는 이미 여러 곳에 있어요.
-            <br />
-            PASSPOP 이 다른 건 해설이에요.{" "}
-            <strong className="font-semibold text-text-high">
-              틀릴 수 있는 선택지마다 해설을 따로 써요.
-            </strong>
-          </p>
+        <p
+          className="mx-auto mt-6 max-w-xl animate-slide-up text-base text-text-mid [animation-fill-mode:both]"
+          style={{ animationDelay: "90ms" }}
+        >
+          기출 CBT 는 이미 여러 곳에 있어요. 우리가 다른 건 해설이에요.
+          <br className="hidden sm:block" />
+          틀릴 수 있는 선택지마다 해설을 따로 씁니다.
+        </p>
 
-          <p className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-text-mid">
-            <ArrowRight className="h-3.5 w-3.5 text-primary lg:hidden" strokeWidth={2.5} />
-            <span className="hidden lg:inline text-primary">→</span>
-            오른쪽 문제를 눌러보세요. 가입 안 해도 돼요.
-          </p>
+        {/* 직접 풀어보는 문항 — 이 제품의 차이를 말로 설명하는 대신 만지게 한다 */}
+        <div
+          className="mx-auto mt-12 max-w-md animate-slide-up text-left [animation-fill-mode:both]"
+          style={{ animationDelay: "180ms" }}
+        >
+          <HeroDemo />
+        </div>
 
-          <div className="mt-8">
-            <WaitlistForm variant="inline" source="landing-hero" />
-          </div>
-
-          <div className="mt-5 flex flex-col gap-3">
+        <div
+          className="mx-auto mt-12 max-w-md animate-slide-up [animation-fill-mode:both]"
+          style={{ animationDelay: "270ms" }}
+        >
+          <WaitlistForm variant="inline" source="landing-hero" />
+          <div className="mt-4 flex flex-col items-center gap-2">
             <WaitlistCount />
             <a
               href="/cbt"
-              className="group inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-text-mid transition-colors hover:text-text-high"
+              className="group inline-flex items-center gap-1.5 text-sm font-semibold text-text-mid transition-colors hover:text-text-high"
             >
               어떤 종목이 열리는지 볼래요
               <ArrowRight
@@ -440,15 +443,11 @@ function Hero() {
             </a>
           </div>
         </div>
-
-        {/* ── 우: 직접 풀어보는 문항 ─────────────────────────── */}
-        <div className="relative mx-auto w-full max-w-[460px]">
-          <HeroDemo />
-        </div>
       </div>
     </section>
   );
 }
+
 
 
 
@@ -951,7 +950,7 @@ function Features() {
         <ul className="mt-12 grid auto-rows-fr gap-5 md:grid-cols-2">
           <FeatureRow
             title="프리미엄 AI 오답 해설"
-            desc="정답이 아니라 '당신이 찍은 그 오답' 을 기준으로 분석합니다. 왜 헷갈렸는지부터, 다음에 안 틀리는 암기 후크까지."
+            desc="내가 고른 그 선택지를 기준으로 분석해요. 왜 헷갈렸는지부터, 다음에 안 틀리게 외울 후크까지."
             tone="primary"
           >
             <AiExplanationMockup />
@@ -967,7 +966,7 @@ function Features() {
 
           <FeatureRow
             title="단계별 완전 풀이"
-            desc="계산 과목도 건너뛰는 단계 없이. 모르는 줄은 '이 줄 왜?' 로 그 한 줄만 더 자세히. 책 없이도 메울 빈틈이 없습니다."
+            desc="계산 과목도 건너뛰는 단계 없이 보여줘요. 모르는 줄은 '이 줄 왜?' 를 누르면 그 한 줄만 더 자세히 풀어줘요."
             tone="accent"
           >
             <StepSolutionMockup />
@@ -999,7 +998,7 @@ function Features() {
 
           <FeatureRow
             title="과락 위험 진단 → 맞춤 출제"
-            desc="평균이 합격권이어도 한 과목 과락이면 불합격. 과목별 과락 위험을 짚고, 그 과목만 집중하는 모의고사를 바로 처방합니다."
+            desc="평균이 합격권이어도 한 과목 과락이면 떨어져요. 위험한 과목을 짚고, 그 과목만 집중하는 모의고사를 바로 내줘요."
             tone="warning"
           >
             <FailRiskMockup />
@@ -1023,7 +1022,7 @@ function Features() {
 
           <FeatureRow
             title="광고 없는 풀이 화면"
-            desc="집중을 해치지 않습니다. 풀이·해설 페이지엔 광고 일절 없음. 팝업 / 배너 / 인터럽트 무함."
+            desc="풀이와 해설 화면엔 광고가 없어요. 팝업도 배너도 안 띄워요."
             tone="neutral"
           >
             <NoAdsMockup />
@@ -1684,7 +1683,7 @@ function PremiumExplanation() {
               <li>▸ ③, ④ 는 단위가 다릅니다.</li>
             </ul>
             <p className="mt-auto pt-6 text-xs italic text-text-muted">
-              → 다음에 또 틀립니다. 왜 헷갈렸는지 안 알려줬으니까.
+              → 다음에 또 틀려요. 왜 헷갈렸는지는 안 알려줬으니까.
             </p>
           </div>
 
@@ -1702,11 +1701,10 @@ function PremiumExplanation() {
                 <strong className="text-text-high">
                   ② 와 ③ 의 차이가 부호 한 끗
                 </strong>
-                . 출제자가 의도적으로 헷갈리게 한 패턴.
+                . 출제자가 일부러 헷갈리게 만든 자리예요.
               </li>
               <li>
-                ▸ 공식 자체보다, 단위 분석을 먼저 했으면 ② 가 떨어져 나갔을
-                거예요.
+                ▸ 공식보다 단위부터 봤으면 ② 는 바로 떨어져 나갔을 거예요.
               </li>
               <li>
                 ▸{" "}
@@ -1722,7 +1720,7 @@ function PremiumExplanation() {
               </li>
             </ul>
             <p className="mt-auto pt-6 text-xs font-semibold text-primary">
-              → 망각곡선 큐에 들어갑니다. 3일 뒤 비슷한 함정으로 한 번 더.
+              → 망각곡선 큐에 들어가요. 3일 뒤에 비슷한 함정으로 한 번 더.
             </p>
           </div>
         </div>
@@ -1779,19 +1777,19 @@ function AiTech() {
   const cards = [
     {
       title: "선택지 단위 해설 생성",
-      desc: "선택지가 4개면 해설도 4개 씁니다. 같은 문제라도 ② 를 찍은 사람과 ④ 를 찍은 사람이 서로 다른 설명을 받습니다.",
+      desc: "선택지가 4개면 해설도 4개 써요. 같은 문제라도 ② 를 고른 사람과 ④ 를 고른 사람이 서로 다른 설명을 받아요.",
     },
     {
       title: "지식 상태 추정",
-      desc: "정오답 기록을 문항 태그(단원·유형·난이도)에 투영해, 점수 대신 무엇을 모르는지를 추정합니다.",
+      desc: "정오답 기록을 문항 태그(단원·유형·난이도)에 비춰봐요. 점수 말고 무엇을 모르는지를 추정해요.",
     },
     {
       title: "SM-2 복습 스케줄러",
-      desc: "문항별 난이도 계수와 반복 횟수로 다음 복습일을 계산합니다. 맞히면 간격이 벌어지고, 틀리면 처음으로 되돌아갑니다.",
+      desc: "문항별 난이도 계수와 반복 횟수로 다음 복습일을 계산해요. 맞히면 간격이 벌어지고, 틀리면 처음으로 돌아가요.",
     },
     {
       title: "베이지안 합격 예측",
-      desc: "최근 풀이를 사전분포에 갱신해 합격 확률과 신뢰구간을 함께 냅니다. 표본이 적으면 넓은 구간으로 솔직하게 표시합니다.",
+      desc: "최근 풀이를 반영해 합격 확률과 신뢰구간을 같이 내요. 표본이 적으면 구간을 넓게, 솔직하게 보여줘요.",
     },
   ];
 
@@ -1822,9 +1820,10 @@ function AiTech() {
         </ul>
 
         <p className="mt-14 max-w-3xl border-t border-background/15 pt-6 text-xs leading-[1.7] text-background/55">
-          AI 생성 해설은 오류 가능성이 있습니다. 핵심 개념 해설은 검수를 거치며,
-          검수 전 생성분은 화면에 별도로 표기합니다. 합격 예측은 참고용
-          추정치로, 실제 시험 결과를 보장하지 않습니다.
+          AI 가 쓴 해설에는 오류가 있을 수 있어요. 핵심 개념 해설은 검수를
+          거치고, 검수 전 생성분은 화면에 따로 표시해요.
+          <br />
+          합격 예측은 참고용 추정치예요. 실제 시험 결과를 보장하지 않아요.
         </p>
       </div>
     </section>
@@ -1871,9 +1870,9 @@ function FinalCta() {
         </ul>
 
         <p className="mx-auto mt-10 max-w-lg text-2xs leading-[1.65] text-text-muted">
-          수집 항목은 이메일과 직접 입력하신 목표 종목·시험 시기뿐이며, 오픈
-          안내 외의 용도로 쓰지 않습니다. 수신 거부는 메일 하단에서 한 번에
-          처리됩니다.
+          받는 건 이메일과 직접 적어주신 목표 종목·시험 시기뿐이에요.
+          <br className="hidden sm:block" />
+          오픈 안내 외에는 쓰지 않고, 수신 거부는 메일 맨 아래에서 한 번에 돼요.
         </p>
       </div>
     </section>

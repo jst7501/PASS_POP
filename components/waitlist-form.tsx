@@ -375,7 +375,7 @@ function SuccessCard({ compact }: { compact?: boolean }) {
       <p className="mt-2 text-sm leading-[1.65] text-text-mid">
         정식 오픈 시 등록하신 이메일로 안내드릴게요.
         <br />
-        적어주신 종목은 오픈 순서를 정할 때 먼저 반영합니다.
+        적어주신 종목은 오픈 순서를 정할 때 먼저 반영해요.
       </p>
       <p className="mt-4 text-2xs text-text-muted">
         받은편지함을 열어보지 않으셔도 자동으로 도착해요.

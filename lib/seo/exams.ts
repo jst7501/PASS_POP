@@ -42,6 +42,14 @@ export type SeoExam = {
   /** 한 줄 설명 — 목록/메타 설명에 쓴다. */
   blurb: string;
   status: ExamStatus;
+  /**
+   * status 가 "preparing" 인데도 색인시킬지.
+   *
+   * 기본은 false. 문제가 없는 안내 페이지는 서로 거의 같은 내용이라
+   * 20여 개를 한꺼번에 색인시키면 얇은 콘텐츠로 도메인 전체 평가가 내려간다.
+   * 그 종목에 고유한 내용(문제·해설·시험 정보)이 실린 뒤에 켤 것.
+   */
+  indexable?: boolean;
 };
 
 export const GRADE_LABEL: Record<ExamGradeKey, string> = {
@@ -290,6 +298,10 @@ export const bySlug = (slug: string): SeoExam | undefined =>
   SEO_EXAMS.find((e) => e.slug === slug);
 
 export const openExams = () => SEO_EXAMS.filter((e) => e.status === "open");
+
+/** 사이트맵에 실을 준비중 종목 (색인 허용한 것만) */
+export const indexablePreparing = () =>
+  SEO_EXAMS.filter((e) => e.status === "preparing" && e.indexable);
 export const preparingExams = () =>
   SEO_EXAMS.filter((e) => e.status === "preparing");
 

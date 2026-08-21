@@ -139,7 +139,7 @@ export function HeroDemo() {
         {/* 선택 전 안내 */}
         {!answered && (
           <p className="mt-4 text-center text-2xs text-text-muted">
-            아무거나 눌러보세요. 고른 선택지에 맞춰 해설이 나옵니다.
+            아무거나 눌러보세요. 고른 선택지에 맞춰 해설이 달라져요.
           </p>
         )}
 
@@ -148,7 +148,7 @@ export function HeroDemo() {
           <div
             aria-live="polite"
             className={cn(
-              "mt-4 animate-fade-in rounded-md border p-3",
+              "mt-4 animate-slide-up rounded-md border p-3",
               isCorrect
                 ? "border-accent/30 bg-accent/[0.05]"
                 : "border-primary/30 bg-primary/[0.04]",

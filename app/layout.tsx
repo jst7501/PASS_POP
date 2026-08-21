@@ -246,7 +246,7 @@ function LandingHeader() {
 
         <Link
           href="#waitlist"
-          className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-fg transition-all hover:bg-primary-hover active:scale-[0.98]"
+          className="inline-flex h-11 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-fg transition-all hover:bg-primary-hover active:scale-[0.98]"
         >
           오픈 알림 받기
         </Link>
@@ -293,8 +293,8 @@ function LandingFooter() {
           </p>
         </div>
         <p className="mt-6 text-2xs leading-[1.6] text-text-muted">
-          {SITE_NAME}은 학습 보조 도구로, 한국산업인력공단·인사혁신처 등 공식
-          시험 시행 기관과 무관합니다.
+          {SITE_NAME}은 학습을 돕는 도구예요. 한국산업인력공단·인사혁신처 등
+          공식 시험 시행 기관과는 관계가 없어요.
         </p>
       </div>
     </footer>
