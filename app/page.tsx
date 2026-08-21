@@ -397,10 +397,10 @@ export default function LandingPage() {
 function Hero() {
   return (
     <section>
-      <div className="mx-auto max-w-3xl px-6 pb-16 pt-12 text-center md:pt-20">
+      <div className="mx-auto max-w-3xl px-6 pb-12 pt-10 text-center md:pb-16 md:pt-20">
         {/* 등장은 CSS 애니메이션으로만 — JS 가 없어도 반드시 보인다.
             fill-mode:both 라 지연 중에도 최종 상태가 보장된다. */}
-        <h1 className="animate-slide-up text-4xl font-extrabold leading-[1.12] tracking-[-0.04em] text-text-high [animation-fill-mode:both] md:text-5xl">
+        <h1 className="animate-slide-up text-3xl font-extrabold leading-[1.18] tracking-[-0.035em] text-text-high [animation-fill-mode:both] sm:text-4xl sm:leading-[1.12] md:text-5xl">
           <span className="text-text-mid">
             <span className="text-primary">②</span> 를 고른 사람과{" "}
             <span className="text-primary">④</span> 를 고른 사람은
@@ -519,7 +519,7 @@ function HowItWorks() {
   ];
 
   return (
-    <section className="mx-auto max-w-6xl px-6 pb-16 pt-20 md:pb-20 md:pt-24">
+    <section className="mx-auto max-w-6xl px-6 pb-12 pt-14 md:pb-20 md:pt-24">
       <h2 className="max-w-lg text-3xl font-extrabold tracking-[-0.03em] text-text-high md:text-4xl">
         공부 계획,
         <br />
@@ -529,7 +529,7 @@ function HowItWorks() {
         세 단계가 알아서 돌아가거든요.
       </p>
 
-      <ol className="mt-14 grid gap-x-10 gap-y-12 md:grid-cols-3">
+      <ol className="mt-10 grid md:mt-14 gap-x-10 gap-y-12 md:grid-cols-3">
         {steps.map(({ step, title, desc }) => (
           <li key={step} className="border-t-2 border-text-high pt-5">
             <span className="text-2xs font-bold tabular-nums tracking-[0.16em] text-text-muted">
@@ -590,7 +590,7 @@ function AllInOne() {
 
   return (
     <section>
-      <div className="mx-auto max-w-6xl px-6 pb-20 md:pb-24">
+      <div className="mx-auto max-w-6xl px-6 pb-14 md:pb-24">
         <Reveal>
           <div className="max-w-2xl">
             <h2 className="text-2xl font-extrabold leading-[1.15] tracking-[-0.03em] text-text-high md:text-3xl">
@@ -606,7 +606,7 @@ function AllInOne() {
           </div>
         </Reveal>
 
-        <ul className="mt-14 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-10 grid md:mt-14 gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {items.map(({ Icon, title, desc }, i) => (
             <li key={title}>
               <Reveal delay={Math.min(i * 60, 300)}>
@@ -634,7 +634,7 @@ function AllInOne() {
 function BrowseSection() {
   return (
     <section id="browse" className="border-t border-border-soft bg-surface-mute/50">
-      <div className="mx-auto max-w-6xl px-6 pb-16 pt-20 md:pb-20 md:pt-24">
+      <div className="mx-auto max-w-6xl px-6 pb-12 pt-14 md:pb-20 md:pt-24">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-xl">
             <h2 className="text-2xl font-extrabold tracking-[-0.025em] text-text-high md:text-3xl">
@@ -820,7 +820,7 @@ function Stats() {
   ];
   return (
     <section className="bg-surface-mute/50">
-      <div className="mx-auto max-w-6xl border-y border-border px-6 py-12 md:py-16">
+      <div className="mx-auto max-w-6xl border-y border-border px-6 py-10 md:py-14">
         <ul className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4">
           {items.map((it) => (
             <li key={it.label}>
@@ -878,7 +878,7 @@ function Categories() {
 
   return (
     <section id="categories">
-      <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
+      <div className="mx-auto max-w-6xl px-6 py-14 md:py-24">
         <div className="max-w-2xl">
           <h2 className="text-2xl font-extrabold tracking-[-0.025em] text-text-high md:text-3xl">
             기능사부터 공무원까지.
@@ -889,7 +889,7 @@ function Categories() {
           </p>
         </div>
 
-        <ul className="mt-12 grid auto-rows-fr gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-8 grid md:mt-12 auto-rows-fr gap-4 md:grid-cols-2 lg:grid-cols-3">
           {cats.map((c) => (
             <li key={c.name}>
               <article className="group flex h-full flex-col rounded-lg border border-border bg-surface p-6 transition-colors hover:border-text-mid hover:shadow-[0_8px_24px_-12px_rgb(var(--text-high)/0.1)]">
@@ -932,7 +932,7 @@ function Categories() {
 function Features() {
   return (
     <section id="features" className="bg-surface-mute/50">
-      <div className="mx-auto max-w-6xl px-6 pb-20 pt-16 md:pb-24 md:pt-20">
+      <div className="mx-auto max-w-6xl px-6 pb-14 pt-12 md:pb-24 md:pt-20">
         <div className="max-w-2xl">
           <h2 className="text-3xl font-extrabold leading-[1.15] tracking-[-0.025em] text-text-high md:text-4xl">
             무료 사이트인데,
@@ -941,7 +941,7 @@ function Features() {
           </h2>
         </div>
 
-        <ul className="mt-12 grid auto-rows-fr gap-5 md:grid-cols-2">
+        <ul className="mt-8 grid md:mt-12 auto-rows-fr gap-5 md:grid-cols-2">
           <FeatureRow
             title="프리미엄 AI 오답 해설"
             desc="내가 고른 그 선택지를 기준으로 분석해요. 왜 헷갈렸는지부터, 다음에 안 틀리게 외울 후크까지."
@@ -1045,7 +1045,7 @@ function FeatureRow({
     <li className="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface transition-colors hover:border-text-muted">
       <div
         className={cn(
-          "h-[260px] overflow-hidden border-b border-border-soft p-5",
+          "h-[190px] overflow-hidden border-b border-border-soft p-4 md:h-[260px] md:p-5",
           tone === "primary" && "bg-primary/[0.07]",
           tone === "accent" && "bg-accent/[0.07]",
           tone === "warning" && "bg-warning/[0.08]",
@@ -1055,7 +1055,7 @@ function FeatureRow({
         <div className="flex h-full items-center justify-center">{children}</div>
       </div>
 
-      <div className="flex flex-1 flex-col p-6">
+      <div className="flex flex-1 flex-col p-5 md:p-6">
         <span
           aria-hidden="true"
           className={cn(
@@ -1658,7 +1658,7 @@ function FailRiskMockup() {
 function PremiumExplanation() {
   return (
     <section className="border-t border-border-soft">
-      <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
+      <div className="mx-auto max-w-6xl px-6 py-14 md:py-24">
         <div className="max-w-2xl">
           <h2 className="text-2xl font-extrabold leading-[1.15] tracking-[-0.025em] text-text-high md:text-3xl">
             정답만 알려주는 해설은
@@ -1670,7 +1670,7 @@ function PremiumExplanation() {
           </p>
         </div>
 
-        <div className="mt-12 grid auto-rows-fr items-stretch gap-4 lg:grid-cols-2">
+        <div className="mt-8 grid md:mt-12 auto-rows-fr items-stretch gap-4 lg:grid-cols-2">
           {/* Before */}
           <div className="flex h-full flex-col rounded-lg border border-border bg-surface p-7">
             <span className="w-fit rounded-md bg-danger/12 px-2.5 py-1 text-3xs font-bold uppercase tracking-[0.12em] text-danger">
@@ -1737,7 +1737,7 @@ function PremiumExplanation() {
 function Faq() {
   return (
     <section id="faq" className="border-t border-border-soft bg-surface-mute/50">
-      <div className="mx-auto max-w-3xl px-6 py-24 md:py-28">
+      <div className="mx-auto max-w-3xl px-6 py-14 md:py-24">
         <div className="text-center">
           <h2 className="text-2xl font-extrabold tracking-[-0.025em] text-text-high md:text-3xl">
             궁금하실 만한 것들
@@ -1794,7 +1794,7 @@ function AiTech() {
 
   return (
     <section className="bg-text-high text-background">
-      <div className="mx-auto max-w-6xl px-6 py-20 md:py-24">
+      <div className="mx-auto max-w-6xl px-6 py-14 md:py-20">
         <div className="max-w-2xl">
           <h2 className="text-3xl font-extrabold leading-[1.15] tracking-[-0.03em] md:text-4xl">
             이걸 사람이 다 쓸 순 없어요.
@@ -1807,7 +1807,7 @@ function AiTech() {
           </p>
         </div>
 
-        <ul className="mt-14 grid gap-x-12 gap-y-10 md:grid-cols-2">
+        <ul className="mt-10 grid md:mt-14 gap-x-12 gap-y-10 md:grid-cols-2">
           {cards.map(({ title, desc }) => (
             <li key={title} className="border-t border-background/20 pt-5">
               <h3 className="text-lg font-bold tracking-[-0.02em]">{title}</h3>
@@ -1908,7 +1908,7 @@ function Support() {
 
   return (
     <section className="bg-surface-mute/50">
-      <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
+      <div className="mx-auto max-w-6xl px-6 py-10 md:py-14">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,300px)_minmax(0,1fr)] lg:gap-16">
           <div>
             <h2 className="text-2xl font-extrabold tracking-[-0.03em] text-text-high md:text-3xl">
