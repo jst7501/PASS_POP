@@ -25,7 +25,7 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = buildMeta({
   title:
-    "PASSPOP — 세상에 없던 무료 CBT, 프리미엄 AI 해설 | 자격증·공무원 시험 올인원",
+    "PASSPOP — 세상에 없던 무료 CBT, 프리미엄 해설 | 자격증·공무원 시험 올인원",
   description:
     "한국사·컴활·정처기부터 9급 공무원까지. 가입 없이 기출 CBT를 풀고, 내가 고른 선택지를 기준으로 쓰인 해설을 받아요. 망각곡선 복습과 합격 예측까지. 곧 열어요.",
   path: "/",
@@ -140,7 +140,7 @@ const EXAM_CARDS: ExamCard[] = [
     stem: "단순보 중앙에 집중하중 P가 작용할 때 최대 처짐 위치는?",
     choices: ["지점 A", "지점 B", "보의 중앙", "지점 A에서 L/3 떨어진 곳"],
     correctIdx: 2,
-    tag: "AI 해설",
+    tag: "프리미엄 해설",
     accent: "primary",
   },
   {
@@ -250,7 +250,7 @@ const EXAM_CARDS: ExamCard[] = [
     stem: "하인리히 사고 발생 비율 1:29:300 에서 '300' 에 해당하는 것은?",
     choices: ["중상해", "경상해", "무상해 사고", "사망"],
     correctIdx: 2,
-    tag: "AI 해설",
+    tag: "프리미엄 해설",
     accent: "accent",
   },
   {
@@ -324,7 +324,7 @@ export default function LandingPage() {
     operatingSystem: "Web, iOS, Android",
     url: SITE_URL,
     description:
-      "자격증·공무원 시험 올인원 학습 플랫폼. 무료 기출 CBT, 프리미엄 AI 오답 해설, 망각곡선 복습, 합격 예측.",
+      "자격증·공무원 시험 올인원 학습 플랫폼. 무료 기출 CBT, 프리미엄 오답 해설, 망각곡선 복습, 합격 예측.",
     offers: {
       "@type": "Offer",
       price: "0",
@@ -334,11 +334,11 @@ export default function LandingPage() {
     inLanguage: "ko-KR",
     featureList: [
       "무료 기출문제 CBT",
-      "프리미엄 AI 오답 해설",
+      "프리미엄 오답 해설",
       "개념 카드 즉시 학습 (교재 없이)",
       "단계별 완전 풀이",
       "망각곡선 기반 복습 (SM-2)",
-      "AI 자동 단권화 노트",
+      "자동 단권화 노트",
       "합격 예측 (베이지안)",
       "과락 위험 진단 및 맞춤 출제",
       "오답노트 자동 생성",
@@ -663,7 +663,7 @@ function ExamPreviewCard({ exam }: { exam: ExamCard }) {
           <span
             className={cn(
               "shrink-0 rounded-md px-2 py-0.5 text-3xs font-bold uppercase tracking-[0.08em]",
-              exam.tag === "AI 해설" && "bg-accent/12 text-accent",
+              exam.tag === "프리미엄 해설" && "bg-accent/12 text-accent",
               exam.tag === "프리미엄" && "bg-primary/12 text-primary",
               exam.tag === "신규" && "bg-warning/15 text-warning",
               exam.tag === "오답분석" && "bg-accent/12 text-accent",
@@ -731,7 +731,7 @@ function ExamPreviewCard({ exam }: { exam: ExamCard }) {
       <footer className="mt-5 flex items-center justify-between border-t border-border-soft pt-4 text-2xs text-text-muted">
         <span className="inline-flex items-center gap-1">
           <CheckCircle className="h-3 w-3 text-accent" strokeWidth={2.5} />
-          즉시 채점 + AI 해설
+          즉시 채점 + 프리미엄 해설
         </span>
         <span className="inline-flex items-center gap-0.5 font-semibold text-text-mid opacity-0 transition-opacity group-hover:opacity-100">
           풀어보기
@@ -786,7 +786,7 @@ function Stats() {
 // Feature row + mockups
 // ─────────────────────────────────────────────────────────────
 
-// AI 오답 해설 — 풀이 카드 + AI 풍선
+// 프리미엄 오답 해설 — 풀이 카드 + AI 풍선
 
 // 망각곡선 복습 — 일정 막대 그래프
 
@@ -827,7 +827,7 @@ function Gateway() {
     },
     {
       href: "/ai",
-      label: "AI 기술",
+      label: "기술",
       title: "선택지마다 다른 해설을 쓰는 방법",
       desc: "해설 생성·약점 추정·복습 계산·합격 예측이 실제로 어떤 화면을 내보내는지.",
     },

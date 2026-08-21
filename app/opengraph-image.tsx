@@ -8,7 +8,7 @@ import {
 } from "@/lib/brand";
 
 export const runtime = "edge";
-export const alt = "PASSPOP — 자격증·공무원 시험 무료 기출문제 & AI 오답 해설";
+export const alt = "PASSPOP — 자격증·공무원 시험 무료 기출문제 & 프리미엄 오답 해설";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -121,7 +121,7 @@ export default async function OG() {
                 lineHeight: 1.5,
               }}
             >
-              찍은 오답까지 분석하는 AI 해설 · 망각곡선 복습 · 합격 예측
+              찍은 오답까지 분석하는 프리미엄 해설 · 망각곡선 복습 · 합격 예측
             </div>
           </div>
 

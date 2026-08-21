@@ -11,6 +11,7 @@ import {
   Xmark,
 } from "iconoir-react";
 import { useAutoSequence } from "@/components/demo-player";
+import { Md } from "@/components/md-lite";
 import { cn } from "@/lib/utils";
 
 /**
@@ -29,7 +30,27 @@ import { cn } from "@/lib/utils";
  * 안의 값은 화면 예시다. 사용자 실적 지표가 아니다.
  */
 
-const HOLDS = [1300, 900, 1700, 2600, 1700, 1800, 2000, 2800];
+const HOLDS = [1300, 900, 1700, 6200, 1900, 1900, 2100, 3000];
+
+/**
+ * 프리미엄 해설 — 정답만 알려주는 해설과 갈리는 지점.
+ *   1) 왜 그 번호에 끌렸는지부터 짚는다
+ *   2) 정답 근거를 사실로 못 박는다
+ *   3) 다음에 안 틀릴 암기 고리를 준다
+ * 마크다운으로 써서 굵게·목록·팁 상자가 그대로 살아난다.
+ */
+const EXPLANATION = `
+**③ 진흥왕**에 손이 가셨죠? 신라 왕 중에 업적이 제일 화려해서 그래요.
+
+- 화랑도 정비, 한강 유역 차지, 순수비 건립 — 전부 진흥왕이 맞아요
+- 그런데 그건 모두 **법흥왕이 깔아둔 틀 위에서** 넓힌 일이에요
+
+정답은 **② 법흥왕**이에요. **율령을 반포**해 나라의 기준을 세우고, **이차돈의 순교**를 계기로 **불교를 공인**했어요. 금관가야를 병합하고 연호 '건원'을 쓴 것도 이 왕입니다.
+
+> 이렇게 외워보세요
+> 지증왕 → 법흥왕 → 진흥왕
+> **이름 짓고 → 틀 만들고 → 넓힌다**
+`;
 const CHOICES = [
   { l: "①", t: "지증왕" },
   { l: "②", t: "법흥왕" },
@@ -255,7 +276,7 @@ function PanelLabel({ step }: { step: number }) {
     0: { icon: Sparks, text: "풀이 중" },
     1: { icon: Sparks, text: "풀이 중" },
     2: { icon: Xmark, text: "채점", ink: true },
-    3: { icon: Sparks, text: "③ 을 고른 사람에게 나가는 해설", ink: true },
+    3: { icon: Sparks, text: "프리미엄 해설 · ③ 을 고른 사람에게", ink: true },
     4: { icon: WarningTriangle, text: "자주 틀리는 유형", warn: true },
     5: { icon: Bookmark, text: "오답노트" },
     6: { icon: GraphUp, text: "약점 분석" },
@@ -301,15 +322,7 @@ function PanelBody({ step }: { step: number }) {
   }
 
   if (step === 3) {
-    return (
-      <Words
-        on
-        key="s3"
-        stagger={34}
-        className="text-2xs leading-[1.75]"
-        text="업적이 화려해서 손이 먼저 가는 왕이에요. 화랑도와 한강 유역은 전부 법흥왕이 만든 틀 위의 확장이라 순서가 뒤예요."
-      />
-    );
+    return <Md key="s3" src={EXPLANATION} tone="ink" />;
   }
 
   if (step === 4) {

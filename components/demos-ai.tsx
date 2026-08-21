@@ -5,7 +5,7 @@ import { Screens, StepDots, useAutoSequence } from "@/components/demo-player";
 import { cn } from "@/lib/utils";
 
 /**
- * AI 기술 4종 자동 재생 시연.
+ * 기술 4종 자동 재생 시연.
  *
  * 두 가지 방식을 쓴다:
  *   - 화면 전환(Screens): 시간이 흐르며 "다음 화면" 으로 넘어가는 기능

@@ -61,7 +61,7 @@ export async function generateMetadata({
   const gradeLabel = GRADE_LABEL[exam.category.grade];
   return buildMeta({
     title: `${exam.category.name} ${exam.year}년 ${exam.round}회 기출문제 CBT`,
-    description: `${exam.category.name} ${exam.year}년 ${exam.round}회 기출문제를 실제 시험과 동일한 ${exam.durationMin}분 CBT로. 과목별 출제 현황과 찍은 오답까지 분석하는 AI 해설. 무료, 회원가입 없이.`,
+    description: `${exam.category.name} ${exam.year}년 ${exam.round}회 기출문제를 실제 시험과 동일한 ${exam.durationMin}분 CBT로. 과목별 출제 현황과 찍은 오답까지 분석하는 프리미엄 해설. 무료, 회원가입 없이.`,
     path: `/exams/${slug}/rounds/${round}`,
     keywords: [
       exam.category.name,

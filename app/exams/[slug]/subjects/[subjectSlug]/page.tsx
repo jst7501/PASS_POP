@@ -67,7 +67,7 @@ export async function generateMetadata({
   const gradeLabel = GRADE_LABEL[subject.category.grade];
   return buildMeta({
     title: `${subject.name} — ${subject.category.name} 기출 문제풀이`,
-    description: `${subject.category.name} ${subject.name} 과목 기출문제 ${subject._count.questions}문제를 무료로. 순서대로·랜덤·오답만 모드와 찍은 오답까지 분석하는 AI 해설. 회원가입 없이 바로 풀이.`,
+    description: `${subject.category.name} ${subject.name} 과목 기출문제 ${subject._count.questions}문제를 무료로. 순서대로·랜덤·오답만 모드와 찍은 오답까지 분석하는 프리미엄 해설. 회원가입 없이 바로 풀이.`,
     path: `/exams/${slug}/subjects/${encodeURIComponent(subjectSlug)}`,
     keywords: [
       subject.name,

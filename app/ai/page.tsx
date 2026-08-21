@@ -17,7 +17,7 @@ export const dynamic = "force-static";
 export const revalidate = 3600;
 
 export const metadata: Metadata = buildMeta({
-  title: "AI 기술 — 선택지마다 다른 해설을 쓰는 방법",
+  title: "해설을 만드는 방법",
   description:
     "PASSPOP 이 해설을 쓰고, 무엇을 모르는지 추정하고, 복습일을 계산하고, 합격 확률을 내는 방식. 각 기능이 실제로 어떤 화면을 내보내는지 직접 보세요.",
   path: "/ai",
@@ -70,7 +70,7 @@ export default function AiPage() {
         data={[
           breadcrumbLd([
             { name: "홈", path: "/" },
-            { name: "AI 기술", path: "/ai" },
+            { name: "기술", path: "/ai" },
           ]),
         ]}
       />
@@ -83,7 +83,7 @@ export default function AiPage() {
               홈
             </Link>
             <span className="mx-1.5">/</span>
-            <span className="text-background/80">AI 기술</span>
+            <span className="text-background/80">기술</span>
           </nav>
 
           <h1 className="mt-5 max-w-3xl text-3xl font-extrabold leading-[1.18] tracking-[-0.035em] sm:text-4xl md:text-5xl">
@@ -141,7 +141,7 @@ export default function AiPage() {
         <div className="mx-auto max-w-3xl px-6 py-14 text-center md:py-20">
           <Reveal>
             <p className="mx-auto max-w-2xl text-xs leading-[1.8] text-text-muted">
-              AI 가 쓴 해설에는 오류가 있을 수 있어요. 핵심 개념 해설은 검수를
+              해설에는 오류가 있을 수 있어요. 핵심 개념 해설은 검수를
               거치고, 검수 전 생성분은 화면에 따로 표시해요. 합격 예측은 참고용
               추정치예요 — 실제 시험 결과를 보장하지 않습니다.
             </p>

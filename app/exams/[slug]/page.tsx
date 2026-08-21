@@ -42,8 +42,8 @@ export async function generateMetadata({
   }
   const gradeLabel = GRADE_LABEL[category.grade];
   return buildMeta({
-    title: `${category.name} 기출문제 무료 CBT · AI 오답 해설`,
-    description: `${category.name}(${gradeLabel}) 기출문제 ${category.totalQuestions}문제를 무료 CBT로. 과목별·회차별 풀이와 찍은 오답까지 분석하는 AI 해설. 회원가입 없이 바로 시작하세요.`,
+    title: `${category.name} 기출문제 무료 CBT · 프리미엄 오답 해설`,
+    description: `${category.name}(${gradeLabel}) 기출문제 ${category.totalQuestions}문제를 무료 CBT로. 과목별·회차별 풀이와 찍은 오답까지 분석하는 프리미엄 해설. 회원가입 없이 바로 시작하세요.`,
     path: `/exams/${slug}`,
     keywords: [
       category.name,
@@ -96,7 +96,7 @@ export default async function CategoryDetailPage({
           ]),
           courseLd({
             name: `${category.name} 기출문제`,
-            description: `${category.name}(${gradeLabel}) 기출문제 무료 CBT와 찍은 오답까지 분석하는 AI 해설.`,
+            description: `${category.name}(${gradeLabel}) 기출문제 무료 CBT와 찍은 오답까지 분석하는 프리미엄 해설.`,
             path: `/exams/${slug}`,
             gradeLabel,
           }),

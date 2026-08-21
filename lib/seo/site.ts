@@ -11,15 +11,15 @@ export const SITE_URL =
 export const SITE_NAME = "PASSPOP";
 
 export const SITE_TITLE_DEFAULT =
-  "PASSPOP — 자격증·공무원 시험 무료 기출문제 & AI 오답 해설";
+  "PASSPOP — 자격증·공무원 시험 무료 기출문제 & 프리미엄 오답 해설";
 
 export const SITE_TITLE_TEMPLATE = `%s · ${SITE_NAME}`;
 
 export const SITE_DESCRIPTION =
-  "기사·산업기사·기능사·공무원 시험을 한곳에서. 무료 기출문제 CBT, AI 오답 해설, 망각곡선 기반 복습, 합격 예측까지. 회원가입 없이 바로 풀어보세요.";
+  "기사·산업기사·기능사·공무원 시험을 한곳에서. 무료 기출문제 CBT, 프리미엄 오답 해설, 망각곡선 기반 복습, 합격 예측까지. 회원가입 없이 바로 풀어보세요.";
 
 export const SITE_SHORT_DESCRIPTION =
-  "자격증·공무원 시험 올인원 학습 플랫폼. 기출 CBT + AI 오답 해설 + 복습 스케줄.";
+  "자격증·공무원 시험 올인원 학습 플랫폼. 기출 CBT + 프리미엄 오답 해설 + 복습 스케줄.";
 
 export const SITE_LOCALE = "ko_KR";
 
@@ -37,7 +37,7 @@ export const SITE_KEYWORDS = [
   "기술사",
   "공무원 시험",
   "오답노트",
-  "AI 해설",
+  "프리미엄 해설",
   "AI 오답분석",
   "복습 스케줄",
   "망각곡선",

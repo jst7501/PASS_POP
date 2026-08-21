@@ -154,7 +154,7 @@ export function LiveAiExplanation() {
           <div className="flex items-center gap-1.5">
             <Sparks className="h-2.5 w-2.5 text-primary" strokeWidth={2.5} />
             <span className="text-4xs font-bold uppercase tracking-[0.1em] text-primary">
-              AI 해설
+              프리미엄 해설
             </span>
           </div>
           <Line

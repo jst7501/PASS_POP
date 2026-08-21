@@ -239,7 +239,7 @@ function LandingHeader() {
           aria-label="섹션 이동"
         >
           <HeaderAnchor href="/features">기능</HeaderAnchor>
-          <HeaderAnchor href="/ai">AI 기술</HeaderAnchor>
+          <HeaderAnchor href="/ai">기술</HeaderAnchor>
           <HeaderAnchor href="/cbt">시험 종목</HeaderAnchor>
           <HeaderAnchor href="/#faq">FAQ</HeaderAnchor>
         </nav>

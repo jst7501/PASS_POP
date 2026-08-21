@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = buildMeta({
   title: "시험 종목 전체 — 자격증·공무원 무료 기출 CBT",
   description:
-    "토목기사·정보처리기사·전기기사·건축기사부터 9급·7급 공무원까지. 종목별 기출문제를 무료 CBT로 풀고, 찍은 오답까지 AI가 분석합니다. 회원가입 없이 바로 시작하세요.",
+    "토목기사·정보처리기사·전기기사·건축기사부터 9급·7급 공무원까지. 종목별 기출문제를 무료 CBT로 풀고, 찍은 오답까지 분석합니다. 회원가입 없이 바로 시작하세요.",
   path: "/exams",
   keywords: [
     "자격증 종목",
