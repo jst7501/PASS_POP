@@ -17,9 +17,8 @@ import { cn } from "@/lib/utils";
 import { JsonLd } from "@/components/json-ld";
 import { WaitlistForm, WaitlistCount } from "@/components/waitlist-form";
 import { SEO_EXAMS, GRADE_LABEL } from "@/lib/seo/exams";
-import { HeroDemo } from "@/components/hero-demo";
+import { HeroFlow } from "@/components/hero-flow";
 import { Reveal } from "@/components/reveal";
-import { DemoAfterWrong } from "@/components/demo-after-wrong";
 
 export const dynamic = "force-static";
 export const revalidate = 3600;
@@ -364,9 +363,6 @@ export default function LandingPage() {
       <JsonLd data={[softwareLd, faqLd, breadcrumbLd]} />
 
       <Hero />
-      <Reveal>
-        <AfterWrong />
-      </Reveal>
       <CertStripCompact />
       <Reveal>
         <HowItWorks />
@@ -433,7 +429,7 @@ function Hero() {
           className="mx-auto mt-10 max-w-lg animate-slide-up text-left [animation-fill-mode:both]"
           style={{ animationDelay: "180ms" }}
         >
-          <HeroDemo />
+          <HeroFlow />
         </div>
 
         <div
@@ -516,57 +512,6 @@ function CertStripCompact() {
 // ─────────────────────────────────────────────────────────────
 // HOW IT WORKS — 3 스텝
 // ─────────────────────────────────────────────────────────────
-/**
- * 채점 이후에 뭐가 자동으로 일어나는지를 재생해서 보여준다.
- * 글로 "개인화 학습" 이라고 쓰면 아무 뜻도 전달되지 않는다.
- * 노트가 쌓이고 복습이 잡히는 걸 눈으로 봐야 한다.
- */
-function AfterWrong() {
-  return (
-    <section className="border-y border-border-soft bg-surface-mute/50">
-      <div className="mx-auto max-w-6xl px-6 py-14 md:py-24">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] lg:items-center lg:gap-16">
-          <div>
-            <h2 className="text-2xl font-extrabold leading-[1.2] tracking-[-0.03em] text-text-high md:text-3xl">
-              한 문제 틀렸을 뿐인데
-              <br />
-              혼자 이만큼 움직여요.
-            </h2>
-            <p className="mt-4 max-w-lg text-base text-text-mid">
-              해설을 읽고 나면 끝이 아니에요. 어떤 단원에서 계속 걸리는지
-              짚어두고, 오답노트와 개념카드를 만들고, 다시 낼 날짜까지
-              잡아둡니다.
-            </p>
-
-            <ul className="mt-7 space-y-3">
-              {[
-                "내가 고른 선택지 기준으로 쓰인 해설",
-                "계속 걸리는 단원 진단",
-                "오답노트 · 개념카드 자동 생성",
-                "SM-2 가 계산한 날짜에 재출제",
-              ].map((t) => (
-                <li
-                  key={t}
-                  className="flex items-start gap-2.5 text-sm text-text-mid"
-                >
-                  <CheckCircle
-                    className="mt-0.5 h-4 w-4 shrink-0 text-primary"
-                    strokeWidth={2.5}
-                  />
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="mx-auto w-full max-w-[440px]">
-            <DemoAfterWrong />
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 function HowItWorks() {
   const steps = [

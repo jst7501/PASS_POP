@@ -15,11 +15,11 @@ import { cn } from "@/lib/utils";
  *     내용은 전부 보여야 한다 (중간 단계에 멈춰 있으면 정보가 잘린다)
  *   - 마지막 단계는 다음 루프까지 넉넉히 붙잡는다. 결론이 스치면 못 읽는다
  */
-export function useAutoSequence(
+export function useAutoSequence<T extends HTMLElement = HTMLDivElement>(
   /** 각 단계를 붙잡을 시간(ms). 길이가 곧 단계 수 */
   holds: number[],
 ) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<T>(null);
   const [step, setStep] = useState(0);
   const [inView, setInView] = useState(true);
   const [reduced, setReduced] = useState(false);

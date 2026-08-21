@@ -22,14 +22,14 @@ import { cn } from "@/lib/utils";
  */
 
 /** 글이 써지는 동안 깜빡이는 커서 */
-function Caret({ on }: { on: boolean }) {
+export function Caret({ on }: { on: boolean }) {
   return on ? (
     <span className="ml-0.5 inline-block h-[0.9em] w-[2px] translate-y-[2px] animate-pulse bg-primary align-baseline" />
   ) : null;
 }
 
 /** 한 줄씩 차오르는 글 */
-function Line({
+export function Line({
   show,
   children,
   className,
@@ -52,7 +52,7 @@ function Line({
 }
 
 /** 높이를 모르는 영역을 부드럽게 펼친다 */
-function Expand({
+export function Expand({
   open,
   children,
 }: {

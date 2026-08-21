@@ -6,12 +6,7 @@ import { breadcrumbLd } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/json-ld";
 import { Reveal } from "@/components/reveal";
 import { WaitlistForm } from "@/components/waitlist-form";
-import {
-  AllInOne,
-  Categories,
-  Features,
-  PremiumExplanation,
-} from "@/components/landing-sections";
+import { Features, PremiumExplanation } from "@/components/landing-sections";
 
 export const dynamic = "force-static";
 export const revalidate = 3600;
@@ -66,15 +61,9 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      <AllInOne />
-      <Reveal>
-        <Features />
-      </Reveal>
+      <Features />
       <Reveal>
         <PremiumExplanation />
-      </Reveal>
-      <Reveal>
-        <Categories />
       </Reveal>
 
       <section className="border-t border-border-soft bg-surface-mute/50">
