@@ -134,3 +134,40 @@ export function Cue({
     </div>
   );
 }
+
+/**
+ * 화면 전환 — 항목이 쌓이는 게 아니라 앱 화면 자체가 넘어가는 것처럼 보이게 한다.
+ *
+ * 활성 화면만 흐름에 남겨 높이를 잡고(relative), 나머지는 겹쳐 둔다(absolute).
+ * 지나간 화면은 왼쪽으로, 올 화면은 오른쪽에서 — 실제 앱 내비게이션과 같은 방향.
+ */
+export function Screens({
+  step,
+  screens,
+  className,
+}: {
+  step: number;
+  screens: React.ReactNode[];
+  className?: string;
+}) {
+  return (
+    <div className={cn("relative overflow-hidden", className)}>
+      {screens.map((node, i) => (
+        <div
+          key={i}
+          aria-hidden={i !== step}
+          className={cn(
+            "transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none",
+            i === step
+              ? "relative translate-x-0 opacity-100"
+              : "pointer-events-none absolute inset-0 opacity-0",
+            i < step && "-translate-x-4",
+            i > step && "translate-x-4",
+          )}
+        >
+          {node}
+        </div>
+      ))}
+    </div>
+  );
+}
