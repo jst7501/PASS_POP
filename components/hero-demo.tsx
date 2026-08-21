@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Refresh } from "iconoir-react";
+import { CheckCircle, Refresh } from "iconoir-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -71,6 +71,7 @@ export function HeroDemo() {
   const [picked, setPicked] = useState<number | null>(null);
   const answered = picked !== null;
   const choice = answered ? CHOICES[picked] : null;
+  const isCorrect = picked === QUESTION.correctIdx;
 
   return (
     <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-[0_20px_50px_-32px_rgb(var(--text-high)/0.4)]">
@@ -79,9 +80,9 @@ export function HeroDemo() {
         aria-live="polite"
         className={cn(
           "p-5 transition-colors md:p-6",
-          answered
-            ? "bg-primary text-primary-fg"
-            : "border-b border-border bg-surface-mute",
+          !answered && "border-b border-border bg-surface-mute",
+          answered && isCorrect && "bg-primary text-primary-fg",
+          answered && !isCorrect && "bg-text-high text-background",
         )}
       >
         {!answered ? (
@@ -101,21 +102,38 @@ export function HeroDemo() {
           </>
         ) : (
           <div key={picked} className="animate-slide-up [animation-fill-mode:both]">
-            <p className="text-3xs font-bold uppercase tracking-[0.16em] text-primary-fg/70">
-              {choice!.label} 를 고른 사람에게 나가는 해설
+            <p
+              className={cn(
+                "text-3xs font-bold uppercase tracking-[0.16em]",
+                isCorrect ? "text-primary-fg/70" : "text-background/60",
+              )}
+            >
+              {isCorrect
+                ? "정답이에요 · 이 사람에게 나가는 해설"
+                : `${choice!.label} 를 고른 사람에게 나가는 해설`}
             </p>
             <p className="mt-3 text-sm font-medium leading-[1.8] md:text-base">
               {choice!.feedback}
             </p>
             {choice!.hook && (
-              <p className="mt-4 border-t border-primary-fg/25 pt-4 text-xs font-bold">
+              <p
+                className={cn(
+                  "mt-4 border-t pt-4 text-xs font-bold",
+                  isCorrect ? "border-primary-fg/25" : "border-background/25",
+                )}
+              >
                 외울 후크 · {choice!.hook}
               </p>
             )}
             <button
               type="button"
               onClick={() => setPicked(null)}
-              className="mt-5 inline-flex items-center gap-1.5 text-2xs font-semibold text-primary-fg/70 transition-colors hover:text-primary-fg"
+              className={cn(
+                "mt-5 inline-flex items-center gap-1.5 text-2xs font-semibold transition-colors",
+                isCorrect
+                  ? "text-primary-fg/70 hover:text-primary-fg"
+                  : "text-background/60 hover:text-background",
+              )}
             >
               <Refresh className="h-3 w-3" strokeWidth={2.5} />
               다른 번호도 눌러보기
@@ -143,6 +161,9 @@ export function HeroDemo() {
         <ul className="mt-4 space-y-1.5">
           {CHOICES.map((c, i) => {
             const isPicked = picked === i;
+            const isAnswer = i === QUESTION.correctIdx;
+            const showRight = answered && isAnswer;
+            const showWrong = answered && isPicked && !isAnswer;
             return (
               <li key={c.label}>
                 <button
@@ -151,23 +172,34 @@ export function HeroDemo() {
                   aria-pressed={isPicked}
                   className={cn(
                     "flex w-full items-center gap-3 rounded-md border px-3.5 py-3 text-left text-sm font-medium transition-colors",
-                    isPicked
-                      ? "border-primary bg-primary/[0.08] text-text-high"
-                      : "border-border-soft text-text-mid hover:border-primary/60 hover:bg-primary/[0.04]",
+                    !answered &&
+                      "border-border-soft text-text-mid hover:border-primary/60 hover:bg-primary/[0.04]",
+                    showRight && "border-primary bg-primary/[0.08] text-text-high",
+                    showWrong && "border-danger bg-danger/[0.07] text-danger",
+                    answered &&
+                      !showRight &&
+                      !showWrong &&
+                      "border-border-soft text-text-muted",
                   )}
                 >
                   <span
                     className={cn(
                       "font-bold",
-                      isPicked ? "text-primary" : "text-text-muted",
+                      showRight && "text-primary",
+                      showWrong && "text-danger",
+                      !showRight && !showWrong && "text-text-muted",
                     )}
                   >
                     {c.label}
                   </span>
                   <span className="flex-1 break-keep">{c.text}</span>
-                  {isPicked && (
-                    <span className="shrink-0 text-3xs font-bold text-primary">
-                      내 선택
+                  {showWrong && (
+                    <span className="shrink-0 text-3xs font-bold">내 선택</span>
+                  )}
+                  {showRight && (
+                    <span className="inline-flex shrink-0 items-center gap-1 text-3xs font-bold text-primary">
+                      {isPicked && "내 선택 · "}정답
+                      <CheckCircle className="h-3.5 w-3.5" strokeWidth={2.5} />
                     </span>
                   )}
                 </button>
