@@ -397,12 +397,14 @@ export default function LandingPage() {
 function Hero() {
   return (
     <section>
-      <div className="mx-auto max-w-3xl px-6 pb-16 pt-16 text-center md:pt-24">
+      <div className="mx-auto max-w-3xl px-6 pb-16 pt-12 text-center md:pt-20">
         {/* 등장은 CSS 애니메이션으로만 — JS 가 없어도 반드시 보인다.
             fill-mode:both 라 지연 중에도 최종 상태가 보장된다. */}
-        <h1 className="animate-slide-up text-4xl font-extrabold leading-[1.1] tracking-[-0.04em] text-text-high [animation-fill-mode:both] md:text-5xl">
-          <span className="text-primary">②</span> 를 고른 사람과{" "}
-          <span className="text-primary">④</span> 를 고른 사람은
+        <h1 className="animate-slide-up text-4xl font-extrabold leading-[1.12] tracking-[-0.04em] text-text-high [animation-fill-mode:both] md:text-5xl">
+          <span className="text-text-mid">
+            <span className="text-primary">②</span> 를 고른 사람과{" "}
+            <span className="text-primary">④</span> 를 고른 사람은
+          </span>
           <br />
           다른 해설을 받아요.
         </h1>
@@ -416,7 +418,7 @@ function Hero() {
 
         {/* 직접 풀어보는 문항 — 이 제품의 차이를 말로 설명하는 대신 만지게 한다 */}
         <div
-          className="mx-auto mt-12 max-w-lg animate-slide-up text-left [animation-fill-mode:both]"
+          className="mx-auto mt-10 max-w-lg animate-slide-up text-left [animation-fill-mode:both]"
           style={{ animationDelay: "180ms" }}
         >
           <HeroDemo />
