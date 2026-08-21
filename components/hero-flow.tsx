@@ -10,7 +10,7 @@ import {
   WarningTriangle,
   Xmark,
 } from "iconoir-react";
-import { useAutoSequence } from "@/components/demo-player";
+import { StoryBars, useAutoSequence } from "@/components/demo-player";
 import { Md } from "@/components/md-lite";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
  * 안의 값은 화면 예시다. 사용자 실적 지표가 아니다.
  */
 
-const HOLDS = [1300, 900, 1700, 6200, 1900, 1900, 2100, 3000];
+const HOLDS = [1100, 800, 1400, 3400, 1400, 1500, 1700, 2400];
 
 /**
  * 프리미엄 해설 — 정답만 알려주는 해설과 갈리는 지점.
@@ -99,33 +99,15 @@ function GrowPanel({
   );
 }
 
-/** 단어가 하나씩 차오른다 — 문단이 통째로 뜨면 끊겨 보인다 */
-function Words({
-  text,
-  on,
-  className,
-  stagger = 42,
-}: {
-  text: string;
-  on: boolean;
-  className?: string;
-  stagger?: number;
-}) {
+/**
+ * 옆에서 슥 들어온다.
+ *
+ * 단어를 하나씩 띄우면 글이 다 나올 때까지 기다려야 해서 실제보다 길게 느껴진다.
+ * 통째로 밀어 넣으면 바로 읽기 시작할 수 있고, 넘어간 것도 눈에 보인다.
+ */
+function Slide({ text, className }: { text: string; className?: string }) {
   return (
-    <span className={className}>
-      {text.split(" ").map((w, i) => (
-        <span
-          key={i}
-          style={{ transitionDelay: on ? `${i * stagger}ms` : "0ms" }}
-          className={cn(
-            "inline-block whitespace-pre transition-[opacity,transform] duration-400 ease-out motion-reduce:transition-none",
-            on ? "translate-y-0 opacity-100" : "translate-y-[3px] opacity-0",
-          )}
-        >
-          {w}{" "}
-        </span>
-      ))}
-    </span>
+    <span className={cn("block animate-slide-in", className)}>{text}</span>
   );
 }
 
@@ -146,7 +128,7 @@ const TONE = {
 } as const;
 
 export function HeroFlow() {
-  const { ref, step } = useAutoSequence(HOLDS);
+  const { ref, step, jump } = useAutoSequence(HOLDS);
   const picking = step === 1;
   const graded = step >= 2;
   const justGraded = step === 2;
@@ -160,8 +142,6 @@ export function HeroFlow() {
     return () => window.clearTimeout(t);
   }, [justGraded]);
 
-  const progress = ((step + 1) / HOLDS.length) * 100;
-
   return (
     <div ref={ref}>
       <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-[0_20px_50px_-32px_rgb(var(--text-high)/0.4)]">
@@ -174,12 +154,12 @@ export function HeroFlow() {
             </span>
             <span className="text-3xs text-text-muted">자동 재생</span>
           </div>
-          <span className="block h-[2px] w-full bg-border/60">
-            <span
-              className="block h-full bg-primary transition-[width] duration-700 ease-linear"
-              style={{ width: `${progress}%` }}
-            />
-          </span>
+          <StoryBars
+            holds={HOLDS}
+            step={step}
+            onJump={jump}
+            className="px-4 pb-2.5"
+          />
         </div>
 
         <div className="p-4 md:p-5">
@@ -312,8 +292,7 @@ function PanelLabel({ step }: { step: number }) {
 function PanelBody({ step }: { step: number }) {
   if (step <= 1) {
     return (
-      <Words
-        on
+      <Slide
         key="s0"
         className="text-2xs leading-[1.7] text-text-mid"
         text={step === 1 ? "③ 을 고르는 중…" : "가입 없이 바로 풀 수 있어요."}
@@ -323,8 +302,7 @@ function PanelBody({ step }: { step: number }) {
 
   if (step === 2) {
     return (
-      <Words
-        on
+      <Slide
         key="s2"
         className="text-2xs leading-[1.7]"
         text="③ 진흥왕 — 오답이에요. 정답은 ② 법흥왕."
@@ -338,8 +316,7 @@ function PanelBody({ step }: { step: number }) {
 
   if (step === 4) {
     return (
-      <Words
-        on
+      <Slide
         key="s4"
         className="text-2xs leading-[1.7] text-text-mid"
         text="왕 계보 순서 문제에서만 4번 중 3번 걸리셨어요."
@@ -351,14 +328,14 @@ function PanelBody({ step }: { step: number }) {
     return (
       <div key="s5">
         <p className="flex items-center gap-2 text-2xs text-text-mid">
-          <Words on className="flex-1" text="신라 왕 계보 — 법흥왕" />
+          <Slide className="flex-1" text="신라 왕 계보 — 법흥왕" />
           <span className="shrink-0 font-bold tabular-nums text-primary">
             +1 · <Roll value={13} />
             문항
           </span>
         </p>
         <p className="mt-1.5 text-3xs text-text-muted">
-          <Words on stagger={30} text="개념카드도 같이 만들어 뒀어요" />
+          <Slide text="개념카드도 같이 만들어 뒀어요" />
         </p>
       </div>
     );
@@ -402,10 +379,10 @@ function PanelBody({ step }: { step: number }) {
   return (
     <div key="s7">
       <p className="text-2xs leading-[1.7] text-text-mid">
-        <Words on text="3일 뒤 비슷한 함정으로 다시 낼게요." />
+        <Slide text="3일 뒤 비슷한 함정으로 다시 낼게요." />
       </p>
       <p className="mt-2 border-t border-primary/20 pt-2 text-3xs font-bold text-text-high">
-        <Words on stagger={38} text="여기까지 누른 건 선택지 하나뿐이에요." />
+        <Slide text="여기까지 누른 건 선택지 하나뿐이에요." />
       </p>
     </div>
   );

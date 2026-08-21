@@ -177,3 +177,52 @@ export function Screens({
     </div>
   );
 }
+
+/**
+ * 스토리형 진행 표시 — 한 칸이 그 장면의 시간만큼 차오른다.
+ *
+ * 통짜 막대 하나로는 "지금 넘어갔다" 가 안 보인다. 칸을 장면 수만큼 쪼개고
+ * 현재 칸만 채우면 몇 장 중 몇 번째인지, 언제 넘어갈지가 같이 읽힌다.
+ * 칸을 눌러 그 장면으로 바로 갈 수 있다.
+ */
+export function StoryBars({
+  holds,
+  step,
+  onJump,
+  className,
+}: {
+  holds: number[];
+  step: number;
+  onJump?: (i: number) => void;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex items-center gap-1", className)}>
+      {holds.map((ms, i) => (
+        <button
+          key={i}
+          type="button"
+          onClick={onJump ? () => onJump(i) : undefined}
+          aria-label={`${i + 1}번째 장면`}
+          aria-current={i === step}
+          disabled={!onJump}
+          className="group h-4 flex-1"
+        >
+          <span className="block h-1 w-full overflow-hidden rounded-full bg-border">
+            <span
+              key={i === step ? `run-${step}` : `idle-${i}`}
+              style={i === step ? { animationDuration: `${ms}ms` } : undefined}
+              className={cn(
+                "block h-full origin-left rounded-full bg-primary",
+                i < step && "scale-x-100",
+                i === step &&
+                  "animate-[fill-bar_linear_forwards] motion-reduce:scale-x-100",
+                i > step && "scale-x-0",
+              )}
+            />
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}

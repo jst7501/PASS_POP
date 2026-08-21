@@ -623,7 +623,7 @@ function BrowseSection() {
         <AutoSlides
           className="mt-8 md:mt-12"
           minH="min-h-[340px]"
-          hold={5000}
+          hold={4000}
           labels={LANDING_SAMPLE_CARDS.map((c) => c.grade)}
           slides={LANDING_SAMPLE_CARDS.map((c, i) => (
             <div key={i} className="mx-auto max-w-md">

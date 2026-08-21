@@ -8,7 +8,7 @@ import {
   Sparks,
   Xmark,
 } from "iconoir-react";
-import { useAutoSequence } from "@/components/demo-player";
+import { StoryBars, useAutoSequence } from "@/components/demo-player";
 import { Md } from "@/components/md-lite";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
  * 안의 값은 전부 화면 예시다. 사용자 실적 지표가 아니다.
  */
 
-const HOLDS = [1900, 6200, 3400, 3200, 3600];
+const HOLDS = [1500, 3600, 2600, 2400, 2800];
 
 const STEPS = [
   {
@@ -140,6 +140,12 @@ export function StudyFlow() {
             </span>
             <span className="text-4xs text-text-muted">자동 재생</span>
           </div>
+          <StoryBars
+            holds={HOLDS}
+            step={step}
+            onJump={jump}
+            className="px-4 pb-2"
+          />
 
           <div className="p-4">
             <p className="text-3xs font-bold leading-[1.5] text-text-high">

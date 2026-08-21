@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle, Xmark } from "iconoir-react";
-import { useAutoSequence } from "@/components/demo-player";
+import { StoryBars, useAutoSequence } from "@/components/demo-player";
 import { cn } from "@/lib/utils";
 
 /**
@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
  * 안의 값은 전부 화면 예시다. 사용자 실적이나 모델 성능 지표가 아니다.
  */
 
-const HOLDS = [2600, 2600, 2800, 3400];
+const HOLDS = [2000, 2000, 2200, 2800];
 
 const FRAMES = [
   {
@@ -126,6 +126,12 @@ export function TechFlow() {
               풀이 {f.solved}회
             </span>
           </div>
+          <StoryBars
+            holds={HOLDS}
+            step={step}
+            onJump={jump}
+            className="px-4 pb-2"
+          />
 
           <div className="space-y-4 p-4">
             {/* 단원별 추정 */}

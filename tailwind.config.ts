@@ -132,6 +132,16 @@ export default {
           from: { opacity: "0", transform: "translateY(16px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        // 진행 막대 한 칸이 시간에 맞춰 차오른다 (스토리 표시)
+        "fill-bar": {
+          from: { transform: "scaleX(0)" },
+          to: { transform: "scaleX(1)" },
+        },
+        // 옆에서 슥 들어온다 / 나간다
+        "slide-in": {
+          from: { opacity: "0", transform: "translateX(14px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
         // 정답 순간 링이 퍼졌다 사라진다
         "ring-out": {
           "0%": { transform: "scale(0.9)", opacity: "0.55" },
@@ -154,6 +164,7 @@ export default {
         "slide-up": "slide-up 320ms cubic-bezier(0.4, 0, 0.2, 1)",
         shake: "shake 420ms cubic-bezier(0.36, 0.07, 0.19, 0.97)",
         "ring-out": "ring-out 620ms ease-out",
+        "slide-in": "slide-in 320ms cubic-bezier(0.22, 1, 0.36, 1)",
         "roll-up": "roll-up 420ms cubic-bezier(0.34, 1.56, 0.64, 1)",
       },
       transitionTimingFunction: {

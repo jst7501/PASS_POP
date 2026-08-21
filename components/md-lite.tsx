@@ -70,7 +70,7 @@ function Rich({
   text,
   on,
   start = 0,
-  stagger = 26,
+  stagger = 0,
   strongClass,
 }: {
   text: string;
@@ -130,7 +130,7 @@ export function Md({
     t.replace(/\*\*/g, "").split(" ").filter(Boolean).length;
 
   return (
-    <div className={cn("space-y-2.5", className)}>
+    <div className={cn("animate-slide-in space-y-2.5", className)}>
       {blocks.map((b, i) => {
         if (b.kind === "p") {
           const s = cursor;
