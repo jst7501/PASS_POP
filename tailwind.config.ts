@@ -113,7 +113,8 @@ export default {
       boxShadow: {
         // 컬러 블리드 제거 — 채도 없는 얇은 그림자만
         soft: "0 1px 2px 0 rgb(0 0 0 / 0.04)",
-        "soft-lg": "0 1px 2px 0 rgb(0 0 0 / 0.04), 0 4px 12px -4px rgb(0 0 0 / 0.08)",
+        "soft-lg":
+          "0 1px 2px 0 rgb(0 0 0 / 0.04), 0 4px 12px -4px rgb(0 0 0 / 0.08)",
         pop: "0 1px 2px 0 rgb(0 0 0 / 0.05), 0 2px 8px -2px rgb(0 0 0 / 0.08)",
         "pop-sm": "0 1px 2px 0 rgb(0 0 0 / 0.06)",
       },
@@ -131,6 +132,16 @@ export default {
           from: { opacity: "0", transform: "translateY(16px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        // 정답 순간 링이 퍼졌다 사라진다
+        "ring-out": {
+          "0%": { transform: "scale(0.9)", opacity: "0.55" },
+          "100%": { transform: "scale(1.5)", opacity: "0" },
+        },
+        // 카운터 숫자가 굴러 올라간다
+        "roll-up": {
+          from: { transform: "translateY(60%)", opacity: "0" },
+          to: { transform: "translateY(0)", opacity: "1" },
+        },
         shake: {
           "0%, 100%": { transform: "translateX(0)" },
           "25%": { transform: "translateX(-4px)" },
@@ -141,7 +152,9 @@ export default {
         "fade-in": "fade-in 240ms cubic-bezier(0.4, 0, 0.2, 1)",
         "pop-in": "pop-in 360ms cubic-bezier(0.34, 1.56, 0.64, 1)",
         "slide-up": "slide-up 320ms cubic-bezier(0.4, 0, 0.2, 1)",
-        shake: "shake 180ms ease-in-out",
+        shake: "shake 420ms cubic-bezier(0.36, 0.07, 0.19, 0.97)",
+        "ring-out": "ring-out 620ms ease-out",
+        "roll-up": "roll-up 420ms cubic-bezier(0.34, 1.56, 0.64, 1)",
       },
       transitionTimingFunction: {
         pop: "cubic-bezier(0.34, 1.56, 0.64, 1)",
