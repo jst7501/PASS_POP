@@ -593,7 +593,7 @@ function AllInOne() {
       <div className="mx-auto max-w-6xl px-6 pb-20 md:pb-24">
         <Reveal>
           <div className="max-w-2xl">
-            <h2 className="text-3xl font-extrabold leading-[1.15] tracking-[-0.03em] text-text-high md:text-4xl">
+            <h2 className="text-2xl font-extrabold leading-[1.15] tracking-[-0.03em] text-text-high md:text-3xl">
               앱 여러 개,
               <br />
               안 켜도 돼요.
@@ -637,7 +637,7 @@ function BrowseSection() {
       <div className="mx-auto max-w-6xl px-6 pb-16 pt-20 md:pb-20 md:pt-24">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-xl">
-            <h2 className="text-3xl font-extrabold tracking-[-0.025em] text-text-high md:text-4xl">
+            <h2 className="text-2xl font-extrabold tracking-[-0.025em] text-text-high md:text-3xl">
               실제 풀이 화면, 그대로.
             </h2>
             <p className="mt-3 text-base leading-[1.6] text-text-mid md:text-base">
@@ -820,14 +820,14 @@ function Stats() {
   ];
   return (
     <section className="bg-surface-mute/50">
-      <div className="mx-auto max-w-6xl border-y border-border px-6 py-8">
-        <ul className="grid grid-cols-2 gap-y-6 md:grid-cols-4 md:gap-x-6">
+      <div className="mx-auto max-w-6xl border-y border-border px-6 py-12 md:py-16">
+        <ul className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4">
           {items.map((it) => (
-            <li key={it.label} className="text-center md:text-left">
-              <p className="text-2xl font-extrabold tabular-nums tracking-[-0.03em] text-text-high md:text-3xl">
+            <li key={it.label}>
+              <p className="text-4xl font-extrabold tabular-nums leading-none tracking-[-0.045em] text-primary md:text-5xl">
                 {it.value}
               </p>
-              <p className="mt-1 text-2xs font-medium uppercase tracking-[0.12em] text-text-muted">
+              <p className="mt-3 text-xs font-semibold text-text-mid">
                 {it.label}
               </p>
             </li>
@@ -880,7 +880,7 @@ function Categories() {
     <section id="categories">
       <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
         <div className="max-w-2xl">
-          <h2 className="text-3xl font-extrabold tracking-[-0.025em] text-text-high md:text-4xl">
+          <h2 className="text-2xl font-extrabold tracking-[-0.025em] text-text-high md:text-3xl">
             기능사부터 공무원까지.
           </h2>
           <p className="mt-3 text-base leading-[1.65] text-text-mid md:text-base">
@@ -1043,7 +1043,15 @@ function FeatureRow({
 }) {
   return (
     <li className="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface transition-colors hover:border-text-muted">
-      <div className="h-[260px] overflow-hidden border-b border-border-soft bg-surface-mute/50 p-5">
+      <div
+        className={cn(
+          "h-[260px] overflow-hidden border-b border-border-soft p-5",
+          tone === "primary" && "bg-primary/[0.07]",
+          tone === "accent" && "bg-accent/[0.07]",
+          tone === "warning" && "bg-warning/[0.08]",
+          tone === "neutral" && "bg-surface-mute",
+        )}
+      >
         <div className="flex h-full items-center justify-center">{children}</div>
       </div>
 
@@ -1652,7 +1660,7 @@ function PremiumExplanation() {
     <section className="border-t border-border-soft">
       <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
         <div className="max-w-2xl">
-          <h2 className="text-3xl font-extrabold leading-[1.15] tracking-[-0.025em] text-text-high md:text-4xl">
+          <h2 className="text-2xl font-extrabold leading-[1.15] tracking-[-0.025em] text-text-high md:text-3xl">
             정답만 알려주는 해설은
             <br />
             이제 그만.
@@ -1731,7 +1739,7 @@ function Faq() {
     <section id="faq" className="border-t border-border-soft bg-surface-mute/50">
       <div className="mx-auto max-w-3xl px-6 py-24 md:py-28">
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold tracking-[-0.025em] text-text-high md:text-4xl">
+          <h2 className="text-2xl font-extrabold tracking-[-0.025em] text-text-high md:text-3xl">
             궁금하실 만한 것들
           </h2>
         </div>

@@ -105,14 +105,14 @@ export const metadata: Metadata = {
   other: {
     // theme-color 는 아래 viewport.themeColor 가 라이트/다크로 내보낸다.
     // 여기서 또 선언하면 meta 가 두 개 나가고 값도 어긋난다.
-    "msapplication-TileColor": "#2C5282",
+    "msapplication-TileColor": "#047857",
   },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FAF8F4" },
-    { media: "(prefers-color-scheme: dark)", color: "#181615" },
+    { media: "(prefers-color-scheme: light)", color: "#FBFCFD" },
+    { media: "(prefers-color-scheme: dark)", color: "#111517" },
   ],
   colorScheme: "light dark",
   width: "device-width",

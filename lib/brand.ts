@@ -25,17 +25,17 @@ export const LOGO_STROKE = 4;
 
 /** 브랜드 컬러 — globals.css 의 CSS 변수와 반드시 같은 값. */
 export const BRAND = {
-  /** 스틸 블루 */
-  primary: "#2C5282",
-  /** 크림 페이퍼 */
-  paper: "#FAF8F4",
-  /** 웜 차콜 */
-  ink: "#18161A",
-  /** 웜 미드 */
-  inkMid: "#5E5852",
-  /** 딥 제이드 */
-  mint: "#0C7256",
-  /** 웜 보더 */
-  border: "#E8E3DC",
+  /** 딥 에메랄드 */
+  primary: "#047857",
+  /** 거의 흰 종이 */
+  paper: "#FBFCFD",
+  /** 잉크 */
+  ink: "#191F28",
+  /** 중간 회색 */
+  inkMid: "#4E5968",
+  /** 액센트 — 시그니처와 같은 값 */
+  mint: "#047857",
+  /** 보더 */
+  border: "#E5E8EB",
   white: "#FFFFFF",
 } as const;

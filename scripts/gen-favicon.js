@@ -8,7 +8,7 @@ const { PNG } = require("pngjs");
 
 const OUT = process.argv[2];
 
-const PRIMARY = [0x2c, 0x52, 0x82]; // lib/brand.ts BRAND.primary 와 동일
+const PRIMARY = [0x04, 0x78, 0x57]; // lib/brand.ts BRAND.primary 와 동일
 const WHITE = [255, 255, 255];
 
 // lib/brand.ts 와 동일한 값
