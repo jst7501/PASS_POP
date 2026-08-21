@@ -396,7 +396,7 @@ export default function LandingPage() {
  */
 function Hero() {
   return (
-    <section className="border-b border-border-soft">
+    <section>
       <div className="mx-auto max-w-3xl px-6 pb-16 pt-16 text-center md:pt-24">
         {/* 등장은 CSS 애니메이션으로만 — JS 가 없어도 반드시 보인다.
             fill-mode:both 라 지연 중에도 최종 상태가 보장된다. */}
@@ -412,13 +412,11 @@ function Hero() {
           style={{ animationDelay: "90ms" }}
         >
           기출 CBT 는 이미 여러 곳에 있어요. 우리가 다른 건 해설이에요.
-          <br className="hidden sm:block" />
-          틀릴 수 있는 선택지마다 해설을 따로 씁니다.
         </p>
 
         {/* 직접 풀어보는 문항 — 이 제품의 차이를 말로 설명하는 대신 만지게 한다 */}
         <div
-          className="mx-auto mt-12 max-w-md animate-slide-up text-left [animation-fill-mode:both]"
+          className="mx-auto mt-12 max-w-lg animate-slide-up text-left [animation-fill-mode:both]"
           style={{ animationDelay: "180ms" }}
         >
           <HeroDemo />
@@ -459,7 +457,7 @@ function Hero() {
 function CertStrip() {
   return (
     <section
-      className="border-y border-border-soft bg-surface-mute/40"
+      className="border-y border-border-soft"
       aria-label="수록 예정 종목"
     >
       <div className="mx-auto max-w-6xl px-6 py-7">
@@ -519,7 +517,7 @@ function HowItWorks() {
   ];
 
   return (
-    <section className="mx-auto max-w-6xl px-6 py-20 md:py-24">
+    <section className="mx-auto max-w-6xl px-6 pb-16 pt-20 md:pb-20 md:pt-24">
       <h2 className="max-w-lg text-3xl font-extrabold tracking-[-0.03em] text-text-high md:text-4xl">
         공부 계획,
         <br />
@@ -589,8 +587,8 @@ function AllInOne() {
   ];
 
   return (
-    <section className="border-y border-border-soft bg-surface-mute/30">
-      <div className="mx-auto max-w-6xl px-6 py-20 md:py-24">
+    <section>
+      <div className="mx-auto max-w-6xl px-6 pb-20 md:pb-24">
         <Reveal>
           <div className="max-w-2xl">
             <h2 className="text-3xl font-extrabold leading-[1.15] tracking-[-0.03em] text-text-high md:text-4xl">
@@ -633,8 +631,8 @@ function AllInOne() {
 // ─────────────────────────────────────────────────────────────
 function BrowseSection() {
   return (
-    <section id="browse" className="border-b border-border-soft">
-      <div className="mx-auto max-w-6xl px-6 pb-16 pt-16 md:pb-28 md:pt-24">
+    <section id="browse" className="border-t border-border-soft bg-surface-mute/50">
+      <div className="mx-auto max-w-6xl px-6 pb-16 pt-20 md:pb-20 md:pt-24">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-xl">
             <h2 className="text-3xl font-extrabold tracking-[-0.025em] text-text-high md:text-4xl">
@@ -665,12 +663,9 @@ function BrowseSection() {
 
         {/* 같은 형태의 카드를 12장 늘어놓아도 정보가 늘지 않는다.
             등급이 다른 세 장만 보여주고 나머지는 /cbt 로 넘긴다. */}
-        <ul className="no-scrollbar -mx-6 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-4 md:mx-0 md:mt-12 md:grid md:auto-rows-fr md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0 md:pb-0">
+        <ul className="mt-8 grid auto-rows-fr gap-3 md:mt-12 md:grid-cols-3 md:gap-4">
           {LANDING_SAMPLE_CARDS.map((c, i) => (
-            <li
-              key={i}
-              className="w-[82%] shrink-0 snap-start md:w-auto md:shrink"
-            >
+            <li key={i}>
               <ExamPreviewCard exam={c} />
             </li>
           ))}
@@ -822,8 +817,8 @@ function Stats() {
     { label: "복습 알고리즘", value: "SM-2" },
   ];
   return (
-    <section className="border-b border-border-soft bg-surface-mute/40">
-      <div className="mx-auto max-w-6xl px-6 py-10">
+    <section className="bg-surface-mute/50">
+      <div className="mx-auto max-w-6xl border-y border-border px-6 py-8">
         <ul className="grid grid-cols-2 gap-y-6 md:grid-cols-4 md:gap-x-6">
           {items.map((it) => (
             <li key={it.label} className="text-center md:text-left">
@@ -880,7 +875,7 @@ function Categories() {
   ];
 
   return (
-    <section id="categories" className="border-b border-border-soft">
+    <section id="categories">
       <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
         <div className="max-w-2xl">
           <h2 className="text-3xl font-extrabold tracking-[-0.025em] text-text-high md:text-4xl">
@@ -934,11 +929,8 @@ function Categories() {
 // ─────────────────────────────────────────────────────────────
 function Features() {
   return (
-    <section
-      id="features"
-      className="border-b border-border-soft bg-surface-mute/30"
-    >
-      <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
+    <section id="features" className="bg-surface-mute/50">
+      <div className="mx-auto max-w-6xl px-6 pb-20 pt-16 md:pb-24 md:pt-20">
         <div className="max-w-2xl">
           <h2 className="text-3xl font-extrabold leading-[1.15] tracking-[-0.025em] text-text-high md:text-4xl">
             무료 사이트인데,
@@ -1655,7 +1647,7 @@ function FailRiskMockup() {
 // ─────────────────────────────────────────────────────────────
 function PremiumExplanation() {
   return (
-    <section className="border-b border-border-soft">
+    <section className="border-t border-border-soft">
       <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
         <div className="max-w-2xl">
           <h2 className="text-3xl font-extrabold leading-[1.15] tracking-[-0.025em] text-text-high md:text-4xl">
@@ -1734,10 +1726,7 @@ function PremiumExplanation() {
 // ─────────────────────────────────────────────────────────────
 function Faq() {
   return (
-    <section
-      id="faq"
-      className="border-b border-border-soft bg-surface-mute/30"
-    >
+    <section id="faq" className="border-t border-border-soft bg-surface-mute/50">
       <div className="mx-auto max-w-3xl px-6 py-24 md:py-28">
         <div className="text-center">
           <h2 className="text-3xl font-extrabold tracking-[-0.025em] text-text-high md:text-4xl">
@@ -1836,7 +1825,7 @@ function AiTech() {
 // ─────────────────────────────────────────────────────────────
 function FinalCta() {
   return (
-    <section id="waitlist" className="border-b border-border-soft">
+    <section id="waitlist" className="bg-surface-mute/50">
       <div className="mx-auto max-w-3xl px-6 py-24 text-center md:py-32">
         <h2 className="text-4xl font-extrabold leading-[1.05] tracking-[-0.035em] text-text-high md:text-5xl">
           곧 열어요.
@@ -1908,7 +1897,7 @@ function Support() {
   ];
 
   return (
-    <section className="bg-surface-mute/30">
+    <section className="bg-surface-mute/50">
       <div className="mx-auto max-w-6xl px-6 py-16 md:py-20">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,300px)_minmax(0,1fr)] lg:gap-16">
           <div>
