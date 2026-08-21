@@ -12,6 +12,11 @@ import {
 } from "iconoir-react";
 import { GRADE_LABEL, GRADE_ORDER, SEO_EXAMS } from "@/lib/seo/exams";
 import { Reveal } from "@/components/reveal";
+import {
+  LiveAiExplanation,
+  LiveConceptCard,
+  LiveStepSolution,
+} from "@/components/mockups-live";
 import { cn } from "@/lib/utils";
 
 /**
@@ -288,7 +293,7 @@ export function Features() {
             desc="내가 고른 그 선택지를 기준으로 분석해요. 왜 헷갈렸는지부터, 다음에 안 틀리게 외울 후크까지."
             tone="primary"
           >
-            <AiExplanationMockup />
+            <LiveAiExplanation />
           </FeatureRow>
 
           <FeatureRow
@@ -296,7 +301,7 @@ export function Features() {
             desc="틀린 그 문제에서 바로 개념을 펼칩니다. 공식 유도부터 단골 함정까지 — 교재 펴지 않고 막힌 자리에서 학습."
             tone="primary"
           >
-            <ConceptCardMockup />
+            <LiveConceptCard />
           </FeatureRow>
 
           <FeatureRow
@@ -304,7 +309,7 @@ export function Features() {
             desc="계산 과목도 건너뛰는 단계 없이 보여줘요. 모르는 줄은 '이 줄 왜?' 를 누르면 그 한 줄만 더 자세히 풀어줘요."
             tone="accent"
           >
-            <StepSolutionMockup />
+            <LiveStepSolution />
           </FeatureRow>
 
           <FeatureRow
@@ -432,84 +437,6 @@ export function FeatureRow({
         <p className="mt-2 text-sm text-text-mid">{desc}</p>
       </div>
     </li>
-  );
-}
-
-export function AiExplanationMockup() {
-  return (
-    <div className="w-full max-w-[300px] space-y-2">
-      {/* 문제 미니 */}
-      <div className="rounded-md border border-border bg-surface px-3 py-2.5 shadow-sm">
-        <div className="flex items-center gap-1.5">
-          <span className="rounded-sm bg-primary/10 px-1.5 py-0.5 font-mono text-4xs font-bold uppercase tracking-wider text-primary">
-            기사
-          </span>
-          <span className="font-mono text-3xs font-bold text-text-mid">
-            Q.07
-          </span>
-          <span className="font-mono text-4xs text-text-muted">응용역학</span>
-        </div>
-        <div className="mt-1.5 space-y-1">
-          {[
-            { l: "①", t: "지점 A", state: "off" },
-            { l: "②", t: "지점 B", state: "wrong" },
-            { l: "③", t: "보의 중앙", state: "correct" },
-            { l: "④", t: "L/3 떨어진 곳", state: "off" },
-          ].map((c) => (
-            <div
-              key={c.l}
-              className={cn(
-                "flex items-center gap-1.5 rounded-sm px-1.5 py-1 text-3xs",
-                c.state === "correct" && "bg-accent/10 text-text-high",
-                c.state === "wrong" && "bg-danger/10 text-text-high",
-                c.state === "off" && "text-text-mid",
-              )}
-            >
-              <span
-                className={cn(
-                  "font-mono font-bold",
-                  c.state === "correct" && "text-accent",
-                  c.state === "wrong" && "text-danger",
-                  c.state === "off" && "text-text-muted",
-                )}
-              >
-                {c.l}
-              </span>
-              <span>{c.t}</span>
-              {c.state === "correct" && (
-                <CheckCircle
-                  className="ml-auto h-2.5 w-2.5 text-accent"
-                  strokeWidth={2.5}
-                />
-              )}
-              {c.state === "wrong" && (
-                <span className="ml-auto font-mono text-4xs font-semibold text-danger">
-                  내 선택
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* AI 해설 풍선 */}
-      <div className="relative rounded-md border-2 border-primary/40 bg-primary/[0.05] px-3 py-2.5 shadow-sm">
-        <div className="flex items-center gap-1.5">
-          <span className="inline-flex h-4 w-4 items-center justify-center rounded-sm bg-primary text-primary-fg">
-            <Sparks className="h-2.5 w-2.5" strokeWidth={2.5} />
-          </span>
-          <span className="font-mono text-4xs font-bold uppercase tracking-wider text-primary">
-            AI 해설
-          </span>
-        </div>
-        <p className="mt-1.5 text-2xs font-semibold leading-[1.45] text-text-high">
-          ②번 찍으셨네요. 부호 한 끗 차이의 함정 패턴이에요.
-        </p>
-        <p className="mt-1 text-3xs leading-[1.45] text-text-mid">
-          외울 후크 · 부호 = 방향, 헷갈리면 단위부터.
-        </p>
-      </div>
-    </div>
   );
 }
 
@@ -791,92 +718,6 @@ export function NoAdsMockup() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-export function ConceptCardMockup() {
-  return (
-    <div className="w-full max-w-[300px] space-y-2">
-      {/* 문제 + 펼치기 트리거 */}
-      <div className="flex items-center justify-between gap-2 rounded-md border border-border bg-surface px-3 py-2 shadow-sm">
-        <div className="flex min-w-0 items-center gap-1.5">
-          <span className="font-mono text-3xs font-bold text-text-mid">
-            Q.07
-          </span>
-          <span className="truncate text-3xs font-semibold text-text-high">
-            단순보 최대 처짐 위치는?
-          </span>
-        </div>
-        <span className="inline-flex shrink-0 items-center rounded-sm bg-primary/10 px-1.5 py-0.5 font-mono text-4xs font-bold text-primary">
-          개념 펼치기 ▾
-        </span>
-      </div>
-
-      {/* 펼쳐진 개념 카드 */}
-      <div className="rounded-md border-2 border-primary/40 bg-primary/[0.04] px-3 py-2.5 shadow-sm">
-        <div className="flex items-center gap-1.5">
-          <span className="inline-flex h-4 w-4 items-center justify-center rounded-sm bg-primary text-primary-fg">
-            <OpenBook className="h-2.5 w-2.5" strokeWidth={2.5} />
-          </span>
-          <span className="font-mono text-4xs font-bold uppercase tracking-wider text-primary">
-            개념 · 단순보 처짐
-          </span>
-        </div>
-        <p className="mt-1.5 text-3xs leading-[1.5] text-text-high">
-          중앙 집중하중이면{" "}
-          <strong className="font-bold">최대 처짐은 보의 중앙</strong>에서 발생.
-        </p>
-        <p className="mt-1.5 rounded-sm bg-surface px-2 py-1 text-center font-mono text-2xs font-bold text-text-high">
-          δ<sub>max</sub> = PL³ / 48EI
-        </p>
-        <p className="mt-1.5 text-4xs leading-[1.45] text-warning">
-          ⚠ 함정: 등분포하중이면 5wL⁴ / 384EI — 공식이 다름
-        </p>
-      </div>
-    </div>
-  );
-}
-
-export function StepSolutionMockup() {
-  const steps = [
-    { n: "①", t: "반력 산정", v: "R_A = P/2", why: false },
-    { n: "②", t: "처짐 공식 적용", v: "δ = PL³/48EI", why: true },
-    { n: "③", t: "값 대입·계산", v: "δ = 2.1 mm", why: false },
-  ];
-  return (
-    <div className="w-full max-w-[300px] rounded-md border border-border bg-surface p-3.5 shadow-sm">
-      <div className="flex items-center justify-between border-b border-border-soft pb-2">
-        <p className="text-2xs font-bold text-text-high">풀이 · 단계별</p>
-        <span className="font-mono text-4xs text-text-muted">
-          건너뛴 단계 0
-        </span>
-      </div>
-      <ul className="mt-2.5 space-y-2">
-        {steps.map((s) => (
-          <li key={s.n}>
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-2xs font-bold text-accent">
-                {s.n}
-              </span>
-              <span className="flex-1 text-3xs font-medium text-text-high">
-                {s.t}
-              </span>
-              <span className="font-mono text-3xs text-text-mid">{s.v}</span>
-            </div>
-            {s.why && (
-              <div className="ml-5 mt-1 flex items-start gap-1.5 rounded-sm border-l-2 border-accent/50 bg-accent/[0.06] px-2 py-1">
-                <span className="shrink-0 font-mono text-4xs font-bold text-accent">
-                  이 줄 왜?
-                </span>
-                <span className="text-4xs leading-[1.4] text-text-mid">
-                  중앙하중 단순보의 표준 처짐식이라서.
-                </span>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
