@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   Bookmark,
   CheckCircle,
@@ -61,13 +61,43 @@ const MINE = 2;
 const ANSWER = 1;
 
 /**
- * 아래 칸의 자리를 미리 잡아둔다.
+ * 아래 칸을 내용 높이에 맞춰 늘렸다 줄인다.
  *
- * 단계마다 높이를 재서 늘리면 카드가 커졌다 작아지고, 그때마다 아래 페이지
- * 전체가 밀린다. 가장 긴 단계(프리미엄 해설)에 맞춰 자리를 고정하고
- * 짧은 단계에서는 여백을 남기는 편이 낫다.
+ * 가장 긴 단계에 맞춰 고정하면 짧은 단계에서 빈 공간이 크게 남는다.
+ * 히어로는 첫 화면이라 사람 시선이 여기 머물러 있고, 아래로 밀리는 것도
+ * 스크롤 밖이라 거슬리지 않는다. 대신 전환을 길게(600ms) 잡아
+ * 툭 바뀌는 게 아니라 숨쉬듯 늘어나게 한다.
+ *
+ * 아래쪽 섹션에서는 이렇게 하지 않는다 — 거기서는 읽던 자리가 밀린다.
  */
-const PANEL_MIN = "min-h-[268px] md:min-h-[248px]";
+const PANEL_FLOOR = 132;
+
+function GrowPanel({
+  dep,
+  children,
+}: {
+  dep: number;
+  children: React.ReactNode;
+}) {
+  const inner = useRef<HTMLDivElement>(null);
+  const [h, setH] = useState<number | undefined>(undefined);
+
+  useLayoutEffect(() => {
+    const el = inner.current;
+    if (!el) return;
+    const next = el.offsetHeight;
+    if (next > 0) setH(Math.max(next, PANEL_FLOOR));
+  }, [dep]);
+
+  return (
+    <div
+      style={h ? { height: h } : { minHeight: PANEL_FLOOR }}
+      className="overflow-hidden transition-[height] duration-[600ms] ease-out motion-reduce:transition-none"
+    >
+      <div ref={inner}>{children}</div>
+    </div>
+  );
+}
 
 /** 단어가 하나씩 차오른다 — 문단이 통째로 뜨면 끊겨 보인다 */
 function Words({
@@ -226,10 +256,10 @@ export function HeroFlow() {
 
           {/* 아래 칸 — 높이가 실제로 늘었다 줄어든다 */}
           <div className="mt-3">
-            <div className={PANEL_MIN}>
+            <GrowPanel dep={step}>
               <div
                 className={cn(
-                  "h-full rounded-md border p-3.5 transition-colors duration-500",
+                  "rounded-md border p-3.5 transition-colors duration-500",
                   step <= 1 && TONE.plain,
                   step === 2 || step === 3 ? TONE.ink : "",
                   step === 4 && TONE.warn,
@@ -241,7 +271,7 @@ export function HeroFlow() {
                   <PanelBody step={step} />
                 </div>
               </div>
-            </div>
+            </GrowPanel>
           </div>
         </div>
       </div>
