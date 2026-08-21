@@ -51,12 +51,13 @@ export default function FeaturesPage() {
           </nav>
 
           <h1 className="mt-5 max-w-3xl text-3xl font-extrabold leading-[1.18] tracking-[-0.035em] text-text-high sm:text-4xl md:text-5xl">
-            무료 사이트인데,
+            틀린 다음에
             <br />
-            유료 앱보다 자세합니다.
+            일어나는 일들.
           </h1>
           <p className="mt-5 max-w-2xl text-base text-text-mid">
-            푸는 것만 되는 곳은 이미 많아요. 틀린 다음에 뭘 해주는지가 다릅니다.
+            해설을 읽고 끝나지 않아요. 노트가 쌓이고, 약점이 잡히고, 복습 날짜가
+            정해집니다.
           </p>
         </div>
       </section>

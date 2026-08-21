@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Bookmark,
   CheckCircle,
@@ -60,33 +60,14 @@ const CHOICES = [
 const MINE = 2;
 const ANSWER = 1;
 
-/** 내용 높이를 재서 부드럽게 늘렸다 줄인다 */
-function AutoHeight({
-  dep,
-  children,
-}: {
-  dep: number;
-  children: React.ReactNode;
-}) {
-  const inner = useRef<HTMLDivElement>(null);
-  const [h, setH] = useState<number | undefined>(undefined);
-
-  useLayoutEffect(() => {
-    const el = inner.current;
-    if (!el) return;
-    const next = el.offsetHeight;
-    if (next > 0) setH(next);
-  }, [dep]);
-
-  return (
-    <div
-      style={h ? { height: h } : undefined}
-      className="overflow-hidden transition-[height] duration-500 ease-out motion-reduce:transition-none"
-    >
-      <div ref={inner}>{children}</div>
-    </div>
-  );
-}
+/**
+ * 아래 칸의 자리를 미리 잡아둔다.
+ *
+ * 단계마다 높이를 재서 늘리면 카드가 커졌다 작아지고, 그때마다 아래 페이지
+ * 전체가 밀린다. 가장 긴 단계(프리미엄 해설)에 맞춰 자리를 고정하고
+ * 짧은 단계에서는 여백을 남기는 편이 낫다.
+ */
+const PANEL_MIN = "min-h-[268px] md:min-h-[248px]";
 
 /** 단어가 하나씩 차오른다 — 문단이 통째로 뜨면 끊겨 보인다 */
 function Words({
@@ -245,10 +226,10 @@ export function HeroFlow() {
 
           {/* 아래 칸 — 높이가 실제로 늘었다 줄어든다 */}
           <div className="mt-3">
-            <AutoHeight dep={step}>
+            <div className={PANEL_MIN}>
               <div
                 className={cn(
-                  "rounded-md border p-3.5 transition-colors duration-500",
+                  "h-full rounded-md border p-3.5 transition-colors duration-500",
                   step <= 1 && TONE.plain,
                   step === 2 || step === 3 ? TONE.ink : "",
                   step === 4 && TONE.warn,
@@ -260,7 +241,7 @@ export function HeroFlow() {
                   <PanelBody step={step} />
                 </div>
               </div>
-            </AutoHeight>
+            </div>
           </div>
         </div>
       </div>

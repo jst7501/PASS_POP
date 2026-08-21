@@ -19,6 +19,7 @@ import { WaitlistForm, WaitlistCount } from "@/components/waitlist-form";
 import { SEO_EXAMS, GRADE_LABEL } from "@/lib/seo/exams";
 import { HeroFlow } from "@/components/hero-flow";
 import { Reveal } from "@/components/reveal";
+import { AutoSlides } from "@/components/auto-slides";
 
 export const dynamic = "force-static";
 export const revalidate = 3600;
@@ -542,19 +543,23 @@ function HowItWorks() {
         세 단계가 알아서 돌아가거든요.
       </p>
 
-      <ol className="mt-10 grid md:mt-14 gap-x-10 gap-y-12 md:grid-cols-3">
-        {steps.map(({ step, title, desc }) => (
-          <li key={step} className="border-t-2 border-text-high pt-5">
+      {/* 세로로 쌓으면 이 구간만 화면 몇 개 분량이 된다. 한 자리에서 넘긴다. */}
+      <AutoSlides
+        className="mt-8 md:mt-12"
+        minH="min-h-[168px] md:min-h-[136px]"
+        labels={steps.map((x) => x.step)}
+        slides={steps.map(({ step, title, desc }) => (
+          <div key={step} className="border-t-2 border-text-high pt-5">
             <span className="text-2xs font-bold tabular-nums tracking-[0.16em] text-text-muted">
               {step}
             </span>
-            <h3 className="mt-3 text-xl font-bold tracking-[-0.02em] text-text-high">
+            <h3 className="mt-3 text-2xl font-extrabold tracking-[-0.03em] text-text-high md:text-3xl">
               {title}
             </h3>
-            <p className="mt-3 text-sm text-text-mid">{desc}</p>
-          </li>
+            <p className="mt-3 max-w-xl text-base text-text-mid">{desc}</p>
+          </div>
         ))}
-      </ol>
+      />
     </section>
   );
 }
@@ -585,7 +590,7 @@ function BrowseSection() {
             </p>
 
             <p className="mt-4 text-2xs text-text-muted">
-              아래는 그중 세 문제예요.
+              등급별로 한 문제씩 넘겨가며 보여드릴게요.
             </p>
           </div>
 
@@ -603,13 +608,17 @@ function BrowseSection() {
 
         {/* 같은 형태의 카드를 12장 늘어놓아도 정보가 늘지 않는다.
             등급이 다른 세 장만 보여주고 나머지는 /cbt 로 넘긴다. */}
-        <ul className="mt-8 grid auto-rows-fr gap-3 md:mt-12 md:grid-cols-3 md:gap-4">
-          {LANDING_SAMPLE_CARDS.map((c, i) => (
-            <li key={i}>
+        <AutoSlides
+          className="mt-8 md:mt-12"
+          minH="min-h-[340px]"
+          hold={5000}
+          labels={LANDING_SAMPLE_CARDS.map((c) => c.grade)}
+          slides={LANDING_SAMPLE_CARDS.map((c, i) => (
+            <div key={i} className="mx-auto max-w-md">
               <ExamPreviewCard exam={c} />
-            </li>
+            </div>
           ))}
-        </ul>
+        />
 
         <div className="mt-10 text-center">
           <a
@@ -842,9 +851,14 @@ function Gateway() {
   return (
     <section className="border-y border-border-soft bg-surface-mute/50">
       <div className="mx-auto max-w-6xl px-6 py-14 md:py-24">
-        <h2 className="max-w-lg text-2xl font-extrabold leading-[1.25] tracking-[-0.03em] text-text-high md:text-3xl">
-          더 자세히 볼 곳
+        <h2 className="max-w-xl text-3xl font-extrabold leading-[1.2] tracking-[-0.035em] text-text-high md:text-4xl">
+          무료 사이트인데,
+          <br />
+          유료 앱보다 자세합니다.
         </h2>
+        <p className="mt-4 max-w-lg text-base text-text-mid">
+          푸는 것만 되는 곳은 이미 많아요. 틀린 다음에 뭘 해주는지가 다릅니다.
+        </p>
 
         <ul className="mt-8 grid gap-3 md:mt-10 md:grid-cols-3 md:gap-4">
           {doors.map((d, i) => (

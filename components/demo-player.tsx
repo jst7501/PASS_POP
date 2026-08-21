@@ -64,7 +64,13 @@ export function useAutoSequence<T extends HTMLElement = HTMLDivElement>(
     setRunId((n) => n + 1);
   }, []);
 
-  return { ref, step, replay, reduced, playing: inView && !reduced };
+  /** 직접 특정 장면으로. 누른 순간부터 그 장면의 시간이 다시 시작된다. */
+  const jump = useCallback((n: number) => {
+    setStep(n);
+    setRunId((r) => r + 1);
+  }, []);
+
+  return { ref, step, replay, jump, reduced, playing: inView && !reduced };
 }
 
 /** 몇 번째 장면인지 알려주는 점 — 멈춘 건지 도는 건지 구분되게 */
