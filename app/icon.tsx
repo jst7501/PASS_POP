@@ -1,4 +1,11 @@
 import { ImageResponse } from "next/og";
+import {
+  BRAND,
+  LOGO_CHECK_D,
+  LOGO_RING_D,
+  LOGO_STROKE,
+  LOGO_VIEWBOX,
+} from "@/lib/brand";
 
 export const runtime = "edge";
 export const size = { width: 192, height: 192 };
@@ -14,24 +21,23 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0a0a0a",
-          borderRadius: 36,
+          background: BRAND.primary,
+          borderRadius: 42,
         }}
       >
-        <svg
-          width="120"
-          height="120"
-          viewBox="0 0 32 32"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <rect x="1.5" y="1.5" width="29" height="29" rx="6" fill="#3b82f6" />
+        <svg width="112" height="112" viewBox={LOGO_VIEWBOX} fill="none">
           <path
-            d="M 11.5 9 H 17 C 19.8 9 22 11.2 22 14 C 22 16.8 19.8 19 17 19 H 14 V 23"
-            stroke="white"
-            strokeWidth="2.6"
+            d={LOGO_RING_D}
+            stroke={BRAND.white}
+            strokeWidth={LOGO_STROKE}
+            strokeLinecap="round"
+          />
+          <path
+            d={LOGO_CHECK_D}
+            stroke={BRAND.white}
+            strokeWidth={LOGO_STROKE}
             strokeLinecap="round"
             strokeLinejoin="round"
-            fill="none"
           />
         </svg>
       </div>

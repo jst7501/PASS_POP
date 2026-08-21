@@ -138,7 +138,7 @@ export function WaitlistForm({
             disabled={pending}
             aria-invalid={state.kind === "error"}
             className={cn(
-              "h-12 flex-1 rounded-lg border bg-surface px-4 text-[14px] text-text-high placeholder:text-text-muted transition-colors focus:outline-none focus:ring-2",
+              "h-12 w-full rounded-lg border bg-surface px-4 text-field text-text-high placeholder:text-text-muted transition-colors focus:outline-none focus:ring-2 sm:flex-1",
               state.kind === "error"
                 ? "border-danger focus:border-danger focus:ring-danger/30"
                 : "border-border focus:border-primary focus:ring-primary/30",
@@ -149,7 +149,7 @@ export function WaitlistForm({
             type="submit"
             disabled={pending || email.trim().length === 0}
             className={cn(
-              "inline-flex h-12 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-primary px-6 text-[14px] font-bold text-primary-fg transition-colors active:scale-[0.98]",
+              "inline-flex h-12 w-full shrink-0 items-center justify-center gap-1.5 rounded-lg bg-primary px-6 text-field font-bold text-primary-fg transition-colors active:scale-[0.98] sm:w-auto",
               pending || email.trim().length === 0
                 ? "cursor-not-allowed opacity-60"
                 : "hover:bg-primary-hover",
@@ -171,7 +171,7 @@ export function WaitlistForm({
           <fieldset className="mt-3 rounded-lg border border-border-soft bg-surface/60 p-4 text-left">
             {/* legend 는 보더를 뚫고 지나가서 지저분해진다 — 접근성만 남기고 시각은 p 로 */}
             <legend className="sr-only">추가 정보 (모두 선택 입력)</legend>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
+            <p className="text-xs font-semibold text-text-muted">
               선택 · 알려주시면 이 종목부터 엽니다
             </p>
 
@@ -179,7 +179,7 @@ export function WaitlistForm({
               <div>
                 <label
                   htmlFor="wl-cert"
-                  className="block text-[12px] font-medium text-text-mid"
+                  className="block text-sm font-medium text-text-mid"
                 >
                   목표 종목
                 </label>
@@ -192,14 +192,14 @@ export function WaitlistForm({
                   value={targetCert}
                   onChange={(e) => setTargetCert(e.target.value)}
                   disabled={pending}
-                  className="mt-1.5 h-10 w-full rounded-md border border-border bg-surface px-3 text-[13.5px] text-text-high placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
+                  className="mt-1.5 h-12 w-full rounded-lg border border-border bg-surface px-4 text-field text-text-high placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="wl-grade"
-                  className="block text-[12px] font-medium text-text-mid"
+                  className="block text-sm font-medium text-text-mid"
                 >
                   등급
                 </label>
@@ -210,7 +210,7 @@ export function WaitlistForm({
                     value={targetGrade}
                     onChange={(e) => setTargetGrade(e.target.value)}
                     disabled={pending}
-                    className="h-10 w-full appearance-none rounded-md border border-border bg-surface px-3 pr-9 text-[13.5px] text-text-high focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
+                    className="h-12 w-full appearance-none rounded-lg border border-border bg-surface px-4 pr-10 text-field text-text-high focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
                   >
                     <option value="">선택 안 함</option>
                     {GRADES.map((g) => (
@@ -225,7 +225,7 @@ export function WaitlistForm({
               <div className="sm:col-span-2">
                 <label
                   htmlFor="wl-timing"
-                  className="block text-[12px] font-medium text-text-mid"
+                  className="block text-sm font-medium text-text-mid"
                 >
                   시험 예정 시기
                 </label>
@@ -236,7 +236,7 @@ export function WaitlistForm({
                     value={timing}
                     onChange={(e) => setTiming(e.target.value)}
                     disabled={pending}
-                    className="h-10 w-full appearance-none rounded-md border border-border bg-surface px-3 pr-9 text-[13.5px] text-text-high focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
+                    className="h-12 w-full appearance-none rounded-lg border border-border bg-surface px-4 pr-10 text-field text-text-high focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/25"
                   >
                     <option value="">선택 안 함</option>
                     {TIMINGS.map((t) => (
@@ -249,13 +249,13 @@ export function WaitlistForm({
               </div>
             </div>
 
-            <label className="mt-4 flex cursor-pointer items-start gap-2.5 text-[12px] leading-[1.6] text-text-mid">
+            <label className="mt-4 flex cursor-pointer items-start gap-2.5 text-xs leading-[1.6] text-text-mid">
               <input
                 type="checkbox"
                 checked={marketingOptIn}
                 onChange={(e) => setMarketingOptIn(e.target.checked)}
                 disabled={pending}
-                className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-[rgb(var(--primary))]"
+                className="mt-0.5 h-4 w-4 shrink-0 accent-[rgb(var(--primary))]"
               />
               <span>
                 오픈 안내 외에{" "}
@@ -291,7 +291,7 @@ export function WaitlistForm({
 
       {/* 보조 안내 */}
       {state.kind === "idle" && (
-        <ul className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[11.5px] text-text-muted">
+        <ul className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-2xs text-text-muted">
           <li className="inline-flex items-center gap-1.5">
             <Lock className="h-3 w-3" strokeWidth={2} />
             스팸 없음 · 오픈 안내만 1회
@@ -345,7 +345,7 @@ export function WaitlistCount({ className }: { className?: string }) {
   if (count === null || count < COUNT_FLOOR) return null;
 
   return (
-    <p className={cn("text-[12.5px] text-text-mid", className)}>
+    <p className={cn("text-xs text-text-mid", className)}>
       지금까지{" "}
       <strong className="font-bold tabular-nums text-text-high">
         {count.toLocaleString("ko-KR")}명
@@ -366,15 +366,15 @@ function SuccessCard({ compact }: { compact?: boolean }) {
       <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-accent/15 text-accent">
         <CheckCircle className="h-6 w-6" strokeWidth={2.5} />
       </span>
-      <h3 className="mt-4 text-[18px] font-bold tracking-[-0.01em] text-text-high">
+      <h3 className="mt-4 text-lg font-bold tracking-[-0.01em] text-text-high">
         사전예약 완료!
       </h3>
-      <p className="mt-2 text-[13.5px] leading-[1.65] text-text-mid">
+      <p className="mt-2 text-sm leading-[1.65] text-text-mid">
         정식 오픈 시 등록하신 이메일로 안내드릴게요.
         <br />
         적어주신 종목은 오픈 순서를 정할 때 먼저 반영합니다.
       </p>
-      <p className="mt-4 text-[11px] text-text-muted">
+      <p className="mt-4 text-2xs text-text-muted">
         받은편지함을 열어보지 않으셔도 자동으로 도착해요.
       </p>
     </div>
@@ -413,14 +413,14 @@ function StatusBanner({
       <div>
         <p
           className={cn(
-            "text-[13px] font-semibold",
+            "text-sm font-semibold",
             tone === "info" && "text-accent",
             tone === "danger" && "text-danger",
           )}
         >
           {title}
         </p>
-        <p className="mt-0.5 text-[12px] leading-[1.55] text-text-mid">{desc}</p>
+        <p className="mt-0.5 text-xs leading-[1.55] text-text-mid">{desc}</p>
       </div>
     </div>
   );

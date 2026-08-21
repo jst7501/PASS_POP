@@ -3,6 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 import { JsonLd } from "@/components/json-ld";
 import { ThemeProvider } from "@/components/theme-provider";
+import { LogoLockup, LogoMark } from "@/components/brand";
 import {
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
@@ -102,8 +103,9 @@ export const metadata: Metadata = {
     },
   },
   other: {
-    "msapplication-TileColor": "#5B4BFF",
-    "theme-color": "#5B4BFF",
+    // theme-color 는 아래 viewport.themeColor 가 라이트/다크로 내보낸다.
+    // 여기서 또 선언하면 meta 가 두 개 나가고 값도 어긋난다.
+    "msapplication-TileColor": "#2C5282",
   },
 };
 
@@ -224,10 +226,7 @@ function LandingHeader() {
           className="inline-flex items-center gap-2 transition-opacity hover:opacity-80"
           aria-label="PASSPOP 홈"
         >
-          <LogoMark className="h-7 w-7" />
-          <span className="text-[17px] font-bold tracking-[-0.02em] text-text-high">
-            PASSPOP
-          </span>
+          <LogoLockup />
         </Link>
 
         <nav
@@ -242,7 +241,7 @@ function LandingHeader() {
 
         <Link
           href="#waitlist"
-          className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-[13px] font-semibold text-primary-fg transition-all hover:bg-primary-hover active:scale-[0.98]"
+          className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-fg transition-all hover:bg-primary-hover active:scale-[0.98]"
         >
           오픈 알림 받기
         </Link>
@@ -261,7 +260,7 @@ function HeaderAnchor({
   return (
     <a
       href={href}
-      className="rounded-md px-3 py-2 text-[13.5px] font-medium text-text-mid transition-colors hover:bg-surface-mute hover:text-text-high"
+      className="rounded-md px-3 py-2 text-sm font-medium text-text-mid transition-colors hover:bg-surface-mute hover:text-text-high"
     >
       {children}
     </a>
@@ -274,21 +273,21 @@ function LandingFooter() {
       <div className="mx-auto max-w-6xl px-6 py-12">
         <div className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
-            <LogoMark className="h-7 w-7" />
+            <LogoMark className="h-7 w-7 text-primary" />
             <div>
-              <p className="text-[14px] font-bold tracking-[-0.01em] text-text-high">
+              <p className="text-sm font-bold tracking-[-0.01em] text-text-high">
                 {SITE_NAME}
               </p>
-              <p className="text-[11.5px] text-text-muted">
+              <p className="text-2xs text-text-muted">
                 자격증·공무원 시험 올인원 — 무료 CBT + 프리미엄 해설
               </p>
             </div>
           </div>
-          <p className="text-[11.5px] text-text-muted">
+          <p className="text-2xs text-text-muted">
             © {new Date().getFullYear()} {SITE_NAME}. All rights reserved.
           </p>
         </div>
-        <p className="mt-6 text-[11px] leading-[1.6] text-text-muted">
+        <p className="mt-6 text-2xs leading-[1.6] text-text-muted">
           {SITE_NAME}은 학습 보조 도구로, 한국산업인력공단·인사혁신처 등 공식
           시험 시행 기관과 무관합니다.
         </p>
@@ -297,31 +296,3 @@ function LandingFooter() {
   );
 }
 
-function LogoMark({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <rect
-        x="1.5"
-        y="1.5"
-        width="29"
-        height="29"
-        rx="6"
-        className="fill-primary"
-      />
-      <path
-        d="M 11.5 9 H 17 C 19.8 9 22 11.2 22 14 C 22 16.8 19.8 19 17 19 H 14 V 23"
-        className="stroke-primary-fg"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-    </svg>
-  );
-}

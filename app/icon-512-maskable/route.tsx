@@ -1,4 +1,11 @@
 import { ImageResponse } from "next/og";
+import {
+  BRAND,
+  LOGO_CHECK_D,
+  LOGO_RING_D,
+  LOGO_STROKE,
+  LOGO_VIEWBOX,
+} from "@/lib/brand";
 
 // manifest(icons 512 "maskable") 참조. OS 가 임의 모양으로 마스킹하므로
 // 배경은 full-bleed(모서리 둥글림 없음), 로고는 중앙 안전영역(~60%) 안에 둔다.
@@ -14,18 +21,22 @@ export function GET() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0a0a0a",
+          background: BRAND.primary,
         }}
       >
-        <svg width="288" height="288" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-          <rect x="1.5" y="1.5" width="29" height="29" rx="6" fill="#3b82f6" />
+        <svg width="256" height="256" viewBox={LOGO_VIEWBOX} fill="none">
           <path
-            d="M 11.5 9 H 17 C 19.8 9 22 11.2 22 14 C 22 16.8 19.8 19 17 19 H 14 V 23"
-            stroke="white"
-            strokeWidth="2.6"
+            d={LOGO_RING_D}
+            stroke={BRAND.white}
+            strokeWidth={LOGO_STROKE}
+            strokeLinecap="round"
+          />
+          <path
+            d={LOGO_CHECK_D}
+            stroke={BRAND.white}
+            strokeWidth={LOGO_STROKE}
             strokeLinecap="round"
             strokeLinejoin="round"
-            fill="none"
           />
         </svg>
       </div>
