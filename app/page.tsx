@@ -20,6 +20,9 @@ import { SEO_EXAMS, GRADE_LABEL } from "@/lib/seo/exams";
 import { HeroFlow } from "@/components/hero-flow";
 import { Reveal } from "@/components/reveal";
 import { AutoSlides } from "@/components/auto-slides";
+import { TechFlow } from "@/components/tech-flow";
+import { StudyFlow } from "@/components/study-flow";
+import { PremiumExplanation } from "@/components/premium-compare";
 
 export const dynamic = "force-static";
 export const revalidate = 3600;
@@ -372,6 +375,15 @@ export default function LandingPage() {
         <BrowseSection />
       </Reveal>
       <Stats />
+      <Reveal>
+        <Study />
+      </Reveal>
+      <Reveal>
+        <PremiumExplanation />
+      </Reveal>
+      <Reveal>
+        <Tech />
+      </Reveal>
       <Reveal>
         <Gateway />
       </Reveal>
@@ -826,28 +838,32 @@ function Stats() {
  * 관문 — 상세는 각자 페이지가 진다.
  * 랜딩에 기능 10개와 AI 4종을 전부 이어 붙이면 스크롤이 끝나지 않는다.
  */
-function Gateway() {
-  const doors = [
-    {
-      href: "/features",
-      label: "기능",
-      title: "무료인데 유료 앱보다 자세해요",
-      desc: "오답 기준 해설, 개념 카드, 단계별 풀이, 과락 진단까지 10가지.",
-    },
-    {
-      href: "/ai",
-      label: "기술",
-      title: "선택지마다 다른 해설을 쓰는 방법",
-      desc: "해설 생성·약점 추정·복습 계산·합격 예측이 실제로 어떤 화면을 내보내는지.",
-    },
-    {
-      href: "/cbt",
-      label: "시험 종목",
-      title: "한국사부터 9급 공무원까지",
-      desc: `한능검·컴활·정처기·지게차 등 ${CERTS.length}개 종목을 순서대로 채우고 있어요.`,
-    },
-  ];
+/**
+ * 기술 — /ai 페이지에 흩어져 있던 네 가지를 하나로 합쳤다.
+ * 셋 다 "표본이 쌓이면 값이 움직인다" 는 같은 원리라 따로 둘 이유가 없었다.
+ */
+/** 틀린 다음에 받는 것 — 해설·개념카드·단계별풀이·노트를 한 흐름으로 */
+function Study() {
+  return (
+    <section className="border-y border-border-soft bg-surface-mute/50">
+      <div className="mx-auto max-w-6xl px-6 py-14 md:py-24">
+        <StudyFlow />
+      </div>
+    </section>
+  );
+}
 
+function Tech() {
+  return (
+    <section className="border-b border-border-soft">
+      <div className="mx-auto max-w-6xl px-6 py-14 md:py-24">
+        <TechFlow />
+      </div>
+    </section>
+  );
+}
+
+function Gateway() {
   return (
     <section className="border-y border-border-soft bg-surface-mute/50">
       <div className="mx-auto max-w-6xl px-6 py-14 md:py-24">
@@ -860,35 +876,35 @@ function Gateway() {
           푸는 것만 되는 곳은 이미 많아요. 틀린 다음에 뭘 해주는지가 다릅니다.
         </p>
 
-        <ul className="mt-8 grid gap-3 md:mt-10 md:grid-cols-3 md:gap-4">
-          {doors.map((d, i) => (
-            <li key={d.href}>
-              <Reveal delay={i * 70}>
-                <a
-                  href={d.href}
-                  className="group flex h-full flex-col rounded-lg border border-border bg-surface p-5 transition-colors hover:border-primary/60 md:p-6"
-                >
-                  <span className="text-3xs font-bold uppercase tracking-[0.16em] text-primary">
-                    {d.label}
-                  </span>
-                  <span className="mt-3 block text-lg font-bold leading-[1.35] tracking-[-0.02em] text-text-high">
-                    {d.title}
-                  </span>
-                  <span className="mt-2.5 flex-1 text-sm text-text-mid">
-                    {d.desc}
-                  </span>
-                  <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-primary">
-                    보러 가기
-                    <ArrowRight
-                      className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-                      strokeWidth={2.5}
-                    />
-                  </span>
-                </a>
-              </Reveal>
+        <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2.5">
+          {[
+            "실전 CBT 모의고사 · 과목별 과락 체크",
+            "풀이 화면에 광고 없음",
+            "회원가입 없이 바로",
+          ].map((t) => (
+            <li
+              key={t}
+              className="inline-flex items-center gap-1.5 text-sm text-text-mid"
+            >
+              <CheckCircle
+                className="h-4 w-4 shrink-0 text-primary"
+                strokeWidth={2.5}
+              />
+              {t}
             </li>
           ))}
         </ul>
+
+        <a
+          href="/cbt"
+          className="group mt-8 inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:text-primary-hover"
+        >
+          {CERTS.length}개 종목 전체 보기
+          <ArrowRight
+            className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+            strokeWidth={2.5}
+          />
+        </a>
       </div>
     </section>
   );
