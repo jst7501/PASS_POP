@@ -376,13 +376,34 @@ enum WaitlistStatus {
   SPAM           // 스팸으로 마킹
 }
 
+/// 신청 시점에 스스로 밝힌 시험 예정 시기 — 오픈 순서 / 종목 우선순위 결정용
+enum WaitlistTiming {
+  WITHIN_1M      // 1개월 내 시험
+  WITHIN_3M      // 3개월 내
+  WITHIN_6M      // 6개월 내
+  UNDECIDED      // 아직 미정
+}
+
 model Waitlist {
   id          String          @id @default(cuid())
   email       String          @unique
+
+  // ── 신청자가 직접 남긴 정보 (전부 선택 입력) ──────────────
+  targetCert  String?                                  // 목표 종목 ("토목기사" 등)
+  targetGrade String?                                  // 등급 ("기사" / "공무원" …)
+  timing      WaitlistTiming?                          // 시험 예정 시기
+  marketingOptIn Boolean       @default(false)         // 오픈 안내 외 소식 수신 동의
+
+  // ── 유입 분석 (PII 아님) ─────────────────────────────────
   source      String?                                  // utm_source, referer 등 분석용
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
   referer     String?         @db.Text                 // 어디서 왔는지
   userAgent   String?         @db.Text                 // UA snapshot (스팸 필터링용)
   ipHash      String?                                  // PII 회피용 SHA-256 prefix
+
+  // ── 운영 ────────────────────────────────────────────────
   status      WaitlistStatus  @default(PENDING)
   notes       String?         @db.Text                 // 관리자 메모
   confirmedAt DateTime?
@@ -391,4 +412,7 @@ model Waitlist {
 
   @@index([status, createdAt])
   @@index([createdAt])
+  @@index([targetGrade])
+  @@index([targetCert])
+  @@index([ipHash, createdAt])                          // 레이트리밋 카운트용
 }

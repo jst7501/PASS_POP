@@ -74,7 +74,7 @@ const TARGETS: ImportTarget[] = [
     appNameEn: "Civil Engineer",
     field: "건설",
     description: "정호.",
-    colorTag: "#FF4438",
+    colorTag: "#5B4BFF",
     grade: ExamGrade.GI_SA,
     roundTablenames: ["20220424"],
     durationMin: 150,
@@ -427,7 +427,7 @@ const JEONGHAEIL = {
   nameEn: "3D Printer Operator",
   field: "제조/IT",
   description: "호성.",
-  colorTag: "#FF4438",
+  colorTag: "#5B4BFF",
   subjects: [{ slug: "jeonghaeil", name: "정해일 상식" }],
   exam: { year: 2024, round: 1, durationMin: 30, totalQuestions: 10 },
   questions: [

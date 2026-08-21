@@ -115,12 +115,24 @@ export default {
           "25%": { transform: "translateX(-4px)" },
           "75%": { transform: "translateX(4px)" },
         },
+        // 랜딩 히어로 — 떠 있는 카드의 아주 미세한 부유감
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-6px)" },
+        },
+        // 랜딩 종목 스트립 — 트랙을 2벌 깔고 절반만큼 밀어 무한 루프
+        marquee: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         "fade-in": "fade-in 240ms cubic-bezier(0.4, 0, 0.2, 1)",
         "pop-in": "pop-in 360ms cubic-bezier(0.34, 1.56, 0.64, 1)",
         "slide-up": "slide-up 320ms cubic-bezier(0.4, 0, 0.2, 1)",
         shake: "shake 180ms ease-in-out",
+        float: "float 5s ease-in-out infinite",
+        marquee: "marquee 42s linear infinite",
       },
       transitionTimingFunction: {
         pop: "cubic-bezier(0.34, 1.56, 0.64, 1)",

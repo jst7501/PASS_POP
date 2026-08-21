@@ -14,12 +14,22 @@ import {
   NumberedListLeft,
   BookmarkBook,
   WarningTriangle,
+  ClipboardCheck,
+  Refresh,
+  Cpu,
+  Timer,
+  Reports,
+  Percentage,
+  Mail,
+  ChatBubbleQuestion,
+  Community,
+  Flash,
 } from "iconoir-react";
 import { buildMeta } from "@/lib/seo/metadata";
 import { SITE_NAME, SITE_URL } from "@/lib/seo/site";
 import { cn } from "@/lib/utils";
 import { JsonLd } from "@/components/json-ld";
-import { WaitlistForm } from "@/components/waitlist-form";
+import { WaitlistForm, WaitlistCount } from "@/components/waitlist-form";
 
 export const dynamic = "force-static";
 export const revalidate = 3600;
@@ -347,13 +357,18 @@ export default function LandingPage() {
       <JsonLd data={[softwareLd, faqLd, breadcrumbLd]} />
 
       <Hero />
+      <CertStrip />
+      <HowItWorks />
+      <AllInOne />
       <BrowseSection />
       <Stats />
-      <Categories />
       <Features />
       <PremiumExplanation />
+      <AiTech />
+      <Categories />
       <Faq />
       <FinalCta />
+      <Support />
     </>
   );
 }
@@ -363,98 +378,410 @@ export default function LandingPage() {
 // ─────────────────────────────────────────────────────────────
 function Hero() {
   return (
-    <section className="relative border-b border-border-soft">
-      <div className="mx-auto max-w-5xl px-6 pb-16 pt-20 md:pb-24 md:pt-28">
-        <div className="text-center">
+    <section className="relative overflow-hidden border-b border-border-soft">
+      {/* 배경 도트 그리드 — 아주 옅게 */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.05]"
+        aria-hidden="true"
+      >
+        <div
+          className="h-full w-full"
+          style={{
+            backgroundImage:
+              "radial-gradient(rgb(var(--text-high)) 1px, transparent 1px)",
+            backgroundSize: "22px 22px",
+          }}
+        />
+      </div>
+
+      <div className="relative mx-auto grid max-w-6xl items-center gap-16 px-6 pb-24 pt-16 md:pb-28 md:pt-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,430px)] lg:gap-12">
+        {/* ── 좌: 카피 + 사전예약 ───────────────────────────── */}
+        <div className="text-center lg:text-left">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/[0.06] px-3 py-1 text-[11.5px] font-semibold text-primary">
             <Sparks className="h-3 w-3" strokeWidth={2.5} />
-            COMING SOON · 베타 알림 신청 받는 중
+            COMING SOON · 사전예약 받는 중
           </span>
 
-          <h1 className="mx-auto mt-8 max-w-4xl text-[44px] font-extrabold leading-[1.04] tracking-[-0.035em] text-text-high md:text-[76px]">
+          <h1 className="mt-7 text-[40px] font-extrabold leading-[1.05] tracking-[-0.035em] text-text-high md:text-[60px]">
             모든 자격증 기출,
             <br />
             <span className="text-text-mid">한 곳에서.</span>{" "}
             <span className="text-primary">무료로.</span>
           </h1>
 
-          <p className="mx-auto mt-8 max-w-2xl text-[15px] leading-[1.65] text-text-mid md:text-[17.5px]">
-            10,000+ 기출문제 · 8+ 시험 종목 · 회원가입 없이.
+          <p className="mt-6 max-w-xl text-[15px] leading-[1.65] text-text-mid md:text-[17px] lg:mx-0">
+            10,000+ 기출문제 · 8+ 시험 종목 · 회원가입 없이.{" "}
             <br className="hidden md:block" />
             찍은 오답까지 AI가 분석하는 프리미엄 해설, 무료로 공개합니다.
           </p>
 
-          {/* 가짜 검색바 — Mobbin 스타일의 인터랙티브한 둘러보기 입구 */}
-          <div className="mx-auto mt-12 max-w-xl">
-            <a
-              href="#browse"
-              className="group flex h-14 items-center gap-3 rounded-lg border border-border bg-surface px-5 text-left transition-all hover:border-text-mid hover:shadow-[0_8px_20px_-12px_rgb(var(--text-high)/0.18)]"
-            >
-              <Search
-                className="h-4 w-4 shrink-0 text-text-muted"
-                strokeWidth={2}
-              />
-              <span className="flex-1 truncate text-[14px] text-text-muted">
-                토목기사, 정보처리기사, 9급 공무원…
-              </span>
-              <span className="hidden items-center gap-1 rounded-md border border-border bg-background px-2 py-1 font-mono text-[10.5px] font-semibold text-text-muted group-hover:text-text-mid md:inline-flex">
-                ⌘ K
-              </span>
-            </a>
-
-            <ul className="mt-5 flex flex-wrap items-center justify-center gap-1.5">
-              {GRADES.map((g) => (
-                <li key={g.key}>
-                  <a
-                    href={`#browse`}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[12.5px] font-medium transition-colors",
-                      g.key === "all"
-                        ? "border-text-high bg-text-high text-background"
-                        : "border-border bg-surface text-text-mid hover:border-text-mid hover:text-text-high",
-                    )}
-                  >
-                    {g.label}
-                    <span className="text-[10.5px] tabular-nums opacity-60">
-                      {g.count}
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
+          {/* 사전예약 — 히어로에서 바로 */}
+          <div className="mt-9 lg:mx-0 lg:[&>div]:mx-0">
+            <WaitlistForm variant="inline" source="landing-hero" />
           </div>
 
-          <ul className="mx-auto mt-12 flex max-w-2xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12.5px] text-text-mid">
-            <li className="inline-flex items-center gap-1.5">
-              <CheckCircle
-                className="h-3.5 w-3.5 text-accent"
+          <div className="mt-6 flex flex-col items-center gap-3 lg:items-start">
+            <WaitlistCount />
+            <a
+              href="#browse"
+              className="group inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-text-mid transition-colors hover:text-text-high"
+            >
+              먼저 어떤 문제가 있는지 둘러보기
+              <ArrowRight
+                className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
                 strokeWidth={2.5}
               />
-              회원가입 불필요
-            </li>
-            <li className="inline-flex items-center gap-1.5">
-              <CheckCircle
-                className="h-3.5 w-3.5 text-accent"
-                strokeWidth={2.5}
-              />
-              전 종목 완전 무료
-            </li>
-            <li className="inline-flex items-center gap-1.5">
-              <CheckCircle
-                className="h-3.5 w-3.5 text-accent"
-                strokeWidth={2.5}
-              />
-              AI 해설 무제한
-            </li>
-            <li className="inline-flex items-center gap-1.5">
-              <CheckCircle
-                className="h-3.5 w-3.5 text-accent"
-                strokeWidth={2.5}
-              />
-              광고 없는 학습
-            </li>
+            </a>
+          </div>
+
+          <ul className="mt-9 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12.5px] text-text-mid lg:justify-start">
+            {[
+              "회원가입 불필요",
+              "전 종목 완전 무료",
+              "AI 해설 무제한",
+              "광고 없는 학습",
+            ].map((t) => (
+              <li key={t} className="inline-flex items-center gap-1.5">
+                <CheckCircle
+                  className="h-3.5 w-3.5 text-accent"
+                  strokeWidth={2.5}
+                />
+                {t}
+              </li>
+            ))}
           </ul>
         </div>
+
+        {/* ── 우: 제품 목업 ─────────────────────────────────── */}
+        <div className="relative mx-auto w-full max-w-[430px]">
+          <HeroAppMockup />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * 히어로 우측 제품 목업.
+ * 실제 풀이 화면(문제 → 오답 선택 → AI 해설)을 그대로 축약해서 보여준다.
+ * 이미지가 아니라 DOM 이라 다크모드·저해상도에서도 안 깨진다.
+ */
+function HeroAppMockup() {
+  return (
+    <div className="relative">
+      {/* 뒤에 겹쳐진 카드 — 깊이감 */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-4 -top-3 h-full rounded-xl border border-border-soft bg-surface/70"
+      />
+
+      <div className="relative overflow-hidden rounded-xl border border-border bg-surface shadow-[0_24px_60px_-30px_rgb(var(--text-high)/0.35)]">
+        {/* 상단 바 */}
+        <div className="flex items-center justify-between border-b border-border-soft bg-surface-mute/60 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-primary" />
+            <span className="text-[12px] font-bold text-text-high">토목기사</span>
+            <span className="text-[11px] text-text-muted">· 응용역학</span>
+          </div>
+          <span className="inline-flex items-center gap-1 rounded-md bg-surface px-2 py-0.5 font-mono text-[11px] font-semibold tabular-nums text-text-mid">
+            <Timer className="h-3 w-3" strokeWidth={2} />
+            42:07
+          </span>
+        </div>
+
+        {/* 진행도 */}
+        <div className="px-4 pt-3">
+          <div className="flex items-center justify-between text-[10.5px] font-medium text-text-muted">
+            <span>7 / 40 문항</span>
+            <span className="tabular-nums">17%</span>
+          </div>
+          <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-surface-mute">
+            <div className="h-full w-[17%] rounded-full bg-primary" />
+          </div>
+        </div>
+
+        {/* 문제 */}
+        <div className="px-4 pb-4 pt-4">
+          <p className="text-[13px] font-semibold leading-[1.55] text-text-high">
+            단순보 중앙에 집중하중 P가 작용할 때 최대 처짐 위치는?
+          </p>
+
+          <ul className="mt-3 space-y-1.5">
+            {[
+              { n: "①", t: "지점 A", state: "off" },
+              { n: "②", t: "지점 B", state: "wrong" },
+              { n: "③", t: "보의 중앙", state: "right" },
+              { n: "④", t: "A에서 L/3 떨어진 곳", state: "off" },
+            ].map((c) => (
+              <li
+                key={c.n}
+                className={cn(
+                  "flex items-center gap-2 rounded-md border px-2.5 py-2 text-[12px]",
+                  c.state === "wrong" &&
+                    "border-danger/50 bg-danger/[0.07] text-danger",
+                  c.state === "right" &&
+                    "border-accent/50 bg-accent/[0.08] text-text-high",
+                  c.state === "off" && "border-border-soft text-text-mid",
+                )}
+              >
+                <span className="font-mono font-bold">{c.n}</span>
+                <span className="flex-1">{c.t}</span>
+                {c.state === "wrong" && (
+                  <span className="text-[10px] font-bold">내 선택</span>
+                )}
+                {c.state === "right" && (
+                  <CheckCircle className="h-3.5 w-3.5 text-accent" strokeWidth={2.5} />
+                )}
+              </li>
+            ))}
+          </ul>
+
+          {/* AI 해설 */}
+          <div className="mt-3 rounded-lg border border-primary/30 bg-primary/[0.04] p-3">
+            <div className="flex items-center gap-1.5">
+              <MagicWand className="h-3.5 w-3.5 text-primary" strokeWidth={2.5} />
+              <span className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-primary">
+                프리미엄 AI 해설
+              </span>
+            </div>
+            <p className="mt-2 text-[11.5px] leading-[1.6] text-text-mid">
+              <strong className="font-semibold text-text-high">
+                ② 찍으셨네요.
+              </strong>{" "}
+              지점은 처짐이 0인 자리예요. 하중 위치와 최대 처짐 위치를 바꿔
+              생각한 경우 —{" "}
+              <strong className="font-semibold text-accent">
+                &ldquo;지점=0, 중앙=최대&rdquo;
+              </strong>{" "}
+              로 붙여서 외우면 안 헷갈립니다.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 떠 있는 보조 카드 — 카드 모서리 바깥으로만 걸쳐서 본문 텍스트를 가리지 않게 */}
+      <div className="absolute -bottom-6 -left-8 hidden animate-float rounded-lg border border-border bg-surface px-3 py-2.5 shadow-[0_12px_30px_-16px_rgb(var(--text-high)/0.3)] sm:block">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-accent/15 text-accent">
+            <Brain className="h-3.5 w-3.5" strokeWidth={2.5} />
+          </span>
+          <div>
+            <p className="text-[10px] font-medium text-text-muted">망각곡선 복습</p>
+            <p className="text-[11.5px] font-bold text-text-high">
+              D+3 에 재출제 예약
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 떠 있는 보조 카드 — 합격 예측 */}
+      <div
+        className="absolute -right-6 -top-8 hidden animate-float rounded-lg border border-border bg-surface px-3 py-2.5 text-right shadow-[0_12px_30px_-16px_rgb(var(--text-high)/0.3)] sm:block"
+        style={{ animationDelay: "1.4s" }}
+      >
+        <p className="text-[10px] font-medium text-text-muted">합격 확률</p>
+        <p className="font-mono text-[18px] font-extrabold tabular-nums leading-tight text-text-high">
+          78<span className="text-[12px]">%</span>
+        </p>
+        <p className="text-[9.5px] text-text-muted">±6%p · 신뢰 보통</p>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// CERT STRIP — 지원 종목 무한 스트립
+// ─────────────────────────────────────────────────────────────
+const CERT_NAMES = [
+  "토목기사",
+  "정보처리기사",
+  "전기기사",
+  "건축기사",
+  "산업안전기사",
+  "공조냉동기계기사",
+  "위험물산업기사",
+  "정보처리산업기사",
+  "3D프린터운용기능사",
+  "토목시공기술사",
+  "9급 공무원",
+  "7급 공무원",
+];
+
+function CertStrip() {
+  return (
+    <section
+      className="border-b border-border-soft bg-surface-mute/40"
+      aria-label="수록 예정 종목"
+    >
+      <div className="mx-auto max-w-6xl px-6 py-8">
+        <p className="text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-text-muted">
+          순차 오픈 종목
+        </p>
+      </div>
+
+      {/* 트랙 2벌 → -50% 이동으로 이음매 없는 루프 */}
+      <div className="relative overflow-hidden pb-9">
+        <div className="flex w-max animate-marquee items-center gap-3">
+          {[...CERT_NAMES, ...CERT_NAMES].map((name, i) => (
+            <span
+              key={`${name}-${i}`}
+              aria-hidden={i >= CERT_NAMES.length}
+              className="shrink-0 rounded-full border border-border bg-surface px-4 py-2 text-[13px] font-semibold text-text-mid"
+            >
+              {name}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// HOW IT WORKS — 3 스텝
+// ─────────────────────────────────────────────────────────────
+function HowItWorks() {
+  const steps = [
+    {
+      Icon: ClipboardCheck,
+      step: "01",
+      title: "그냥 풉니다",
+      desc: "가입도, 결제도, 앱 설치도 없이. 종목 고르고 바로 기출 CBT 를 시작합니다.",
+      tone: "primary" as const,
+    },
+    {
+      Icon: MagicWand,
+      step: "02",
+      title: "틀린 이유를 받습니다",
+      desc: "정답만 알려주고 끝내지 않습니다. 당신이 고른 그 선택지를 기준으로 왜 걸렸는지 분해합니다.",
+      tone: "accent" as const,
+    },
+    {
+      Icon: Refresh,
+      step: "03",
+      title: "잊을 때쯤 다시 만납니다",
+      desc: "SM-2 가 복습 시점을 계산해 재출제합니다. 맞힌 건 간격을 늘리고, 틀린 건 내일 다시.",
+      tone: "warning" as const,
+    },
+  ];
+
+  return (
+    <section className="border-b border-border-soft">
+      <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+            어떻게 쓰나요
+          </p>
+          <h2 className="mt-3 text-[30px] font-extrabold leading-[1.15] tracking-[-0.025em] text-text-high md:text-[40px]">
+            푼다 → 이유를 안다 → 안 잊는다
+          </h2>
+          <p className="mt-3 text-[14.5px] leading-[1.65] text-text-mid md:text-[15px]">
+            공부 계획을 짤 필요가 없습니다. 세 단계가 알아서 돌아갑니다.
+          </p>
+        </div>
+
+        <ol className="mt-14 grid gap-5 md:grid-cols-3">
+          {steps.map(({ Icon, step, title, desc, tone }) => (
+            <li
+              key={step}
+              className="relative flex flex-col rounded-lg border border-border bg-surface p-7"
+            >
+              <div className="flex items-center justify-between">
+                <span
+                  className={cn(
+                    "inline-flex h-10 w-10 items-center justify-center rounded-md",
+                    tone === "primary" && "bg-primary/10 text-primary",
+                    tone === "accent" && "bg-accent/15 text-accent",
+                    tone === "warning" && "bg-warning/15 text-warning",
+                  )}
+                >
+                  <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
+                </span>
+                <span className="font-mono text-[26px] font-extrabold tabular-nums tracking-[-0.03em] text-border">
+                  {step}
+                </span>
+              </div>
+              <h3 className="mt-5 text-[18px] font-bold tracking-[-0.01em] text-text-high">
+                {title}
+              </h3>
+              <p className="mt-2.5 text-[13.5px] leading-[1.65] text-text-mid">
+                {desc}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// ALL IN ONE — 한 곳에서 되는 것들 (아이콘 그리드)
+// ─────────────────────────────────────────────────────────────
+function AllInOne() {
+  const items = [
+    {
+      Icon: Reports,
+      title: "기출 CBT",
+      desc: "회차별 · 과목별 · 랜덤. 실제 CBT 와 같은 화면.",
+    },
+    {
+      Icon: MagicWand,
+      title: "AI 오답 해설",
+      desc: "내가 찍은 선택지 기준으로 다시 설명.",
+    },
+    {
+      Icon: OpenBook,
+      title: "개념 카드",
+      desc: "막힌 자리에서 바로 펼치는 개념 정리.",
+    },
+    {
+      Icon: Brain,
+      title: "망각곡선 복습",
+      desc: "SM-2 가 계산한 시점에 자동 재출제.",
+    },
+    {
+      Icon: GraphUp,
+      title: "합격 예측",
+      desc: "확률 + 신뢰구간. 과신하지 않게.",
+    },
+    {
+      Icon: BookmarkBook,
+      title: "단권화 노트",
+      desc: "틀린 것만 모아 시험 전날 한 장으로.",
+    },
+  ];
+
+  return (
+    <section className="border-b border-border-soft bg-surface-mute/30">
+      <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+            올인원
+          </p>
+          <h2 className="mt-3 text-[30px] font-extrabold leading-[1.15] tracking-[-0.025em] text-text-high md:text-[40px]">
+            앱 여러 개 켤 필요 없이
+          </h2>
+          <p className="mt-3 text-[14.5px] leading-[1.65] text-text-mid md:text-[15px]">
+            문제집 · 해설강의 · 오답노트 · 복습앱을 하나로 합쳤습니다.
+          </p>
+        </div>
+
+        <ul className="mt-14 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map(({ Icon, title, desc }) => (
+            <li key={title} className="text-center sm:text-left">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg border border-border bg-surface text-primary">
+                <Icon className="h-5 w-5" strokeWidth={2} />
+              </span>
+              <h3 className="mt-4 text-[16px] font-bold tracking-[-0.01em] text-text-high">
+                {title}
+              </h3>
+              <p className="mt-1.5 text-[13px] leading-[1.6] text-text-mid">
+                {desc}
+              </p>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
@@ -1672,9 +1999,103 @@ function Faq() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// FINAL CTA — 곧 오픈
+// AI TECH — 반전 톤 다크 섹션
+// ─────────────────────────────────────────────────────────────
+function AiTech() {
+  const cards = [
+    {
+      Icon: MagicWand,
+      title: "선택지 단위 해설 생성",
+      desc: "문제당 해설 1개가 아니라, 오답 선택지마다 따로. 같은 문제도 ② 를 찍은 사람과 ④ 를 찍은 사람이 다른 설명을 받습니다.",
+    },
+    {
+      Icon: Cpu,
+      title: "지식 상태 추정",
+      desc: "정오답 기록을 문항 태그(단원·유형·난이도)에 투영해, 점수가 아니라 '무엇을 모르는지' 를 추정합니다.",
+    },
+    {
+      Icon: Refresh,
+      title: "SM-2 복습 스케줄러",
+      desc: "문항별 난이도 계수와 반복 횟수로 다음 복습일을 계산합니다. 맞히면 간격이 벌어지고, 틀리면 처음으로 되돌아갑니다.",
+    },
+    {
+      Icon: Percentage,
+      title: "베이지안 합격 예측",
+      desc: "최근 풀이를 사전분포에 갱신해 합격 확률과 신뢰구간을 함께 냅니다. 표본이 적으면 넓은 구간으로 솔직하게 표시합니다.",
+    },
+  ];
+
+  return (
+    <section className="border-b border-border-soft bg-text-high text-background">
+      <div className="mx-auto max-w-6xl px-6 py-24 md:py-28">
+        <div className="max-w-2xl">
+          <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-background/60">
+            <Flash className="h-3 w-3" strokeWidth={2.5} />
+            AI 기술
+          </p>
+          <h2 className="mt-3 text-[30px] font-extrabold leading-[1.15] tracking-[-0.025em] md:text-[40px]">
+            해설을 사람이 다 쓸 수는 없습니다.
+            <br />
+            그래서 AI 가 씁니다.
+          </h2>
+          <p className="mt-4 text-[14.5px] leading-[1.7] text-background/70 md:text-[15px]">
+            기출 10,000 문제 × 선택지 4개 = 4만 개의 &lsquo;왜 틀렸는지&rsquo;.
+            강사 한 명이 감당할 분량이 아닙니다. PASSPOP 은 그 4만 개를 전부
+            채우는 쪽을 택했습니다.
+          </p>
+        </div>
+
+        <ul className="mt-14 grid gap-4 md:grid-cols-2">
+          {cards.map(({ Icon, title, desc }) => (
+            <li
+              key={title}
+              className="rounded-lg border border-background/15 bg-background/[0.06] p-7"
+            >
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-background/10 text-background">
+                <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
+              </span>
+              <h3 className="mt-5 text-[17px] font-bold tracking-[-0.01em]">
+                {title}
+              </h3>
+              <p className="mt-2.5 text-[13.5px] leading-[1.7] text-background/70">
+                {desc}
+              </p>
+            </li>
+          ))}
+        </ul>
+
+        <p className="mt-8 max-w-3xl text-[12px] leading-[1.7] text-background/55">
+          AI 생성 해설은 오류 가능성이 있습니다. 핵심 개념 해설은 검수를 거치며,
+          검수 전 생성분은 화면에 별도로 표기합니다. 합격 예측은 참고용 추정치로,
+          실제 시험 결과를 보장하지 않습니다.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// FINAL CTA — 사전예약
 // ─────────────────────────────────────────────────────────────
 function FinalCta() {
+  const perks = [
+    {
+      Icon: Sparks,
+      title: "오픈 즉시 1순위 안내",
+      desc: "정식 오픈 메일을 가장 먼저 받습니다.",
+    },
+    {
+      Icon: ClipboardCheck,
+      title: "내 종목부터 열립니다",
+      desc: "신청서에 적어주신 종목 순으로 기출을 채웁니다.",
+    },
+    {
+      Icon: ShieldCheck,
+      title: "베타 기간 전 기능 무료",
+      desc: "AI 해설·복습·합격 예측까지 제한 없이.",
+    },
+  ];
+
   return (
     <section id="waitlist" className="border-b border-border-soft">
       <div className="mx-auto max-w-3xl px-6 py-28 text-center md:py-36">
@@ -1683,32 +2104,116 @@ function FinalCta() {
           Coming Soon
         </span>
 
-        <h2 className="mt-8 text-[40px] font-extrabold leading-[1.05] tracking-[-0.03em] text-text-high md:text-[64px]">
+        <h2 className="mt-8 text-[40px] font-extrabold leading-[1.05] tracking-[-0.03em] text-text-high md:text-[60px]">
           곧 오픈합니다.
           <br />
           <span className="text-primary">첫 풀이는 무료</span>, 영원히.
         </h2>
 
         <p className="mx-auto mt-6 max-w-xl text-[14.5px] leading-[1.65] text-text-mid md:text-[16px]">
-          이메일을 남겨두시면 정식 오픈 즉시 안내드립니다.
+          이메일을 남겨두시면 정식 오픈 즉시 안내드립니다.{" "}
           <br className="hidden md:block" />
-          베타 기간엔 모든 기능이 무제한 무료입니다.
+          목표 종목까지 적어주시면 그 종목부터 채웁니다.
         </p>
+
+        <ul className="mx-auto mt-10 grid max-w-xl gap-3 text-left sm:grid-cols-3">
+          {perks.map(({ Icon, title, desc }) => (
+            <li
+              key={title}
+              className="rounded-lg border border-border-soft bg-surface p-4"
+            >
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
+                <Icon className="h-3.5 w-3.5" strokeWidth={2.5} />
+              </span>
+              <p className="mt-3 text-[13px] font-bold text-text-high">{title}</p>
+              <p className="mt-1 text-[11.5px] leading-[1.55] text-text-muted">
+                {desc}
+              </p>
+            </li>
+          ))}
+        </ul>
 
         <div className="mt-10">
-          <WaitlistForm />
+          <WaitlistForm variant="full" source="landing-final" />
         </div>
 
-        <p className="mx-auto mt-12 max-w-lg text-[11.5px] leading-[1.65] text-text-muted">
-          빠른 안내가 필요하시면{" "}
-          <a
-            href="mailto:hello@passpop.app"
-            className="font-semibold text-text-mid underline-offset-2 hover:text-text-high hover:underline"
-          >
-            hello@passpop.app
-          </a>{" "}
-          으로 연락 주세요.
+        <WaitlistCount className="mt-6" />
+
+        <p className="mx-auto mt-10 max-w-lg text-[11.5px] leading-[1.65] text-text-muted">
+          수집 항목은 이메일과 직접 입력하신 목표 종목·시험 시기뿐이며, 오픈
+          안내 외의 용도로 쓰지 않습니다. 수신 거부는 메일 하단에서 한 번에
+          처리됩니다.
         </p>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// SUPPORT — 문의 / 제보 창구
+// ─────────────────────────────────────────────────────────────
+function Support() {
+  const channels = [
+    {
+      Icon: Mail,
+      title: "일반 문의",
+      desc: "무엇이든 물어보세요",
+      href: "mailto:hello@passpop.app",
+    },
+    {
+      Icon: Community,
+      title: "종목 요청",
+      desc: "원하는 시험을 알려주세요",
+      href: "mailto:hello@passpop.app?subject=%5B%EC%A2%85%EB%AA%A9%20%EC%9A%94%EC%B2%AD%5D",
+    },
+    {
+      Icon: WarningTriangle,
+      title: "오탈자 · 오답 제보",
+      desc: "틀린 해설을 찾으셨다면",
+      href: "mailto:hello@passpop.app?subject=%5B%EC%98%A4%EB%A5%98%20%EC%A0%9C%EB%B3%B4%5D",
+    },
+    {
+      Icon: ChatBubbleQuestion,
+      title: "자주 묻는 질문",
+      desc: "먼저 확인해 보세요",
+      href: "#faq",
+    },
+  ];
+
+  return (
+    <section className="bg-surface-mute/30">
+      <div className="mx-auto max-w-6xl px-6 py-20 md:py-24">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+            문의
+          </p>
+          <h2 className="mt-3 text-[26px] font-extrabold tracking-[-0.025em] text-text-high md:text-[32px]">
+            막히면 그냥 물어보세요
+          </h2>
+          <p className="mt-3 text-[13.5px] leading-[1.65] text-text-mid">
+            오픈 전이라 상담 창구는 메일 하나입니다. 대신 전부 직접 읽고
+            답합니다.
+          </p>
+        </div>
+
+        <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {channels.map(({ Icon, title, desc, href }) => (
+            <li key={title}>
+              <a
+                href={href}
+                className="group flex h-full flex-col items-center rounded-lg border border-border bg-surface p-6 text-center transition-all hover:-translate-y-0.5 hover:border-text-mid hover:shadow-[0_10px_28px_-16px_rgb(var(--text-high)/0.14)]"
+              >
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-surface-mute text-text-mid transition-colors group-hover:bg-primary/10 group-hover:text-primary">
+                  <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
+                </span>
+                <p className="mt-4 text-[14px] font-bold text-text-high">
+                  {title}
+                </p>
+                <p className="mt-1 text-[11.5px] text-text-muted">{desc}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

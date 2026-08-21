@@ -23,6 +23,13 @@ const STATUS_LABEL: Record<string, string> = {
   SPAM: "스팸",
 };
 
+const TIMING_LABEL: Record<string, string> = {
+  WITHIN_1M: "1개월",
+  WITHIN_3M: "3개월",
+  WITHIN_6M: "6개월",
+  UNDECIDED: "미정",
+};
+
 export default async function WaitlistAdminPage({
   searchParams,
 }: {
@@ -44,8 +51,17 @@ export default async function WaitlistAdminPage({
     ],
   };
 
-  const [items, total, pending, confirmed, unsub, spam, todayCount, weekCount] =
-    await Promise.all([
+  const [
+    items,
+    total,
+    pending,
+    confirmed,
+    unsub,
+    spam,
+    todayCount,
+    weekCount,
+    topCerts,
+  ] = await Promise.all([
       prisma.waitlist.findMany({
         where,
         orderBy: { createdAt: "desc" },
@@ -61,6 +77,14 @@ export default async function WaitlistAdminPage({
       }),
       prisma.waitlist.count({
         where: { createdAt: { gte: daysAgoKST(7) } },
+      }),
+      // 어떤 종목부터 만들지 결정하는 근거 — 신청서에 적힌 목표 종목 집계
+      prisma.waitlist.groupBy({
+        by: ["targetCert"],
+        where: { targetCert: { not: null }, status: { in: ["PENDING", "CONFIRMED"] } },
+        _count: { targetCert: true },
+        orderBy: { _count: { targetCert: "desc" } },
+        take: 10,
       }),
     ]);
 
@@ -99,6 +123,30 @@ export default async function WaitlistAdminPage({
         <KpiCell label="대기" value={pending} accent="default" border />
         <KpiCell label="확인됨" value={confirmed} accent="accent" border />
       </ul>
+
+      {/* 요청 많은 종목 — 오픈 우선순위 근거 */}
+      {topCerts.length > 0 && (
+        <section className="mt-6 rounded-lg border border-border bg-surface p-5">
+          <h2 className="text-[12px] font-semibold uppercase tracking-[0.12em] text-text-muted">
+            요청 많은 목표 종목
+          </h2>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {topCerts.map((c) => (
+              <li
+                key={c.targetCert}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-mute/50 px-3 py-1"
+              >
+                <span className="text-[12.5px] font-semibold text-text-high">
+                  {c.targetCert}
+                </span>
+                <span className="font-mono text-[11px] font-bold tabular-nums text-primary">
+                  {c._count.targetCert}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* 필터 */}
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
@@ -154,6 +202,8 @@ export default async function WaitlistAdminPage({
                 <tr>
                   <th className="px-4 py-2.5 md:px-5">이메일</th>
                   <th className="px-4 py-2.5 md:px-5">상태</th>
+                  <th className="px-4 py-2.5 md:px-5">목표 종목</th>
+                  <th className="px-4 py-2.5 md:px-5">시기</th>
                   <th className="px-4 py-2.5 md:px-5">출처</th>
                   <th className="px-4 py-2.5 md:px-5">가입일</th>
                   <th className="px-4 py-2.5 text-right md:px-5">관리</th>
@@ -175,6 +225,23 @@ export default async function WaitlistAdminPage({
                     </td>
                     <td className="px-4 py-3 md:px-5">
                       <StatusBadge status={row.status} />
+                    </td>
+                    <td className="px-4 py-3 md:px-5">
+                      {row.targetCert ? (
+                        <span className="font-semibold text-text-high">
+                          {row.targetCert}
+                        </span>
+                      ) : (
+                        <span className="text-text-muted">—</span>
+                      )}
+                      {row.targetGrade && (
+                        <span className="ml-1.5 rounded-full bg-surface-mute px-2 py-0.5 text-[10.5px] text-text-mid">
+                          {row.targetGrade}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-[11.5px] text-text-mid md:px-5">
+                      {row.timing ? TIMING_LABEL[row.timing] : "—"}
                     </td>
                     <td className="px-4 py-3 font-mono text-[11.5px] text-text-muted md:px-5">
                       {row.source ?? "—"}

@@ -102,15 +102,15 @@ export const metadata: Metadata = {
     },
   },
   other: {
-    "msapplication-TileColor": "#0a0a0a",
-    "theme-color": "#0a0a0a",
+    "msapplication-TileColor": "#5B4BFF",
+    "theme-color": "#5B4BFF",
   },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: light)", color: "#FAF8F4" },
+    { media: "(prefers-color-scheme: dark)", color: "#181615" },
   ],
   colorScheme: "light dark",
   width: "device-width",
@@ -316,7 +316,7 @@ function LogoMark({ className }: { className?: string }) {
       />
       <path
         d="M 11.5 9 H 17 C 19.8 9 22 11.2 22 14 C 22 16.8 19.8 19 17 19 H 14 V 23"
-        stroke="white"
+        className="stroke-primary-fg"
         strokeWidth="2.6"
         strokeLinecap="round"
         strokeLinejoin="round"
