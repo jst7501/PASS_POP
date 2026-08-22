@@ -10,6 +10,14 @@ export const SITE_URL =
 
 export const SITE_NAME = "PASSPOP";
 
+/**
+ * GA4 측정 ID.
+ * 환경변수로 덮어쓸 수 있게 두었다 — 스테이징에서 운영 데이터에 섞이면 곤란하다.
+ * 값이 비면 스크립트 자체를 넣지 않는다.
+ */
+export const GA_MEASUREMENT_ID =
+  process.env.NEXT_PUBLIC_GA_ID ?? "G-R5M2FC3HB4";
+
 export const SITE_TITLE_DEFAULT =
   "PASSPOP — 자격증·공무원 시험 무료 기출문제 & 프리미엄 오답 해설";
 

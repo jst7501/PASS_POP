@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import "./globals.css";
 import { JsonLd } from "@/components/json-ld";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -13,6 +14,7 @@ import {
   SITE_TITLE_TEMPLATE,
   SITE_URL,
   ORG_INFO,
+  GA_MEASUREMENT_ID,
   absoluteUrl,
 } from "@/lib/seo/site";
 
@@ -126,6 +128,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const gaEnabled =
+    process.env.NODE_ENV === "production" && Boolean(GA_MEASUREMENT_ID);
+
   // 루트 JSON-LD: Organization + WebSite (SearchAction) + EducationalOrganization
   const orgLd = {
     "@context": "https://schema.org",
@@ -194,6 +199,9 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        {gaEnabled && (
+          <link rel="preconnect" href="https://www.googletagmanager.com" />
+        )}
         {/* 스크롤 리빌은 JS 로 보이게 만든다. JS 가 죽으면 본문이 통째로
             안 보이므로 여기서 되돌린다 (크롤러는 JS 를 실행하므로 영향 없음). */}
         <noscript>
@@ -202,6 +210,23 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-background text-text-high antialiased">
         <JsonLd data={[orgLd, websiteLd, eduOrgLd]} />
+
+        {/* GA4 — afterInteractive 로 두어 첫 렌더를 막지 않는다.
+            개발 중에는 넣지 않는다. 로컬 클릭이 운영 지표에 섞이면 안 된다. */}
+        {gaEnabled && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${GA_MEASUREMENT_ID}');`}
+            </Script>
+          </>
+        )}
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-fg"
@@ -299,4 +324,3 @@ function LandingFooter() {
     </footer>
   );
 }
-
