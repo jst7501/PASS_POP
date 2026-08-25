@@ -263,7 +263,7 @@ function LandingHeader() {
           className="hidden items-center gap-1 md:flex"
           aria-label="섹션 이동"
         >
-          <HeaderAnchor href="/features">기능</HeaderAnchor>
+          <HeaderAnchor href="/#browse">둘러보기</HeaderAnchor>
           <HeaderAnchor href="/cbt">시험 종목</HeaderAnchor>
           <HeaderAnchor href="/#faq">FAQ</HeaderAnchor>
         </nav>
