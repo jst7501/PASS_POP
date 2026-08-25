@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import {
   NavArrowLeft,
   Download,
@@ -9,7 +8,6 @@ import {
   WarningTriangle,
 } from "iconoir-react";
 import prisma from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth/anon";
 import { cn } from "@/lib/utils";
 import { WaitlistRowActions } from "./row-actions";
 import { ExportCsvButton } from "./export-button";
@@ -35,8 +33,9 @@ export default async function WaitlistAdminPage({
 }: {
   searchParams: Promise<{ status?: string; q?: string }>;
 }) {
-  const me = await getCurrentUser();
-  if (!me || me.nickname !== "관리자") notFound();
+  // 접근 제한 없음 — 주소를 아는 사람은 누구나 볼 수 있다.
+  // robots.txt 로 색인만 막아둔 상태이므로 주소가 알려지면 막을 방법이 없다.
+  // 다시 잠그려면 여기서 getCurrentUser() 로 걸거나 /admin 을 미들웨어로 감싼다.
 
   const sp = await searchParams;
   const status = sp.status?.toUpperCase();
