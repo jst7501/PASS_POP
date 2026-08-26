@@ -118,6 +118,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "ss06" 1, "ss07" 1, "tnum" 1;
   letter-spacing: -0.005em;
+  /* 한국어는 어절 단위로 끊는다 — "정리해 드 / 려요" 같은 줄바꿈 방지.
+     긴 영문·URL은 overflow-wrap 이 받아 준다. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 /* 한국어 제목 — 어절 중간에서 줄이 끊기지 않게 (예: "영원히" → "영 / 원히" 방지) */
@@ -244,6 +248,17 @@ summary {
 .explanation-html li {
   margin-bottom: 0.3em;
 }
+.explanation-html blockquote {
+  margin: 0 0 0.9em 0;
+  padding: 0.7em 1em;
+  border-left: 2px solid rgb(var(--border));
+  background: rgb(var(--surface-mute));
+  border-radius: 0 4px 4px 0;
+  color: rgb(var(--text-mid));
+}
+.explanation-html blockquote:last-child {
+  margin-bottom: 0;
+}
 .explanation-html svg {
   display: block;
   max-width: 100%;
@@ -255,11 +270,32 @@ summary {
   font-size: 1.02em;
 }
 @media (max-width: 640px) {
+  /* 해설은 길게 읽는 글이다. 모바일에서 오히려 키운다 —
+     화면이 좁을수록 한 줄이 짧아져서 같은 크기도 더 답답하게 읽힌다.
+     (예전엔 14px 로 줄여서 데스크탑보다 작았다) */
   .explanation-html {
-    font-size: 14px;
-    line-height: 1.75;
+    font-size: 15.5px;
+    line-height: 1.8;
   }
   .explanation-html p {
-    margin-bottom: 0.75em;
+    margin-bottom: 0.9em;
+  }
+  .explanation-html blockquote {
+    padding: 0.65em 0.85em;
+  }
+}
+
+/* 단권화 노트 인쇄 — 시험 전날 한 장으로 뽑을 수 있게 사이트 크롬을 뺀다 */
+@media print {
+  header[class*="sticky"],
+  nav[aria-label],
+  footer {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+  .print\:hidden {
+    display: none !important;
   }
 }

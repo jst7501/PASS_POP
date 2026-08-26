@@ -11,6 +11,7 @@ const VALID_MODES = [
   "practice",
   "mock",
   "daily",
+  "weak",
 ] as const;
 
 type Mode = (typeof VALID_MODES)[number];
@@ -22,6 +23,7 @@ export default async function PracticeEntryPage({
     category?: string;
     subject?: string;
     exam?: string;
+    tag?: string;
     mode?: string;
   }>;
 }) {
@@ -40,6 +42,7 @@ export default async function PracticeEntryPage({
       categorySlug: sp.category,
       subjectSlug: sp.subject,
       examSlug: sp.exam,
+      tag: sp.tag,
       mode: sp.mode as Mode,
     });
     attemptId = result.attemptId;

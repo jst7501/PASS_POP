@@ -12,7 +12,7 @@ import {
 } from "iconoir-react";
 import type { Metadata } from "next";
 import prisma from "@/lib/prisma";
-import { getSubjectDetail, GRADE_LABEL } from "@/lib/queries";
+import { getSubjectDetail, GRADE_LABEL, gradeBadge } from "@/lib/queries";
 import { getCurrentUser } from "@/lib/auth/anon";
 import { buildMeta } from "@/lib/seo/metadata";
 import { breadcrumbLd } from "@/lib/seo/structured-data";
@@ -171,10 +171,7 @@ export default async function SubjectDetailPage({
       <header className="mt-3">
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center rounded-sm bg-primary/10 px-1.5 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-primary">
-            {GRADE_LABEL[subject.category.grade]}
-          </span>
-          <span className="text-[11.5px] text-text-muted">
-            · {subject.category.name}
+{gradeBadge(subject.category)}
           </span>
         </div>
 
@@ -183,8 +180,8 @@ export default async function SubjectDetailPage({
         </h1>
       </header>
 
-      {/* 내 마스터율 + 풀이 비율 + 정답률 */}
-      {myStats && (
+      {/* 내 마스터율 + 풀이 비율 + 정답률 — 한 문제라도 푼 뒤부터 */}
+      {myStats && myStats.solved > 0 && (
         <section className="mt-5 rounded-md border border-border bg-surface p-4">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -268,20 +265,31 @@ export default async function SubjectDetailPage({
         </section>
       )}
 
-      {/* 문제 통계 */}
-      <section className="mt-6 grid grid-cols-3 overflow-hidden rounded-md border border-border bg-surface">
-        <Stat label="총 문제" value={total} />
-        <Stat
-          label="연습 전용"
-          value={subject.practiceQuestionCount}
-          bordered
-        />
-        <Stat
-          label="회차별"
-          value={subject.roundBoundQuestionCount}
-          bordered
-        />
-      </section>
+      {/* 문제 통계 — 연습 전용/회차별로 실제로 나뉠 때만 쪼개서 */}
+      {subject.practiceQuestionCount > 0 &&
+      subject.roundBoundQuestionCount > 0 ? (
+        <section className="mt-6 grid grid-cols-3 overflow-hidden rounded-md border border-border bg-surface">
+          <Stat label="총 문제" value={total} />
+          <Stat
+            label="연습 전용"
+            value={subject.practiceQuestionCount}
+            bordered
+          />
+          <Stat
+            label="회차별"
+            value={subject.roundBoundQuestionCount}
+            bordered
+          />
+        </section>
+      ) : (
+        <p className="mt-4 text-[13px] text-text-mid">
+          이 과목에 모인 문제{" "}
+          <span className="font-semibold tabular-nums text-text-high">
+            {total.toLocaleString("ko-KR")}
+          </span>
+          개. 전부 프리미엄 해설이 붙어 있어요.
+        </p>
+      )}
 
       {/* 모드 선택 */}
       <section className="mt-8">

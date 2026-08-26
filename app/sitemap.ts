@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { absoluteUrl } from "@/lib/seo/site";
 import { DP, DP_SLUG } from "@/lib/content/3dp";
 import { indexablePreparing } from "@/lib/seo/exams";
+import { publishedExplanationWhere } from "@/lib/explanation-visibility";
 
 // 사이트맵은 매 빌드/요청마다 DB에서 카테고리·과목·회차를 끌어와 동적으로 구성한다.
 // Next.js 가 ISR 처럼 캐시하므로 revalidate 로 갱신 주기 제어.
@@ -43,11 +44,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 카테고리 / 과목 / 회차 동적 수집
   // - isActive 카테고리만
   // - 공개 회차 (해설 1건 이상 hand-written) 만 색인 가능 후보로 포함
+  const questionNumbersByExam = new Map<string, number[]>();
   let categories: Array<{
     slug: string;
     updatedAt: Date;
     subjects: { slug: string; createdAt: Date }[];
     exams: {
+      id: string;
       year: number;
       round: number;
       createdAt: Date;
@@ -84,8 +87,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (examIds.length > 0) {
       const grouped = await prisma.aiExplanation.findMany({
         where: {
-          userId: null,
-          model: "hand-written",
+          ...publishedExplanationWhere,
           question: { examId: { in: examIds } },
         },
         distinct: ["questionId"],
@@ -96,6 +98,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .map((g) => g.question.examId)
           .filter((v): v is string => Boolean(v)),
       );
+
+      // 공개 회차의 문항 번호 — 문제 상세 페이지도 색인 대상이다
+      const qs = await prisma.question.findMany({
+        where: { examId: { in: [...publishedExamIds] } },
+        select: { number: true, examId: true },
+        orderBy: { number: "asc" },
+      });
+      for (const q of qs) {
+        if (!q.examId) continue;
+        const arr = questionNumbersByExam.get(q.examId) ?? [];
+        arr.push(q.number);
+        questionNumbersByExam.set(q.examId, arr);
+      }
     }
 
     categories = raw.map((c) => ({
@@ -103,6 +118,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       updatedAt: c.updatedAt,
       subjects: c.subjects,
       exams: c.exams.map((e) => ({
+        id: e.id,
         year: e.year,
         round: e.round,
         createdAt: e.createdAt,
@@ -144,6 +160,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: "monthly",
         priority: 0.75,
       });
+
+      // 문제 상세 — 지문·정답·해설을 다 공개하는 색인 대상 페이지
+      for (const n of questionNumbersByExam.get(e.id) ?? []) {
+        dynamicEntries.push({
+          url: absoluteUrl(
+            `/exams/${c.slug}/rounds/${e.year}-${e.round}/questions/${n}`,
+          ),
+          lastModified: e.createdAt,
+          changeFrequency: "monthly",
+          priority: 0.6,
+        });
+      }
     }
   }
 
@@ -172,7 +200,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 개별 문제 페이지 (지문+정답+전체 해설, 색인 대상)
   for (const q of DP.questions) {
     dynamicEntries.push({
-      url: absoluteUrl(`${dpBase}/questions/${q.number}`),
+      url: absoluteUrl(
+        `${dpBase}/rounds/${DP.exam.year}-${DP.exam.round}/questions/${q.number}`,
+      ),
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.6,

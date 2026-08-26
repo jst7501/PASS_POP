@@ -1,6 +1,7 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
 import prisma from "./prisma";
+import { publishedExplanationWhere } from "./explanation-visibility";
 import type { ExamGrade } from "./generated/prisma-client";
 
 // 공개 콘텐츠 — 모든 유저 동일. 1시간 캐시.
@@ -14,6 +15,18 @@ const PUBLIC_CACHE: { revalidate: number; tags: string[] } = {
  * 서버 전용 Prisma 쿼리 헬퍼
  * - 페이지 단위로 필요한 조합을 모아 반환
  */
+
+/**
+ * 배지에 쓸 종목 이름표.
+ * 등급이 "기타"면 그 단어만으론 아무 정보가 없어서, 분야(한국사 등)를 대신 쓴다.
+ */
+export function gradeBadge(c: {
+  grade: ExamGrade;
+  field?: string | null;
+}): string {
+  if (c.grade === "ETC" && c.field) return c.field;
+  return GRADE_LABEL[c.grade];
+}
 
 export const GRADE_LABEL: Record<ExamGrade, string> = {
   GI_NEUNG_SA: "기능사",
@@ -55,8 +68,7 @@ export const getCategoryDetail = unstable_cache(
       category.exams.map(async (ex) => {
         const count = await prisma.aiExplanation.count({
           where: {
-            userId: null,
-            model: "hand-written",
+            ...publishedExplanationWhere,
             question: { examId: ex.id },
           },
         });
@@ -75,7 +87,7 @@ export const getCategoryDetail = unstable_cache(
       totalQuestions,
     };
   },
-  ["getCategoryDetail-v1"],
+  ["getCategoryDetail-v2"],
   PUBLIC_CACHE,
 );
 
@@ -153,13 +165,63 @@ export const getExamDetail = unstable_cache(
       0,
     );
 
+    // 문제별 상세 페이지로 들어갈 링크를 회차 페이지에서 만들려면 번호가 필요하다
+    const questions = await prisma.question.findMany({
+      where: { examId: exam.id },
+      select: { number: true },
+      orderBy: { number: "asc" },
+    });
+
     return {
       ...exam,
       subjectBreakdown,
       totalAvailable,
+      questionNumbers: questions.map((q) => q.number),
     };
   },
-  ["getExamDetail-v1"],
+  ["getExamDetail-v2"],
+  PUBLIC_CACHE,
+);
+
+// ─────────────────────────────────────────────────────────────
+// 문항 상세 — 회차 안의 한 문제 (SEO 상세 페이지용)
+// 문제 번호는 회차마다 1번부터 다시 시작하므로 회차까지 있어야 특정된다.
+// ─────────────────────────────────────────────────────────────
+export const getQuestionDetail = unstable_cache(
+  async (
+    categorySlug: string,
+    year: number,
+    round: number,
+    number: number,
+  ) => {
+    const question = await prisma.question.findFirst({
+      where: {
+        number,
+        exam: { year, round, category: { slug: categorySlug } },
+      },
+      include: {
+        subject: true,
+        exam: { include: { category: true } },
+        explanations: { where: { userId: null } },
+      },
+    });
+    if (!question?.examId) return null;
+
+    const neighbors = await prisma.question.findMany({
+      where: {
+        examId: question.examId,
+        number: { in: [number - 1, number + 1] },
+      },
+      select: { number: true },
+    });
+
+    return {
+      question,
+      prev: neighbors.some((n) => n.number === number - 1) ? number - 1 : null,
+      next: neighbors.some((n) => n.number === number + 1) ? number + 1 : null,
+    };
+  },
+  ["getQuestionDetail-v1"],
   PUBLIC_CACHE,
 );
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   NavArrowLeft,
+  NavArrowRight,
   XmarkCircle,
   Bookmark as BookmarkIcon,
   Flash,
@@ -9,6 +10,8 @@ import {
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/anon";
 import { ReviewStartButton } from "@/components/review-start-button";
+import { getQuickStarts } from "@/lib/quick-start";
+import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
 
 export default async function ReviewHubPage() {
@@ -84,7 +87,7 @@ export default async function ReviewHubPage() {
           <ReviewCard
             tone="accent"
             icon={<Flash className="h-4 w-4" strokeWidth={2.5} />}
-            title="오늘 SRS 복습"
+            title="오늘 복습할 문제"
             count={srsDueCount}
             sub="잊을 때쯤 자동으로 다시 나오는 문제"
             source="srs"
@@ -115,6 +118,26 @@ export default async function ReviewHubPage() {
         )}
       </ul>
 
+      {mistakeCount > 0 && (
+        <Link
+          href="/note"
+          className="mt-3 flex items-center gap-3 rounded-md border border-border bg-surface px-4 py-3.5 transition-colors hover:border-primary/40 hover:bg-surface-elev"
+        >
+          <div className="min-w-0 flex-1">
+            <p className="text-[14.5px] font-semibold text-text-high">
+              단권화 노트
+            </p>
+            <p className="mt-0.5 text-[12.5px] text-text-muted">
+              틀린 문제의 암기 후크만 한 장으로. 시험 전날용
+            </p>
+          </div>
+          <NavArrowRight
+            className="h-4 w-4 shrink-0 text-text-muted"
+            strokeWidth={2}
+          />
+        </Link>
+      )}
+
       {/* SRS 분포 */}
       {srsAll.length > 0 && (
         <section className="mt-10">
@@ -133,7 +156,7 @@ export default async function ReviewHubPage() {
                 return (
                   <li
                     key={b.label}
-                    className="flex flex-1 flex-col items-center gap-1"
+                    className="flex h-full flex-1 flex-col items-center justify-end gap-1"
                   >
                     <span className="text-[10.5px] font-semibold tabular-nums text-text-mid">
                       {b.count}
@@ -144,7 +167,10 @@ export default async function ReviewHubPage() {
                         isToday ? "bg-primary" : "bg-text-mid/30",
                       )}
                       style={{
-                        height: b.count > 0 ? `${Math.max(h, 6)}%` : "2px",
+                        height:
+                          b.count > 0
+                            ? `${Math.max(Math.round((h / 100) * 60), 4)}px`
+                            : "2px",
                       }}
                     />
                     <span
@@ -228,22 +254,17 @@ function ReviewCard({
   );
 }
 
-function EmptyScreen() {
+async function EmptyScreen() {
+  const quickStarts = await getQuickStarts().catch(() => []);
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col items-center justify-center px-4 text-center md:px-6">
-      <CheckCircle className="h-8 w-8 text-accent" strokeWidth={1.5} />
-      <h1 className="mt-4 text-[22px] font-bold tracking-[-0.01em] text-text-high">
-        지금은 복습할 거리가 없어요
-      </h1>
-      <p className="mt-3 max-w-xs text-[13.5px] leading-[1.6] text-text-mid">
-        문제를 더 풀고 나면 오답·북마크·복습 일정이 여기 모여요.
-      </p>
-      <Link
-        href="/"
-        className="mt-8 inline-flex h-10 items-center gap-1.5 rounded-md bg-primary px-4 text-[13px] font-semibold text-primary-fg transition-colors hover:bg-primary-hover"
-      >
-        문제 풀러 가기
-      </Link>
-    </div>
+    <EmptyState
+      icon={<CheckCircle className="h-6 w-6" strokeWidth={1.5} />}
+      title="지금은 복습할 거리가 없어요"
+      description="문제를 풀고 나면 틀린 문제·북마크·다시 볼 날짜가 여기 한곳에 모여요."
+      primary={
+        quickStarts.length ? undefined : { href: "/exams", label: "문제 풀러 가기" }
+      }
+      quickStarts={quickStarts}
+    />
   );
 }

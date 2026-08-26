@@ -117,7 +117,7 @@ export function ThreeDPSubjectPage({ subjectSlug }: { subjectSlug: string }) {
                     })}
                   </ul>
                   <Link
-                    href={`/exams/${DP_SLUG}/questions/${q.number}`}
+                    href={`/exams/${DP_SLUG}/rounds/${DP.exam.year}-${DP.exam.round}/questions/${q.number}`}
                     className="mt-3 flex items-center gap-1.5 border-t border-border-soft pt-3 text-[12px] font-semibold text-primary transition-colors hover:text-primary-hover"
                   >
                     <Sparks className="h-3.5 w-3.5" strokeWidth={2} />

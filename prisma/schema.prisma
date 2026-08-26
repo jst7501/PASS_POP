@@ -279,6 +279,11 @@ model AiExplanation {
   memoryHook           String?          @db.Text               // 암기 팁 한 줄
   recommendSubjectIds  String[]         @default([])
 
+  /// 프리미엄 해설의 구조 보존 (tldr / source / body / trap / extra).
+  /// explanation 은 이들을 이어 붙인 마크다운이라 그대로도 렌더되지만,
+  /// "자료 해독만 먼저 보여주기" 처럼 구간별로 다루려면 이 필드를 쓴다.
+  sections             Json?
+
   model                String           @default("claude-sonnet-4-5")
   tone                 ExplanationTone  @default(FRIENDLY)
   tokensUsed           Int?

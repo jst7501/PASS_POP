@@ -9,6 +9,9 @@ import {
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/anon";
 import { AttemptMode } from "@/lib/generated/prisma-client";
+import { aggregateTagWeakness, aggregateTagStrength } from "@/lib/weakness";
+import { getQuickStarts } from "@/lib/quick-start";
+import { EmptyState } from "@/components/empty-state";
 import { cn } from "@/lib/utils";
 
 const MODE_LABEL: Record<AttemptMode, string> = {
@@ -39,9 +42,24 @@ export default async function DashboardPage() {
     where: { userId: user.id },
     select: {
       isCorrect: true,
-      question: { select: { subject: { select: { name: true, slug: true } } } },
+      question: {
+        select: {
+          tags: true,
+          subject: {
+            select: {
+              name: true,
+              slug: true,
+              category: { select: { slug: true } },
+            },
+          },
+        },
+      },
     },
   });
+
+  // 태그 단위 약점 — 과목보다 한 단계 좁게 "무엇을 모르는지"
+  const weakTags = aggregateTagWeakness(recordsForRadar);
+  const strongTags = aggregateTagStrength(recordsForRadar);
   const subjectMap = new Map<
     string,
     { name: string; total: number; correct: number }
@@ -163,6 +181,80 @@ export default async function DashboardPage() {
               }))}
             />
           </div>
+        </section>
+      )}
+
+      {weakTags.length > 0 && (
+        <section className="mt-10">
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">
+                Weak Spots
+              </p>
+              <h2 className="mt-1 text-[17px] font-bold tracking-[-0.01em] text-text-high">
+                무엇을 모르는지
+              </h2>
+            </div>
+            <p className="text-[11.5px] text-text-muted">3문항 이상 푼 주제만</p>
+          </div>
+
+          <ul className="mt-4 space-y-2">
+            {weakTags.map((t) => (
+              <li key={t.tag}>
+                <Link
+                  href={`/practice?category=${t.categorySlug}&tag=${encodeURIComponent(t.tag)}&mode=weak`}
+                  className="flex items-center gap-3 rounded-md border border-border bg-surface px-4 py-2.5 transition-colors hover:border-primary/40 hover:bg-surface-elev"
+                >
+                <span className="min-w-0 flex-1 truncate text-[14px] font-semibold text-text-high">
+                  {t.tag}
+                </span>
+                <span className="shrink-0 text-[11.5px] text-text-muted">
+                  <span className="tabular-nums">{t.correct}</span>/
+                  <span className="tabular-nums">{t.total}</span>
+                </span>
+                <div className="h-1.5 w-24 shrink-0 overflow-hidden rounded-full bg-surface-mute">
+                  <div
+                    className={cn(
+                      "h-full rounded-full",
+                      t.rate < 40
+                        ? "bg-danger"
+                        : t.rate < 70
+                          ? "bg-warning"
+                          : "bg-accent",
+                    )}
+                    style={{ width: `${Math.max(t.rate, 4)}%` }}
+                  />
+                </div>
+                <span
+                  className={cn(
+                    "w-10 shrink-0 text-right text-[13px] font-bold tabular-nums",
+                    t.rate < 40
+                      ? "text-danger"
+                      : t.rate < 70
+                        ? "text-warning"
+                        : "text-accent",
+                  )}
+                >
+                  {t.rate}%
+                </span>
+                <NavArrowRight
+                  className="h-4 w-4 shrink-0 text-text-muted"
+                  strokeWidth={2}
+                />
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          {strongTags.length > 0 && (
+            <p className="mt-3 text-[12.5px] leading-[1.7] text-text-muted">
+              반대로{" "}
+              <span className="font-semibold text-text-mid">
+                {strongTags.map((t) => t.tag).join(" · ")}
+              </span>
+              은 잘 잡고 있어요.
+            </p>
+          )}
         </section>
       )}
 
@@ -563,24 +655,17 @@ function formatDate(d: Date): string {
   return `${yy}.${mm}.${dd} ${hh}:${mi}`;
 }
 
-function EmptyScreen() {
+async function EmptyScreen() {
+  const quickStarts = await getQuickStarts().catch(() => []);
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col items-center justify-center px-4 text-center md:px-6">
-      <GraphUp className="h-8 w-8 text-text-muted" strokeWidth={1.5} />
-      <h1 className="mt-4 text-[22px] font-bold tracking-[-0.01em] text-text-high">
-        아직 풀이 이력이 없어요
-      </h1>
-      <p className="mt-3 max-w-xs text-[13.5px] leading-[1.6] text-text-mid">
-        시험 한 회차만 풀어도 여기에 기록이 쌓여요. 점수 변화도 같이 보실 수
-        있고요.
-      </p>
-      <Link
-        href="/"
-        className="mt-8 inline-flex h-10 items-center gap-1.5 rounded-md bg-primary px-4 text-[13px] font-semibold text-primary-fg transition-colors hover:bg-primary-hover"
-      >
-        시험 둘러보기
-        <NavArrowRight className="h-4 w-4" strokeWidth={2.5} />
-      </Link>
-    </div>
+    <EmptyState
+      icon={<GraphUp className="h-6 w-6" strokeWidth={1.5} />}
+      title="아직 풀이 이력이 없어요"
+      description="시험 한 회차만 풀어도 여기에 기록이 쌓여요. 점수 변화와 합격 확률까지 같이 보실 수 있고요."
+      primary={
+        quickStarts.length ? undefined : { href: "/exams", label: "시험 둘러보기" }
+      }
+      quickStarts={quickStarts}
+    />
   );
 }

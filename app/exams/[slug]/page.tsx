@@ -9,10 +9,11 @@ import {
   Timer,
   StatsReport,
 } from "iconoir-react";
-import { getCategoryDetail, GRADE_LABEL } from "@/lib/queries";
+import { getCategoryDetail, GRADE_LABEL, gradeBadge } from "@/lib/queries";
 import { buildMeta } from "@/lib/seo/metadata";
 import { breadcrumbLd, courseLd } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/json-ld";
+import { passRuleFor } from "@/lib/exam-rules";
 import { cn } from "@/lib/utils";
 import { DP, DP_SLUG } from "@/lib/content/3dp";
 import { ThreeDPExamHome } from "@/components/exams/threedp-exam-home";
@@ -116,7 +117,7 @@ export default async function CategoryDetailPage({
       <header className="mt-4 border-b border-border pb-10 md:pb-12">
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-primary">
-            {GRADE_LABEL[category.grade]}
+            {gradeBadge(category)}
           </span>
           {category.field && (
             <span className="text-[12px] text-text-muted">· {category.field}</span>
@@ -343,11 +344,16 @@ function MockView({
 }) {
   const totalTarget = category.exams[0]?.totalQuestions ?? 100;
   const durationMin = category.exams[0]?.durationMin ?? 150;
+  // 종목마다 합격 기준이 다르다. 한능검처럼 과락이 없는 시험에
+  // "과목당 40점" 을 띄우면 없는 규칙을 알려주는 셈이 된다.
+  const rule = passRuleFor(slug, category.grade, category.subjects.length);
+  const hasCutoff = rule.kind === "average" && rule.subjectFloor != null;
 
   return (
     <>
       <p className="text-[14px] text-text-mid">
-        전 과목 섞어서 실제 CBT 환경으로. 시간 제한·과락 체크 포함.
+        전 과목 섞어서 실제 CBT 환경으로. 시간 제한
+        {hasCutoff ? " · 과락 체크" : " · 등급 판정"} 포함.
       </p>
 
       <div className="mt-8 rounded-md border border-border bg-surface p-6 md:p-8">
@@ -372,11 +378,25 @@ function MockView({
         <dl className="mt-8 grid grid-cols-3 gap-4 border-t border-border pt-6">
           <MockStat Icon={BookStack} label="출제" value={`${totalTarget}문제`} />
           <MockStat Icon={Timer} label="시간" value={`${durationMin}분`} />
-          <MockStat
-            Icon={StatsReport}
-            label="과락"
-            value="과목당 40점 미만"
-          />
+          {rule.kind === "grade" ? (
+            <MockStat
+              Icon={StatsReport}
+              label="합격"
+              value={rule.grades
+                .map((g) => `${g.label} ${g.min}점`)
+                .join(" · ")}
+            />
+          ) : (
+            <MockStat
+              Icon={StatsReport}
+              label={hasCutoff ? "과락" : "합격선"}
+              value={
+                hasCutoff
+                  ? `과목당 ${rule.subjectFloor}점 미만`
+                  : `${rule.passScore}점 이상`
+              }
+            />
+          )}
         </dl>
       </div>
     </>

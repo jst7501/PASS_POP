@@ -77,13 +77,19 @@ const KCCI = "대한상공회의소";
 export const SEO_EXAMS: SeoExam[] = [
   // ── 검색량이 큰 순으로 (한국사·컴활·정처기·지게차 계열이 상단) ──
   {
-    slug: "korean-history",
-    name: "한국사능력검정시험",
-    aliases: ["한능검", "한국사", "한국사시험", "한국사 자격증"],
+    slug: "korean-history-simhwa",
+    name: "한국사능력검정시험 심화",
+    aliases: [
+      "한능검",
+      "한능검 심화",
+      "한국사",
+      "한국사시험",
+      "한국사 자격증",
+    ],
     grade: "etc",
     authority: "국사편찬위원회",
-    blurb: "공무원·공기업 가산점의 기본. 심화와 기본 모두 회차별 기출로.",
-    status: "preparing",
+    blurb: "최근 20회차 1,000문항. 보기 하나하나에 해설이 붙어 있어요.",
+    status: "open",
   },
   {
     slug: "computer-specialist-1",
@@ -236,7 +242,7 @@ export const SEO_EXAMS: SeoExam[] = [
     grade: "gisa",
     authority: QNET,
     blurb: "응용역학부터 토질까지. 계산 과목 단계별 완전 풀이.",
-    status: "preparing",
+    status: "open",
   },
   {
     slug: "hvac-refrigeration-gisa",
@@ -245,7 +251,7 @@ export const SEO_EXAMS: SeoExam[] = [
     grade: "gisa",
     authority: QNET,
     blurb: "기계열역학·냉동공학 기출. 공식 유도까지 해설.",
-    status: "preparing",
+    status: "open",
   },
   {
     slug: "korean-cook-gineungsa",

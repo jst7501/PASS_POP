@@ -4,7 +4,6 @@ import { NavArrowLeft } from "iconoir-react";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/anon";
 import { PracticeSession } from "@/components/practice/practice-session";
-import { renderMathInHtml } from "@/components/practice/explanation-html";
 import { AttemptMode } from "@/lib/generated/prisma-client";
 import { isImageDependentQuestion } from "@/lib/exam-images";
 import { LocalPractice } from "@/components/practice/local-practice";
@@ -67,12 +66,6 @@ export default async function PracticeSessionPage({
       subject: { include: { category: true } },
       // 문제별 원본 회차 — 매니페스트 매칭에 필요 (subject/random/daily 모드도 작동하게)
       exam: { select: { pdfUrl: true } },
-      // 연습모드일 때 모든 해설 (general + wrongChoice별) 로드
-      explanations: isPractice
-        ? {
-            where: { userId: null },
-          }
-        : false,
     },
   });
 
@@ -90,32 +83,27 @@ export default async function PracticeSessionPage({
       id: q.id,
       number: q.number,
       stem: q.stem,
-      choices: q.choices as { label: string; text: string }[],
+      choices: q.choices as {
+        label: string;
+        text: string;
+        imageUrl?: string | null;
+      }[],
       hasMath: q.hasMath,
       subject: {
         name: q.subject.name,
         slug: q.subject.slug,
       },
       images: null,
+      // 직접 수집해 public/ 에 넣어둔 문제 그림 (한국사 등)
+      imageUrl: q.imageUrl,
+      imageAlt: null,
     };
     if (!isPractice) return base;
-    const rawExps =
-      (q as typeof q & {
-        explanations?: {
-          wrongChoice: string | null;
-          explanation: string;
-          memoryHook: string | null;
-        }[];
-      }).explanations ?? [];
-    const explanations = rawExps.map((e) => ({
-      wrongChoice: e.wrongChoice,
-      html: renderMathInHtml(e.explanation),
-      memoryHook: e.memoryHook,
-    }));
+    // 해설은 답을 고른 뒤에야 필요하다. 여기서 다 실어 보내면 페이로드의
+    // 94.8% 가 해설이 되므로(한국사 79회 기준), 화면에서 문항 단위로 가져간다.
     return {
       ...base,
       correctAnswer: q.correctAnswer,
-      explanations,
     };
   });
 

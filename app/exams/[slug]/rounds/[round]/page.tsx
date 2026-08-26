@@ -10,7 +10,12 @@ import {
   Play,
   SortDown,
 } from "iconoir-react";
-import { getExamDetail, parseRoundSlug, GRADE_LABEL } from "@/lib/queries";
+import {
+  getExamDetail,
+  parseRoundSlug,
+  GRADE_LABEL,
+  gradeBadge,
+} from "@/lib/queries";
 import { buildMeta } from "@/lib/seo/metadata";
 import { breadcrumbLd } from "@/lib/seo/structured-data";
 import { JsonLd } from "@/components/json-ld";
@@ -92,6 +97,7 @@ export default async function RoundDetailPage({
 
   const exam = await getExamDetail(slug, parsed.year, parsed.round);
   if (!exam) notFound();
+  const questionNumbers = exam.questionNumbers ?? [];
 
   return (
     <>
@@ -120,7 +126,7 @@ export default async function RoundDetailPage({
       <header className="mt-4 border-b border-border pb-10">
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-primary">
-            {GRADE_LABEL[exam.category.grade]}
+            {gradeBadge(exam.category)}
           </span>
           <span className="text-[12px] text-text-muted">· 회차</span>
         </div>
@@ -208,6 +214,31 @@ export default async function RoundDetailPage({
           이 회차에는 아직 수록된 문항이 없어요. 다른 회차를 선택하거나 과목별
           풀이를 이용해 주세요.
         </p>
+      )}
+
+      {/* 문제별 페이지로 들어가는 유일한 내부 링크.
+          없으면 상세 1,000개를 사이트맵으로만 발견하게 된다. */}
+      {questionNumbers.length > 0 && (
+        <section className="mt-12">
+          <h2 className="text-[15px] font-bold tracking-[-0.01em] text-text-high">
+            문제별 해설 보기
+          </h2>
+          <p className="mt-1.5 text-[13px] text-text-mid">
+            풀지 않고 해설만 먼저 볼 수도 있어요.
+          </p>
+          <ul className="mt-4 grid grid-cols-6 gap-1.5 sm:grid-cols-10">
+            {questionNumbers.map((n) => (
+              <li key={n}>
+                <Link
+                  href={`/exams/${slug}/rounds/${exam.year}-${exam.round}/questions/${n}`}
+                  className="flex h-11 items-center justify-center rounded-md border border-border bg-surface font-mono text-[13px] font-semibold tabular-nums text-text-mid transition-colors hover:border-primary/40 hover:text-primary"
+                >
+                  {n}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
       </div>
     </>

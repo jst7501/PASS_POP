@@ -15,13 +15,17 @@ import {
 import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { submitAttempt } from "@/lib/actions/attempts";
+import { fetchQuestionExplanations } from "@/lib/actions/explanations";
+import type { ConceptCard as ConceptCardData } from "@/lib/actions/explanations";
 import {
   toggleBookmark,
   saveQuestionNote,
 } from "@/lib/actions/user-actions";
 import { cn } from "@/lib/utils";
 import { PremiumExplanation } from "./premium-explanation";
+import { ConceptCard } from "./concept-card";
 import type { DpPremium } from "@/lib/content/3dp";
+import { HookText } from "@/components/hook-text";
 
 const LONG_PRESS_MS = 350;
 const MOVE_CANCEL_PX = 12; // 이 거리 이상 손가락이 움직이면 스크롤로 간주
@@ -31,18 +35,21 @@ type ExplEntry = {
   wrongChoice: string | null;
   html: string;
   memoryHook: string | null;
+  /** general 해설에만 붙는 개념 카드 (sections 가 있는 종목) */
+  concept?: ConceptCardData | null;
 };
 
 type QuestionImages = {
   body: string[];
-  options: Partial<Record<1 | 2 | 3 | 4, string[]>>;
+  // 5지선다(한국사 등)도 있어서 보기 번호를 고정하지 않는다
+  options: Partial<Record<number, string[]>>;
 };
 
 type Question = {
   id: string;
   number: number;
   stem: string;
-  choices: { label: string; text: string }[];
+  choices: { label: string; text: string; imageUrl?: string | null }[];
   hasMath: boolean;
   subject: { name: string; slug: string };
   images?: QuestionImages | null;
@@ -104,6 +111,9 @@ export function PracticeSession({
     () => initialNotes ?? {},
   );
   const [noteOpen, setNoteOpen] = useState(false);
+  // 해설은 초기 페이로드에 없다. 답을 고른 문항 것만 가져와 여기 쌓는다.
+  const [explCache, setExplCache] = useState<Record<string, ExplEntry[]>>({});
+  const [explLoadingId, setExplLoadingId] = useState<string | null>(null);
   const [timeAcc, setTimeAcc] = useState<Record<string, number>>({});
   const [qStart, setQStart] = useState<number>(() => Date.now());
   const [confirming, setConfirming] = useState(false);
@@ -131,6 +141,32 @@ export function PracticeSession({
   // 연습모드: 첫 문제에 correctAnswer가 내려오면 실시간 채점 모드
   const isPractice =
     questions.length > 0 && questions[0].correctAnswer !== undefined;
+
+  // 답을 고른 문항의 해설을 그때 가져온다 (초기 페이로드에는 안 실려 있다).
+  // 이미 받아둔 문항이나 서버가 미리 넣어준 문항(3D프린터 JSON)은 건너뛴다.
+  const currentId = current?.id;
+  const currentAnswer = currentId ? answers[currentId] : undefined;
+  useEffect(() => {
+    if (!isPractice || !currentId || !currentAnswer) return;
+    if (explCache[currentId] || current?.explanations || current?.premium) return;
+
+    let cancelled = false;
+    setExplLoadingId(currentId);
+    fetchQuestionExplanations(currentId)
+      .then((rows) => {
+        if (!cancelled) setExplCache((prev) => ({ ...prev, [currentId]: rows }));
+      })
+      .catch(() => {
+        if (!cancelled) setExplCache((prev) => ({ ...prev, [currentId]: [] }));
+      })
+      .finally(() => {
+        if (!cancelled) setExplLoadingId((id) => (id === currentId ? null : id));
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentId, currentAnswer, isPractice]);
 
   useEffect(() => {
     if (durationMin == null) return;
@@ -366,8 +402,11 @@ export function PracticeSession({
         <div className="grid gap-10 md:grid-cols-[1fr_260px]">
           <div>
             <div className="flex items-center justify-between gap-2">
-              <span className="font-mono text-[12px] font-semibold tracking-wider text-text-muted">
-                Q.{String(current.number).padStart(2, "0")}
+              <span className="font-mono text-[22px] font-extrabold leading-none tracking-[-0.03em] text-primary">
+                {current.number}
+                <span className="ml-1 text-[12px] font-semibold text-text-muted">
+                  번
+                </span>
               </span>
               <div className="flex items-center gap-1.5">
                 <button
@@ -400,17 +439,17 @@ export function PracticeSession({
               </div>
             </div>
 
-            <div className="mt-5 whitespace-pre-wrap text-[17px] leading-[1.75] text-text-high md:text-[18px]">
+            <div className="mt-5 whitespace-pre-wrap text-[17px] leading-[1.8] text-text-high md:text-[18px]">
               <MathText text={current.stem} />
             </div>
 
             {current.imageUrl && (
-              <div className="mt-5 overflow-hidden rounded-md border border-border bg-white p-3">
+              <div className="mt-5">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={current.imageUrl}
                   alt={current.imageAlt ?? ""}
-                  className="mx-auto max-h-72 w-auto"
+                  className="mx-auto max-h-80 w-full max-w-[520px] rounded-md object-contain"
                 />
               </div>
             )}
@@ -442,29 +481,28 @@ export function PracticeSession({
                   showResult && value === current.correctAnswer && !isSelected;
 
                 let containerCls =
-                  "border-border bg-surface text-text-mid hover:border-primary/30 hover:bg-surface-elev hover:text-text-high";
+                  "border-transparent bg-surface-mute text-text-mid hover:bg-surface-elev hover:text-text-high";
                 let badgeCls = "bg-surface-mute text-text-mid";
 
                 if (showResult) {
                   if (isThisCorrect) {
                     containerCls =
-                      "border-accent bg-accent/10 text-text-high";
+                      "border-transparent border-l-[3px] border-l-accent bg-accent/[0.10] font-semibold text-text-high";
                     badgeCls = "bg-accent text-white";
                   } else if (isThisWrongPick) {
                     containerCls =
-                      "border-danger bg-danger/10 text-text-high";
+                      "border-transparent border-l-[3px] border-l-danger bg-danger/[0.10] font-semibold text-text-high";
                     badgeCls = "bg-danger text-white";
                   } else if (isMissedCorrect) {
                     containerCls =
-                      "border-accent/50 bg-accent/5 text-text-mid";
+                      "border-transparent border-l-[3px] border-l-accent/50 bg-accent/[0.06] text-text-mid";
                     badgeCls = "bg-accent/70 text-white";
                   } else {
-                    containerCls =
-                      "border-border bg-surface text-text-muted";
+                    containerCls = "border-transparent bg-surface-mute text-text-muted";
                   }
                 } else if (isSelected) {
                   containerCls =
-                    "border-primary bg-primary-subtle text-text-high";
+                    "border-transparent border-l-[3px] border-l-primary bg-primary-subtle font-semibold text-text-high";
                   badgeCls = "bg-primary text-primary-fg";
                 }
 
@@ -488,7 +526,7 @@ export function PracticeSession({
                       onContextMenu={(e) => e.preventDefault()}
                       style={{ touchAction: "manipulation" }}
                       className={cn(
-                        "flex w-full select-none items-start gap-3 rounded-md border px-4 py-3.5 text-left transition-all",
+                        "flex min-h-[56px] w-full select-none items-start gap-3 rounded-md border px-4 py-3.5 text-left transition-all",
                         containerCls,
                       )}
                     >
@@ -500,9 +538,18 @@ export function PracticeSession({
                       >
                         {c.label}
                       </span>
-                      <span className="flex-1 text-[15px] leading-[1.6]">
+                      <span className="flex-1 text-[15.5px] leading-[1.6]">
                         {c.text && c.text.trim() && (
                           <MathText text={c.text} />
+                        )}
+                        {/* 보기 자체가 사진인 문항 (한국사 문화유산 등) */}
+                        {c.imageUrl && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={c.imageUrl}
+                            alt={`보기 ${c.label}`}
+                            className="max-h-40 w-auto rounded-sm bg-white"
+                          />
                         )}
                       </span>
                       {isThisCorrect && (
@@ -514,7 +561,7 @@ export function PracticeSession({
                       {!showResult && isSelected && (
                         <span className="mt-0.5 inline-flex shrink-0 items-center gap-1">
                           {showUnsure && (
-                            <span className="rounded-sm bg-warning/20 px-1.5 py-0 text-[10px] font-semibold tabular-nums text-warning">
+                            <span className="rounded-sm bg-warning/20 px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-warning">
                               고민
                             </span>
                           )}
@@ -533,7 +580,7 @@ export function PracticeSession({
             {/* 답 한 번 안 골랐을 때 long-press 안내 */}
             {!answers[current.id] && (
               <p className="mt-3 text-[11.5px] text-text-muted">
-                <span className="rounded-sm bg-surface-mute px-1.5 py-0 text-[10px] font-medium text-text-mid">
+                <span className="rounded-sm bg-surface-mute px-1.5 py-0.5 text-[11px] font-medium text-text-mid">
                   Tip
                 </span>{" "}
                 답에 자신 있으면 짧게 탭, 고민되면 길게 눌러 표시.
@@ -559,7 +606,10 @@ export function PracticeSession({
                 correct={answers[current.id] === current.correctAnswer}
                 correctAnswer={current.correctAnswer!}
                 userAnswer={answers[current.id]!}
-                explanations={current.explanations ?? []}
+                explanations={
+                  current.explanations ?? explCache[current.id] ?? []
+                }
+                loading={explLoadingId === current.id}
                 premium={current.premium}
               />
             )}
@@ -608,7 +658,7 @@ export function PracticeSession({
                   {answeredCount}/{questions.length}
                 </span>
               </div>
-              <div className="mt-3 grid grid-cols-8 gap-1.5 md:grid-cols-5">
+              <div className="mt-3 grid grid-cols-6 gap-1.5 md:grid-cols-5">
                 {questions.map((q, i) => {
                   const state = getCellState(
                     i === index,
@@ -621,7 +671,7 @@ export function PracticeSession({
                       type="button"
                       onClick={() => goTo(i)}
                       className={cn(
-                        "relative flex h-9 items-center justify-center rounded-lg font-mono text-[12px] font-semibold tabular-nums transition-colors",
+                        "relative flex h-11 items-center justify-center rounded-md font-mono text-[13px] font-semibold tabular-nums transition-colors",
                         state === "current" &&
                           "bg-primary text-primary-fg ring-2 ring-primary/30",
                         state === "answered" &&
@@ -640,7 +690,7 @@ export function PracticeSession({
                   );
                 })}
               </div>
-              <div className="mt-4 flex flex-wrap gap-3 text-[11px] text-text-muted">
+              <div className="mt-4 flex flex-wrap gap-3 text-[11.5px] text-text-muted">
                 <LegendDot className="bg-primary" label="현재" />
                 <LegendDot className="bg-primary/30" label="답함" />
                 <LegendDot
@@ -743,7 +793,7 @@ function NotePanel({
   if (!open && value) {
     return (
       <div className="mt-5 rounded-md border border-border bg-surface px-3 py-2.5">
-        <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-text-muted">
+        <p className="text-[11.5px] font-semibold text-text-muted">
           내 메모
         </p>
         <p className="mt-1 whitespace-pre-wrap text-[13px] leading-[1.55] text-text-high">
@@ -756,7 +806,7 @@ function NotePanel({
   return (
     <div className="mt-5 rounded-md border border-border bg-surface p-3">
       <div className="flex items-center justify-between">
-        <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-text-muted">
+        <p className="text-[11.5px] font-semibold text-text-muted">
           메모
         </p>
         <button
@@ -777,7 +827,7 @@ function NotePanel({
         placeholder="공식, 함정, 비슷한 문제 번호 — 자유롭게."
         className="mt-1 w-full resize-none rounded-sm bg-background p-2 text-[13.5px] leading-[1.55] text-text-high placeholder:text-text-muted/70 focus:outline-none"
       />
-      <p className="mt-1 text-[10.5px] text-text-muted">
+      <p className="mt-1.5 text-[11.5px] text-text-muted">
         자동 저장 · 다른 문제로 넘어가거나 제출하면 즉시 저장
       </p>
     </div>
@@ -800,12 +850,15 @@ function PracticeExplanation({
   correctAnswer,
   userAnswer,
   explanations,
+  loading = false,
   premium,
 }: {
   correct: boolean;
   correctAnswer: string;
   userAnswer: string;
   explanations: ExplEntry[];
+  /** 해설을 문항 단위로 가져오는 중 */
+  loading?: boolean;
   premium?: DpPremium;
 }) {
   // 3D프린터(JSON 종목) — 구조화 프리미엄 해설 카드로 렌더
@@ -835,7 +888,7 @@ function PracticeExplanation({
       <div className="flex items-center gap-2">
         <span
           className={cn(
-            "inline-flex items-center gap-1 rounded-md px-2 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wider",
+            "inline-flex items-center gap-1 rounded-md px-2 py-1 text-[12px] font-bold",
             correct ? "bg-accent/15 text-accent" : "bg-danger/15 text-danger",
           )}
         >
@@ -857,8 +910,10 @@ function PracticeExplanation({
       </div>
 
       {hasIndividual && !correct && (
-        <p className="mt-3 text-[12px] text-text-muted">
-          <strong className="text-text-mid">{userAnswer}번을 고른 분께</strong>{" "}
+        <p className="mt-3 rounded-md bg-primary/[0.07] px-3 py-2 text-[13px] leading-[1.6] text-text-mid">
+          <strong className="font-semibold text-primary">
+            {userAnswer}번을 고른 분께
+          </strong>{" "}
           맞춘 해설이에요.
         </p>
       )}
@@ -868,11 +923,21 @@ function PracticeExplanation({
           className="explanation-html mt-4"
           dangerouslySetInnerHTML={{ __html: main.html }}
         />
+      ) : loading ? (
+        <div className="mt-4 space-y-2" aria-live="polite" aria-busy="true">
+          <span className="sr-only">해설을 불러오는 중이에요</span>
+          <div className="h-3.5 w-full animate-pulse rounded bg-surface-mute" />
+          <div className="h-3.5 w-[92%] animate-pulse rounded bg-surface-mute" />
+          <div className="h-3.5 w-[78%] animate-pulse rounded bg-surface-mute" />
+        </div>
       ) : (
         <p className="mt-3 text-[13px] text-text-muted">
           이 문제 해설은 아직 준비 중이에요.
         </p>
       )}
+
+      {/* 개념 카드 — 막힌 자리에서 교재 없이 개념·함정·암기를 펼친다 */}
+      {general?.concept && <ConceptCard concept={general.concept} />}
 
       {/* 개별 피드백을 메인으로 보여줬을 때 → general 풀이도 토글로 같이 볼 수 있게 */}
       {hasIndividual && general && (
@@ -905,7 +970,7 @@ function PracticeExplanation({
       {general?.memoryHook && (
         <p className="mt-4 border-t border-border-soft pt-3 text-[13px] leading-[1.6] text-text-mid">
           <span className="font-semibold text-primary">암기 팁 · </span>
-          {general.memoryHook}
+          <HookText text={general.memoryHook} />
         </p>
       )}
     </div>

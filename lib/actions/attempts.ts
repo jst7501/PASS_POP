@@ -13,6 +13,8 @@ type StartParams = {
   categorySlug: string;
   subjectSlug?: string;
   examSlug?: string; // "YYYY-N"
+  /** 약점 집중 — 이 태그가 붙은 문항만 모아 푼다 */
+  tag?: string;
   mode:
     | "sequence"
     | "random"
@@ -20,7 +22,8 @@ type StartParams = {
     | "cbt"
     | "practice"
     | "mock"
-    | "daily";
+    | "daily"
+    | "weak";
 };
 
 function mapMode(m: StartParams["mode"]): AttemptMode {
@@ -30,6 +33,8 @@ function mapMode(m: StartParams["mode"]): AttemptMode {
       return AttemptMode.EXAM;
     case "wrong":
       return AttemptMode.REVIEW;
+    case "weak":
+      return AttemptMode.WEAK;
     default:
       return AttemptMode.PRACTICE;
   }
@@ -46,9 +51,15 @@ export async function startAttempt(p: StartParams) {
   const where: {
     subject: { categoryId: string; slug?: string };
     examId?: string;
+    tags?: { has: string };
   } = {
     subject: { categoryId: category.id },
   };
+
+  // 약점 태그로 모아 풀기 — 대시보드의 "무엇을 모르는지"에서 바로 넘어온다
+  if (p.tag) {
+    where.tags = { has: p.tag };
+  }
 
   if (p.subjectSlug) {
     where.subject.slug = p.subjectSlug;
@@ -95,6 +106,24 @@ export async function startAttempt(p: StartParams) {
     questions = [...questionsRaw]
       .sort(() => Math.random() - 0.5)
       .slice(0, 10);
+  } else if (p.mode === "weak") {
+    // 틀린 적 있는 문항을 앞에 세우고, 최대 20문으로 자른다
+    const wrongIds = new Set(
+      (
+        await prisma.answerRecord.findMany({
+          where: {
+            userId: user.id,
+            isCorrect: false,
+            questionId: { in: questionsRaw.map((q) => q.id) },
+          },
+          select: { questionId: true },
+          distinct: ["questionId"],
+        })
+      ).map((r) => r.questionId),
+    );
+    questions = [...questionsRaw]
+      .sort((a, b) => Number(wrongIds.has(b.id)) - Number(wrongIds.has(a.id)))
+      .slice(0, 20);
   } else if (p.mode === "daily") {
     // 결정적 1문제 — 같은 유저·같은 날엔 같은 문제
     if (questionsRaw.length > 0) {
@@ -278,8 +307,12 @@ export async function submitAttempt(attemptId: string, answers: Answer[]) {
   });
   if (!attempt) throw new Error("세션을 찾을 수 없습니다.");
   if (attempt.finishedAt) {
+    // score 는 백분율이라 맞은 개수로 쓸 수 없다 — 기록에서 직접 센다
+    const correctCount = await prisma.answerRecord.count({
+      where: { attemptId, isCorrect: true },
+    });
     return {
-      correctCount: attempt.score ?? 0,
+      correctCount,
       total: attempt.totalMax ?? 0,
       score: attempt.score ?? 0,
       alreadyFinished: true,
@@ -337,7 +370,16 @@ export async function submitAttempt(attemptId: string, answers: Answer[]) {
   }
 
   const correctCount = records.filter((r) => r.isCorrect).length;
-  const score = Math.round((correctCount / records.length) * 100);
+  // 점수는 배점 합으로 낸다. 한능검처럼 1~3점이 섞인 시험은
+  // 맞힌 "개수" 비율과 실제 점수가 달라서 급수 판정까지 틀어진다.
+  const pointsOf = (id: string) => qMap.get(id)?.points ?? 1;
+  const maxPoints = records.reduce((sum, r) => sum + pointsOf(r.questionId), 0);
+  const gotPoints = records.reduce(
+    (sum, r) => sum + (r.isCorrect ? pointsOf(r.questionId) : 0),
+    0,
+  );
+  const score =
+    maxPoints > 0 ? Math.round((gotPoints / maxPoints) * 100) : 0;
 
   await prisma.attempt.update({
     where: { id: attemptId },

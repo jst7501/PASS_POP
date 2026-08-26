@@ -17,7 +17,9 @@ import { MathText } from "@/components/practice/math-text";
 import { ExplanationHtml } from "@/components/practice/explanation-html";
 import { getQuestionImages, type QuestionImages } from "@/lib/exam-images";
 import { LocalResult } from "@/components/practice/local-result";
+import { passRuleFor, judge, type PassVerdict } from "@/lib/exam-rules";
 import { cn } from "@/lib/utils";
+import { HookText } from "@/components/hook-text";
 
 const PASS_THRESHOLD = 60;
 
@@ -77,7 +79,7 @@ export default async function ResultPage({
   const wrongCount = records.filter((r) => !r.isCorrect && !r.skipped).length;
   const skippedCount = records.filter((r) => r.skipped).length;
   const scorePct = attempt.score ?? 0;
-  const isPass = scorePct >= PASS_THRESHOLD;
+
   const totalTimeSec = records.reduce((s, r) => s + r.timeSpentSec, 0);
   const timed = records.filter((r) => r.timeSpentSec > 0);
   const avgTimeSec =
@@ -204,6 +206,32 @@ export default async function ResultPage({
     .sort((a, b) => b.timeSpentSec - a.timeSpentSec)
     .slice(0, 3);
 
+  const categoryName =
+    attempt.exam?.category.name ??
+    records[0]?.question.subject.category.name ??
+    "";
+  const categorySlug =
+    attempt.exam?.category.slug ??
+    records[0]?.question.subject.category.slug ??
+    "";
+  const categoryGrade =
+    attempt.exam?.category.grade ??
+    records[0]?.question.subject.category.grade ??
+    null;
+
+  // 종목별 합격 규칙으로 판정 (기술자격은 과목당 40점 과락, 한능검은 등급제)
+  const passVerdict = judge(
+    passRuleFor(categorySlug, categoryGrade, subjects.length),
+    scorePct,
+    subjects.map((x) => ({
+      slug: x.slug,
+      name: x.name,
+      rate: x.rate,
+      total: x.total,
+    })),
+  );
+  const isPass = passVerdict.isPass;
+
   // 종합 한 줄
   const verdict = composeVerdict({
     isPass,
@@ -213,15 +241,6 @@ export default async function ResultPage({
     quad,
     thirds,
   });
-
-  const categoryName =
-    attempt.exam?.category.name ??
-    records[0]?.question.subject.category.name ??
-    "";
-  const categorySlug =
-    attempt.exam?.category.slug ??
-    records[0]?.question.subject.category.slug ??
-    "";
 
   // 1문 세션(데일리)에선 분석 의미 X. 2문부터는 일부 의미 있음.
   // 섹션별로 자체 데이터 임계값을 따로 둠 (기존 showAnalytics 일괄 가드 폐기)
@@ -256,7 +275,7 @@ export default async function ResultPage({
               {correctCount}문제 정답 · 전체 {total}문제
             </p>
           </div>
-          <PassBadge isPass={isPass} scorePct={scorePct} />
+          <PassBadge verdict={passVerdict} />
         </div>
 
         <dl className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
@@ -365,14 +384,20 @@ export default async function ResultPage({
               const ratePct = Math.round(s.rate * 100);
               const isBest = bestSubject?.slug === s.slug;
               const isWorst = worstSubject?.slug === s.slug;
+              const isCutoff = passVerdict.failedSubjects.some(
+                (f) => f.slug === s.slug,
+              );
               return (
                 <li
                   key={s.slug}
                   className={cn(
-                    "rounded-md border bg-surface px-4 py-3",
-                    isBest && "border-accent/40",
-                    isWorst && "border-danger/40",
-                    !isBest && !isWorst && "border-border",
+                    "rounded-md border px-4 py-3",
+                    isCutoff
+                      ? "border-danger bg-danger/[0.06]"
+                      : "bg-surface",
+                    !isCutoff && isBest && "border-accent/40",
+                    !isCutoff && isWorst && "border-danger/40",
+                    !isCutoff && !isBest && !isWorst && "border-border",
                   )}
                 >
                   <div className="flex items-center justify-between gap-3">
@@ -386,10 +411,16 @@ export default async function ResultPage({
                             최고
                           </span>
                         )}
-                        {isWorst && (
-                          <span className="rounded-sm bg-danger/15 px-1.5 py-0 text-[10px] font-semibold text-danger">
-                            약점
+                        {isCutoff ? (
+                          <span className="rounded-sm bg-danger px-1.5 py-0 text-[10px] font-semibold text-white">
+                            과락
                           </span>
+                        ) : (
+                          isWorst && (
+                            <span className="rounded-sm bg-danger/15 px-1.5 py-0 text-[10px] font-semibold text-danger">
+                              약점
+                            </span>
+                          )
                         )}
                       </div>
                       <p className="mt-0.5 text-[11.5px] text-text-muted">
@@ -1080,7 +1111,7 @@ function QuestionReview({
             {matched?.memoryHook && (
               <p className="mt-4 border-t border-primary/15 pt-3 text-[13px] leading-[1.6] text-text-mid">
                 <span className="font-semibold text-primary">암기 팁 · </span>
-                {matched.memoryHook}
+                <HookText text={matched.memoryHook} />
               </p>
             )}
           </div>
@@ -1137,14 +1168,25 @@ function StatusLabel({
   );
 }
 
-function PassBadge({
-  isPass,
-  scorePct,
-}: {
-  isPass: boolean;
-  scorePct: number;
-}) {
-  const gap = scorePct - PASS_THRESHOLD;
+function PassBadge({ verdict }: { verdict: PassVerdict }) {
+  const { isPass, gradeLabel, failedSubjects, gap } = verdict;
+  const hasCutoff = failedSubjects.length > 0;
+
+  // 총점은 넘겼는데 과락으로 떨어진 경우를 따로 말해준다 — 원인이 다르니까
+  const headline = gradeLabel
+    ? `${gradeLabel} 합격권`
+    : isPass
+      ? "합격 추정"
+      : hasCutoff
+        ? "과락"
+        : "불합격 추정";
+
+  const detail = hasCutoff
+    ? `${failedSubjects.map((s) => s.name).join(" · ")} 40점 미만`
+    : gap >= 0
+      ? `+${gap}점 여유`
+      : `합격선까지 ${Math.abs(gap)}점`;
+
   return (
     <div
       className={cn(
@@ -1154,11 +1196,14 @@ function PassBadge({
           : "border-danger/40 bg-danger/10 text-danger",
       )}
     >
-      <span className="text-[13px] font-semibold">
-        {isPass ? "합격 추정" : "불합격 추정"}
-      </span>
-      <span className="text-[10.5px] tabular-nums opacity-80">
-        {gap >= 0 ? `+${gap}점 여유` : `합격선까지 ${Math.abs(gap)}점`}
+      <span className="text-[13px] font-semibold">{headline}</span>
+      <span
+        className={cn(
+          "text-[10.5px] opacity-80",
+          !hasCutoff && "tabular-nums",
+        )}
+      >
+        {detail}
       </span>
     </div>
   );

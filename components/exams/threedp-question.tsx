@@ -46,6 +46,7 @@ export function ThreeDPQuestionPage({ number }: { number: number }) {
   const answerText =
     q.choices.find((c) => c.label === q.correctAnswer)?.text ?? "";
   const base = `/exams/${DP_SLUG}`;
+  const roundBase = `${base}/rounds/${DP.exam.year}-${DP.exam.round}`;
 
   return (
     <>
@@ -56,12 +57,12 @@ export function ThreeDPQuestionPage({ number }: { number: number }) {
             { name: "시험 종목", path: "/exams" },
             { name: DP.category.name, path: base },
             { name: subject?.name ?? "과목", path: `${base}/subjects/${q.subjectSlug}` },
-            { name: `${q.number}번 문제`, path: `${base}/questions/${q.number}` },
+            { name: `${q.number}번 문제`, path: `${base}/rounds/${DP.exam.year}-${DP.exam.round}/questions/${q.number}` },
           ]),
           qaPageLd({
             question: q.stem,
             answerText: `정답: ${q.correctAnswer}번 ${answerText}. ${q.premium.answerSummary}`,
-            path: `${base}/questions/${q.number}`,
+            path: `${base}/rounds/${DP.exam.year}-${DP.exam.round}/questions/${q.number}`,
           }),
         ]}
       />
@@ -246,7 +247,7 @@ export function ThreeDPQuestionPage({ number }: { number: number }) {
         <nav className="mt-10 flex items-stretch gap-3">
           {prev ? (
             <Link
-              href={`${base}/questions/${prev.number}`}
+              href={`${roundBase}/questions/${prev.number}`}
               className="group flex flex-1 items-center gap-2 rounded-md border border-border bg-surface px-4 py-3 transition-colors hover:border-primary/30"
             >
               <NavArrowLeft className="h-4 w-4 shrink-0 text-text-muted" strokeWidth={2} />
@@ -260,7 +261,7 @@ export function ThreeDPQuestionPage({ number }: { number: number }) {
           )}
           {next ? (
             <Link
-              href={`${base}/questions/${next.number}`}
+              href={`${roundBase}/questions/${next.number}`}
               className="group flex flex-1 items-center justify-end gap-2 rounded-md border border-border bg-surface px-4 py-3 text-right transition-colors hover:border-primary/30"
             >
               <span className="min-w-0">
@@ -284,7 +285,7 @@ export function ThreeDPQuestionPage({ number }: { number: number }) {
               {sameSubject.map((x) => (
                 <li key={x.id}>
                   <Link
-                    href={`${base}/questions/${x.number}`}
+                    href={`${roundBase}/questions/${x.number}`}
                     className="group flex items-start gap-2 rounded-md border border-border bg-surface px-4 py-3 transition-colors hover:border-primary/30 hover:bg-surface-mute"
                   >
                     <span className="font-mono text-[12px] font-semibold text-text-muted">

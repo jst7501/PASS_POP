@@ -137,8 +137,9 @@ export function questionHasImages(
 }
 
 /**
- * 이 문제가 그림에 의존하는지 종합 판정.
+ * 이 문제가 "그림이 필요한데 그림을 못 그리는" 상태인지 판정.
  * 베타에서 풀이 대상에서 제외할 기준:
+ *  0. 단, Question.imageUrl 이나 보기 imageUrl 이 있으면 그릴 수 있으니 제외하지 않는다
  *  1. DB 의 hasImage 플래그 (시드가 "그림", "도식", "도면" 등 텍스트로 감지)
  *  2. stem / choices 에 `[img:URL]` 같은 외부 이미지 링크 박혀있음
  *  3. manifest 에 추출 이미지가 매칭됨
@@ -148,8 +149,18 @@ export function isImageDependentQuestion(q: {
   stem?: string;
   choices?: unknown;
   number: number;
+  imageUrl?: string | null;
   exam?: { pdfUrl: string | null } | null;
 }): boolean {
+  // 그림을 이미 확보해 앱에서 그릴 수 있으면 제외 대상이 아니다.
+  // (한국사처럼 원본 이미지를 직접 수집해 public/ 에 넣어둔 종목)
+  if (q.imageUrl) return false;
+  if (Array.isArray(q.choices)) {
+    for (const c of q.choices as Array<{ imageUrl?: unknown }>) {
+      if (c && typeof c.imageUrl === "string" && c.imageUrl) return false;
+    }
+  }
+
   if (q.hasImage) return true;
 
   const IMG_LINK = /\[img[:\s]/i;

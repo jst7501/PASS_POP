@@ -4,7 +4,8 @@ import Script from "next/script";
 import "./globals.css";
 import { JsonLd } from "@/components/json-ld";
 import { ThemeProvider } from "@/components/theme-provider";
-import { LogoLockup, LogoMark } from "@/components/brand";
+import { LogoMark } from "@/components/brand";
+import { SiteHeader } from "@/components/site-header";
 import {
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
@@ -235,7 +236,7 @@ gtag('config', '${GA_MEASUREMENT_ID}');`}
         </a>
         <ThemeProvider>
           <div className="flex min-h-screen flex-col">
-            <LandingHeader />
+            <SiteHeader />
             <main id="main-content" className="flex-1">
               {children}
             </main>
@@ -247,54 +248,6 @@ gtag('config', '${GA_MEASUREMENT_ID}');`}
   );
 }
 
-function LandingHeader() {
-  return (
-    <header className="sticky top-0 z-40 border-b border-border-soft bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 transition-opacity hover:opacity-80"
-          aria-label="PASSPOP 홈"
-        >
-          <LogoLockup />
-        </Link>
-
-        <nav
-          className="hidden items-center gap-1 md:flex"
-          aria-label="섹션 이동"
-        >
-          <HeaderAnchor href="/#browse">둘러보기</HeaderAnchor>
-          <HeaderAnchor href="/cbt">시험 종목</HeaderAnchor>
-          <HeaderAnchor href="/#faq">FAQ</HeaderAnchor>
-        </nav>
-
-        <Link
-          href="#waitlist"
-          className="inline-flex h-11 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-fg transition-all hover:bg-primary-hover active:scale-[0.98]"
-        >
-          오픈 알림 받기
-        </Link>
-      </div>
-    </header>
-  );
-}
-
-function HeaderAnchor({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <a
-      href={href}
-      className="rounded-md px-3 py-2 text-sm font-medium text-text-mid transition-colors hover:bg-surface-mute hover:text-text-high"
-    >
-      {children}
-    </a>
-  );
-}
 
 function LandingFooter() {
   return (

@@ -6,6 +6,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/anon";
+import { publishedExplanationWhere } from "../../explanation-visibility";
 
 // ─── 공개 데이터 캐시 ──────────────────────────────────────────
 // 카테고리/과목/회차/공개해설 — 모든 유저 동일하므로 1시간 캐시.
@@ -34,7 +35,7 @@ const getPublicHomeData = unstable_cache(
       },
     });
     const publishedByExam = await prisma.aiExplanation.findMany({
-      where: { userId: null, model: "hand-written" },
+      where: publishedExplanationWhere,
       distinct: ["questionId"],
       select: { question: { select: { examId: true } } },
     });

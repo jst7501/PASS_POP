@@ -163,16 +163,34 @@ export default async function BookmarksPage({
                   <p className="whitespace-pre-wrap text-[14.5px] leading-[1.7] text-text-high">
                     <MathText text={q.stem} />
                   </p>
-                  {(images?.body?.length ||
-                    Object.values(images?.options ?? {}).some(
-                      (a) => (a?.length ?? 0) > 0,
-                    )) && (
+                  {q.imageUrl && (
+                    <div className="mt-3 overflow-hidden rounded-md border border-border bg-white p-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={q.imageUrl}
+                        alt=""
+                        className="mx-auto max-h-56 w-auto"
+                      />
+                    </div>
+                  )}
+
+                  {!q.imageUrl &&
+                    (images?.body?.length ||
+                      Object.values(images?.options ?? {}).some(
+                        (a) => (a?.length ?? 0) > 0,
+                      )) && (
                     <div className="mt-3 rounded-md border border-warning/30 bg-warning/[0.05] px-3 py-2 text-[11.5px] text-text-mid">
                       그림 포함 — 베타에서 그림 표시 보류 중
                     </div>
                   )}
                   <ul className="mt-3 space-y-1.5">
-                    {(q.choices as { label: string; text: string }[]).map(
+                    {(
+                      q.choices as {
+                        label: string;
+                        text: string;
+                        imageUrl?: string | null;
+                      }[]
+                    ).map(
                       (c, i) => {
                         const n = String(i + 1);
                         const isCorrect = n === q.correctAnswer;
@@ -188,7 +206,15 @@ export default async function BookmarksPage({
                           >
                             <span className="font-semibold">{c.label}</span>
                             <span className="flex-1">
-                              <MathText text={c.text} />
+                              {c.text?.trim() && <MathText text={c.text} />}
+                              {c.imageUrl && (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={c.imageUrl}
+                                  alt={`보기 ${c.label}`}
+                                  className="max-h-28 w-auto rounded-sm bg-white"
+                                />
+                              )}
                             </span>
                           </li>
                         );

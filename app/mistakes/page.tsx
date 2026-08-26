@@ -4,6 +4,7 @@ import {
   NavArrowRight,
   XmarkCircle,
   CheckCircle,
+  Xmark,
 } from "iconoir-react";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth/anon";
@@ -15,6 +16,9 @@ import {
   getQuestionImages,
   isImageDependentQuestion,
 } from "@/lib/exam-images";
+import { getQuickStarts } from "@/lib/quick-start";
+import { EmptyState } from "@/components/empty-state";
+import { HookText } from "@/components/hook-text";
 import { cn } from "@/lib/utils";
 
 export default async function MistakesPage({
@@ -52,6 +56,16 @@ export default async function MistakesPage({
 
   // 같은 문제 중복은 가장 최근 오답 하나만 남기고,
   // 그림 의존 문제는 리스트에서 제외 (베타에서 그림 매칭 보류 중).
+  // 같은 문제를 몇 번 틀렸는지 — 오답노트에서 가장 중요한 신호라 세어 둔다.
+  // (중복 제거로 최근 것만 남기더라도 횟수는 잃지 않는다)
+  const wrongCountByQuestion = new Map<string, number>();
+  for (const r of records) {
+    wrongCountByQuestion.set(
+      r.questionId,
+      (wrongCountByQuestion.get(r.questionId) ?? 0) + 1,
+    );
+  }
+
   const seen = new Set<string>();
   const deduped = records.filter((r) => {
     if (seen.has(r.questionId)) return false;
@@ -59,6 +73,10 @@ export default async function MistakesPage({
     if (isImageDependentQuestion(r.question)) return false;
     return true;
   });
+
+  const repeatedCount = deduped.filter(
+    (r) => (wrongCountByQuestion.get(r.questionId) ?? 1) >= 2,
+  ).length;
 
   // 통계 — 필터 영향 받지 않는 전체 기준
   const categoryCounts = new Map<
@@ -88,11 +106,30 @@ export default async function MistakesPage({
     (a, b) => b.count - a.count,
   )[0];
 
-  const filtered = selectedCat
-    ? deduped.filter(
-        (r) => r.question.subject.category.slug === selectedCat,
-      )
-    : deduped;
+  const filtered = (
+    selectedCat
+      ? deduped.filter((r) => r.question.subject.category.slug === selectedCat)
+      : deduped
+  )
+    // 여러 번 틀린 문제를 위로 — 반복해서 놓치는 게 제일 급하다
+    .slice()
+    .sort(
+      (a, b) =>
+        (wrongCountByQuestion.get(b.questionId) ?? 1) -
+        (wrongCountByQuestion.get(a.questionId) ?? 1),
+    );
+
+  // 시대별로 묶는다 — 51개를 한 줄로 늘어놓으면 그냥 벽으로 읽힌다
+  const groupMap = new Map<string, { name: string; items: typeof filtered }>();
+  for (const r of filtered) {
+    const subj = r.question.subject;
+    const g = groupMap.get(subj.slug) ?? { name: subj.name, items: [] };
+    g.items.push(r);
+    groupMap.set(subj.slug, g);
+  }
+  const groups = Array.from(groupMap.entries())
+    .map(([slug, g]) => ({ slug, ...g }))
+    .sort((a, b) => b.items.length - a.items.length);
 
   return (
     <div className="mx-auto max-w-4xl px-4 pb-24 md:px-6">
@@ -136,19 +173,28 @@ export default async function MistakesPage({
           accent="primary"
         />
         <StatCard
-          label="영역"
-          value={categories.length.toString()}
-          suffix="개"
+          label="걸린 시대"
+          value={subjectCounts.size.toString()}
+          suffix="곳"
           accent="mid"
         />
-        {topSubject && (
+        {repeatedCount > 0 ? (
           <StatCard
-            label="가장 많이 틀린 과목"
-            value={topSubject.name}
-            suffix={`${topSubject.count}개`}
-            accent="mid"
-            textValue
+            label="두 번 이상 틀림"
+            value={repeatedCount.toString()}
+            suffix="개"
+            accent="primary"
           />
+        ) : (
+          topSubject && (
+            <StatCard
+              label="가장 많이 틀린 과목"
+              value={topSubject.name}
+              suffix={`${topSubject.count}개`}
+              accent="mid"
+              textValue
+            />
+          )
         )}
       </section>
 
@@ -173,13 +219,28 @@ export default async function MistakesPage({
         </div>
       )}
 
-      {/* 카드 리스트 */}
-      <ul className="mt-6 space-y-3">
-        {filtered.map((r) => {
+      {/* 시대별 묶음 */}
+      <div className="mt-8 space-y-8">
+        {groups.map((g) => (
+          <section key={g.slug}>
+            <div className="flex items-baseline justify-between px-0.5">
+              <h2 className="text-[14.5px] font-bold tracking-[-0.01em] text-text-high">
+                {g.name}
+              </h2>
+              <span className="text-[12px] text-text-muted">
+                <span className="font-semibold tabular-nums text-text-mid">
+                  {g.items.length}
+                </span>
+                문제
+              </span>
+            </div>
+            <ul className="mt-2.5 divide-y divide-border-soft overflow-hidden rounded-md border border-border bg-surface">
+        {g.items.map((r) => {
           const q = r.question;
           const choices = q.choices as {
             label: string;
             text: string;
+            imageUrl?: string | null;
           }[];
           const correctIdx = parseInt(q.correctAnswer, 10);
           const userIdx = parseInt(r.userAnswer, 10);
@@ -193,26 +254,33 @@ export default async function MistakesPage({
             q.exam?.pdfUrl ?? null,
             q.number,
           );
+          const wrongTimes = wrongCountByQuestion.get(r.questionId) ?? 1;
 
           return (
             <li key={r.id}>
-              <details className="group rounded-md border border-border bg-surface transition-colors open:border-danger/25 open:bg-danger/[0.03]">
-                <summary className="flex cursor-pointer list-none items-start gap-3 p-4 md:gap-4 md:p-5 [&::-webkit-details-marker]:hidden">
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-danger/15 text-danger">
-                    <XmarkCircle className="h-4 w-4" strokeWidth={2.5} />
+              <details className="group transition-colors open:bg-danger/[0.03]">
+                <summary className="flex cursor-pointer list-none items-start gap-3 px-4 py-3 md:px-5 [&::-webkit-details-marker]:hidden">
+                  <div className="mt-[3px] flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-danger/12 text-danger">
+                    <XmarkCircle className="h-3.5 w-3.5" strokeWidth={2.5} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-text-muted">
                       <span className="font-mono font-semibold text-text-mid">
                         Q.{String(q.number).padStart(2, "0")}
                       </span>
-                      <span className="h-3 w-px bg-border" />
-                      <span>{q.subject.name}</span>
-                      <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-danger/10 px-2 py-0.5 font-mono text-[10px] font-semibold text-danger">
+                      {wrongTimes >= 2 && (
+                        <>
+                          <span className="h-3 w-px bg-border" />
+                          <span className="rounded-sm bg-danger px-1.5 py-0.5 text-[11px] font-semibold text-white">
+                            {wrongTimes}번 틀림
+                          </span>
+                        </>
+                      )}
+                      <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-danger/10 px-2 py-0.5 text-[11px] font-semibold text-danger">
                         내 답 {r.userAnswer} · 정답 {q.correctAnswer}
                       </span>
                     </div>
-                    <p className="mt-2 line-clamp-2 whitespace-pre-wrap text-[15px] leading-[1.55] text-text-high group-open:hidden">
+                    <p className="mt-1 line-clamp-2 whitespace-pre-wrap text-[14.5px] leading-[1.5] text-text-high group-open:hidden">
                       <MathText text={q.stem} />
                     </p>
                   </div>
@@ -228,10 +296,22 @@ export default async function MistakesPage({
                     <MathText text={q.stem} />
                   </p>
 
-                  {(images?.body?.length ||
-                    Object.values(images?.options ?? {}).some(
-                      (a) => (a?.length ?? 0) > 0,
-                    )) && (
+                  {q.imageUrl && (
+                    <div className="mt-3 overflow-hidden rounded-md border border-border bg-white p-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={q.imageUrl}
+                        alt=""
+                        className="mx-auto max-h-56 w-auto"
+                      />
+                    </div>
+                  )}
+
+                  {!q.imageUrl &&
+                    (images?.body?.length ||
+                      Object.values(images?.options ?? {}).some(
+                        (a) => (a?.length ?? 0) > 0,
+                      )) && (
                     <div className="mt-3 rounded-md border border-warning/30 bg-warning/[0.05] px-3 py-2 text-[11.5px] text-text-mid">
                       그림 포함 — 베타에서 그림 표시 보류 중
                     </div>
@@ -270,7 +350,15 @@ export default async function MistakesPage({
                             {c.label}
                           </span>
                           <span className="min-w-0 flex-1">
-                            <MathText text={c.text} />
+                            {c.text?.trim() && <MathText text={c.text} />}
+                            {c.imageUrl && (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={c.imageUrl}
+                                alt={`보기 ${c.label}`}
+                                className="max-h-32 w-auto rounded-sm bg-white"
+                              />
+                            )}
                           </span>
                           {isCorrect && (
                             <CheckCircle
@@ -303,7 +391,7 @@ export default async function MistakesPage({
                           <span className="font-semibold text-primary">
                             암기 팁 ·{" "}
                           </span>
-                          {exp.memoryHook}
+                          <HookText text={exp.memoryHook} />
                         </p>
                       )}
                     </div>
@@ -313,7 +401,10 @@ export default async function MistakesPage({
             </li>
           );
         })}
-      </ul>
+            </ul>
+          </section>
+        ))}
+      </div>
 
       {filtered.length === 0 && (
         <div className="mt-16 text-center">
@@ -396,26 +487,17 @@ function FilterChip({
   );
 }
 
-function EmptyScreen() {
+async function EmptyScreen() {
+  const quickStarts = await getQuickStarts().catch(() => []);
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col items-center justify-center px-4 text-center md:px-6">
-      <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-text-muted">
-        Mistakes
-      </p>
-      <h1 className="mt-4 text-[24px] font-bold tracking-[-0.01em] text-text-high">
-        틀린 문제가 아직 없어요
-      </h1>
-      <p className="mt-3 max-w-xs text-[14px] leading-[1.6] text-text-mid">
-        문제를 풀다가 틀린 게 생기면 여기 자동으로 모여요. 비슷한 유형을 반복
-        연습할 때 쓰기 좋아요.
-      </p>
-      <Link
-        href="/"
-        className="mt-8 inline-flex h-11 items-center gap-1.5 rounded-md bg-primary px-5 text-[14px] font-semibold text-primary-fg transition-colors hover:bg-primary-hover"
-      >
-        시험 둘러보기
-        <NavArrowRight className="h-4 w-4" strokeWidth={2.5} />
-      </Link>
-    </div>
+    <EmptyState
+      icon={<Xmark className="h-6 w-6" strokeWidth={2} />}
+      title="틀린 문제가 아직 없어요"
+      description="문제를 풀다가 틀린 게 생기면 여기 자동으로 모여요. 몇 번 틀렸는지, 어느 시대에서 자꾸 걸리는지까지 정리해 드려요."
+      primary={
+        quickStarts.length ? undefined : { href: "/exams", label: "시험 둘러보기" }
+      }
+      quickStarts={quickStarts}
+    />
   );
 }
